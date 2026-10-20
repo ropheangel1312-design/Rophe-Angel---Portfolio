@@ -122,7 +122,7 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
       <button
         onClick={handleSkip}
         className="absolute top-6 right-6 z-30 inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-neutral-900/80 border border-neutral-700 hover:border-[#E10600] text-xs font-tech text-neutral-300 hover:text-[#FFFFFF] transition-all cursor-pointer backdrop-blur-sm"
-        aria-label="Skip to domain expansion"
+        aria-label="Skip intro"
       >
         <span>Skip</span>
         <FastForward className="w-3.5 h-3.5 text-[#E10600]" />
@@ -194,7 +194,7 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
                 onClick={handleSkip}
                 className="tracking-wider uppercase text-[#E10600] font-semibold hover:underline cursor-pointer"
               >
-                {isTyping ? 'INITIATING DOMAIN...' : 'ENTER DOMAIN →'}
+                {isTyping ? 'CONNECTING...' : 'ENTER PORTFOLIO →'}
               </button>
             </div>
           </div>

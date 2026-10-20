@@ -36,9 +36,6 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full f1-nav-bar">
-      {/* Precision Ferrari red top edge accent line */}
-      <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#E10600] to-transparent opacity-90" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
         
         {/* Zone 1: Logo & Brand Lockup */}
@@ -69,7 +66,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               key={item.label}
               onClick={() => handleScroll(item.href)}
-              className="px-3 py-1.5 text-xs font-tech font-semibold tracking-wider uppercase text-[#E0E0E0] hover:text-[#FFFFFF] hover:bg-[#1A1A1A] rounded transition-all active:scale-95 focus:outline-hidden focus:ring-1 focus:ring-[#E10600] whitespace-nowrap cursor-pointer relative group"
+              className="px-3 py-1.5 text-xs font-tech font-semibold tracking-wider uppercase text-[#E0E0E0] hover:text-[#FFFFFF] hover:bg-white/[0.06] rounded-md transition-all active:scale-95 focus:outline-hidden focus:ring-1 focus:ring-[#E10600] whitespace-nowrap cursor-pointer relative group"
             >
               <span>{item.label}</span>
               <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#E10600] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
@@ -77,14 +74,14 @@ export const Navigation: React.FC<NavigationProps> = ({
           ))}
         </nav>
 
-        {/* Zone 3: Audio & Replay Intro Controls (Duplicate Connect button removed) */}
+        {/* Zone 3: Audio & Replay Intro Controls */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           
           {/* Sound Toggle */}
           {onToggleSound && (
             <button
               onClick={onToggleSound}
-              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded font-tech text-xs uppercase tracking-wider bg-[#141414] text-neutral-300 border border-neutral-800 hover:border-[#E10600] hover:text-[#FFFFFF] transition-all cursor-pointer flex items-center gap-1.5"
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg font-tech text-xs uppercase tracking-wider bg-white/[0.04] backdrop-blur-md text-neutral-300 border border-white/[0.08] hover:border-[#E10600]/60 hover:text-[#FFFFFF] hover:bg-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all cursor-pointer flex items-center gap-1.5"
               aria-label={isMuted ? "Unmute audio" : "Mute audio"}
               title={isMuted ? "Unmute audio" : "Mute audio"}
             >
@@ -106,8 +103,8 @@ export const Navigation: React.FC<NavigationProps> = ({
           {onReplayIntro && (
             <button
               onClick={onReplayIntro}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded font-tech text-xs uppercase tracking-wider bg-[#141414] text-neutral-300 border border-neutral-800 hover:border-[#E10600] hover:text-[#FFFFFF] transition-all cursor-pointer"
-              title="Replay Domain Expansion intro cinematic"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-tech text-xs uppercase tracking-wider bg-white/[0.04] backdrop-blur-md text-neutral-300 border border-white/[0.08] hover:border-[#E10600]/60 hover:text-[#FFFFFF] hover:bg-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all cursor-pointer"
+              title="Replay Chibi greeting intro"
             >
               <RotateCcw className="w-3 h-3 text-[#E10600]" />
               <span className="text-[11px]">Replay Intro</span>
@@ -118,7 +115,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation menu"
-            className="md:hidden p-2 rounded bg-[#141414] border border-neutral-800 text-[#FFFFFF] hover:text-[#E10600] active:scale-95 focus:outline-hidden focus:ring-1 focus:ring-[#E10600] cursor-pointer"
+            className="md:hidden p-2 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.08] text-[#FFFFFF] hover:text-[#E10600] hover:border-[#E10600]/60 active:scale-95 focus:outline-hidden focus:ring-1 focus:ring-[#E10600] cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
@@ -127,7 +124,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#0A0A0A]/98 backdrop-blur-xl border-b border-neutral-800 px-4 py-4 space-y-2 shadow-2xl">
+        <div className="md:hidden bg-[#121214]/92 backdrop-blur-2xl px-4 py-4 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08)]">
           <div className="grid grid-cols-2 gap-1.5 py-1">
             {navLinks.map((item) => (
               <button
@@ -140,7 +137,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             ))}
           </div>
 
-          <div className="pt-3 border-t border-neutral-800 mt-2 flex items-center justify-between gap-2">
+          <div className="pt-3 mt-2 flex items-center justify-between gap-2">
             {onReplayIntro && (
               <button
                 onClick={() => {

@@ -174,7 +174,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             ? 'transform 0.08s ease-out, box-shadow 0.08s ease-out' 
             : 'transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease-out, box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
-        className="f1-card rounded-xl p-5 flex flex-col justify-between group relative overflow-hidden cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left border border-neutral-800 hover:border-[#E10600]/80"
+        className="f1-card rounded-xl p-5 flex flex-col justify-between group relative overflow-hidden cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left"
       >
         {/* Studio Anamorphic Surface Glare & Specular Reflection */}
         <div 
@@ -239,7 +239,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
           </p>
 
           {/* Key Contribution Teaser */}
-          <div className="text-xs text-neutral-400 font-body mb-4 pt-2.5 border-t border-neutral-800">
+          <div className="text-xs text-neutral-400 font-body mb-4 pt-2.5">
             <span className="text-[#E10600] font-tech font-bold uppercase tracking-wider block text-[10px] mb-0.5">
               My Contribution
             </span>
@@ -248,12 +248,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
         </div>
 
         {/* Card Footer: Tech tags preview & click prompt */}
-        <div className="pt-3 border-t border-neutral-800 flex items-center justify-between text-xs font-tech">
+        <div className="pt-3 flex items-center justify-between text-xs font-tech">
           <div className="flex flex-wrap gap-1 max-w-[65%] overflow-hidden h-6">
             {project.technologies.slice(0, 3).map((item) => (
               <span 
                 key={item}
-                className="px-2 py-0.5 rounded bg-[#1A1A1A] text-[10px] font-semibold text-neutral-300 border border-neutral-800"
+                className="px-2 py-0.5 rounded-md bg-white/[0.04] text-[10px] font-semibold text-neutral-300 border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
               >
                 {item}
               </span>
@@ -290,7 +290,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             <div className="absolute top-0 inset-x-0 h-1 bg-[#E10600]" />
 
             {/* Modal Header */}
-            <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-neutral-800 shrink-0 relative z-10 pt-1">
+            <div className="flex items-start justify-between gap-3 pb-3.5 shrink-0 relative z-10 pt-1">
               <div>
                 <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-1">
                   {project.category}
@@ -406,7 +406,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
               </div>
 
               {/* 2. Problem Addressed */}
-              <div className="p-4 rounded-lg bg-[#181818] border border-neutral-800">
+              <div className="p-4 rounded-xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
                 <div className="flex items-center gap-1.5 text-xs font-tech font-bold text-[#E10600] uppercase tracking-wider mb-1.5">
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>Problem Addressed</span>
@@ -432,7 +432,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
               </div>
 
               {/* 4. Personal Contribution */}
-              <div className="p-4 rounded-lg bg-[#181818] border border-neutral-700">
+              <div className="p-4 rounded-xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
                 <div className="flex items-center gap-1.5 text-xs font-tech font-bold text-[#FFFFFF] uppercase tracking-wider mb-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#E10600]" />
                   <span>My Contribution</span>
@@ -452,7 +452,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
                   {project.technologies.map((t) => (
                     <span
                       key={t}
-                      className="px-2.5 py-1 rounded bg-[#1A1A1A] border border-neutral-800 text-xs font-tech text-[#FFFFFF]"
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-tech text-[#FFFFFF] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
                     >
                       {t}
                     </span>
@@ -460,7 +460,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
                   {project.toolsExplored?.map((tool) => (
                     <span
                       key={tool}
-                      className="px-2.5 py-1 rounded bg-[#1A1A1A] border border-[#E10600]/30 text-xs font-tech text-[#E10600]"
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-[#E10600]/30 text-xs font-tech text-[#E10600] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
                     >
                       {tool}
                     </span>
@@ -469,7 +469,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
               </div>
 
               {/* 6. Challenges & Lessons Learned */}
-              <div className="p-4 rounded-lg bg-[#181818] border border-neutral-800">
+              <div className="p-4 rounded-xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
                 <div className="flex items-center gap-1.5 text-xs font-tech font-bold text-[#E10600] uppercase tracking-wider mb-1.5">
                   <HelpCircle className="w-3.5 h-3.5" />
                   <span>Engineering Challenges & Solutions</span>
@@ -494,7 +494,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             </div>
 
             {/* Modal Footer with Verified Working Links */}
-            <div className="pt-3.5 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-10">
+            <div className="pt-3.5 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-10">
               <div className="flex flex-wrap items-center gap-2">
                 {project.links && project.links.length > 0 ? (
                   project.links.map((link) => {
@@ -505,7 +505,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-[#181818] border border-neutral-700 hover:border-[#E10600] hover:text-[#E10600] text-xs font-tech font-bold tracking-wider text-[#FFFFFF] transition-all active:scale-95"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.1] hover:border-[#E10600]/60 hover:text-[#E10600] text-xs font-tech font-bold tracking-wider text-[#FFFFFF] transition-all active:scale-95 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
                         >
                           <Github className="w-3.5 h-3.5 text-[#E10600]" />
                           <span>{link.label}</span>

@@ -6,8 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { PortfolioHomepage } from './components/PortfolioHomepage';
-import { TelemetryCursor } from './components/TelemetryCursor';
-import { AmbientMotionSystem } from './components/AmbientMotionSystem';
+import { LiquidMotionBackground } from './components/LiquidMotionBackground';
+import { MikeyTheCat } from './components/MikeyTheCat';
 import { IntroController } from './components/IntroController';
 import { domainAudio } from './utils/audio';
 
@@ -36,7 +36,12 @@ export default function App() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const handleIntroComplete = () => {
+  const [mikeyLandingX, setMikeyLandingX] = useState<number | undefined>(undefined);
+
+  const handleIntroComplete = (landingX?: number) => {
+    if (landingX !== undefined) {
+      setMikeyLandingX(landingX);
+    }
     setHasSeenIntro(true);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('hasSeenDomainIntro', 'true');
@@ -53,14 +58,11 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0A0A0A] text-[#FFFFFF] overflow-x-clip selection:bg-[#E10600]/35 selection:text-[#FFFFFF]">
-      {/* Lightweight Ambient Motion System (drifting particles, soft light ribbons, perspective grid) */}
-      <AmbientMotionSystem isReducedMotion={isReducedMotion} />
+    <div className="relative min-h-screen bg-transparent text-[#FFFFFF] overflow-x-clip selection:bg-[#E10600]/35 selection:text-[#FFFFFF]">
+      {/* Premium Liquid Motion Background System (Organic ripple propagation, continuous liquid distortion, Ferrari Red highlights) */}
+      <LiquidMotionBackground isReducedMotion={isReducedMotion} />
 
-      {/* Global Interactive Motion System (trail & ripples, solid red dot removed) */}
-      <TelemetryCursor />
-
-      {/* Signature Domain Expansion Intro Sequence (without logo, racing transition, synthetic soundscape) */}
+      {/* Signature Chibi Character Talking Intro Sequence */}
       {!hasSeenIntro && (
         <IntroController
           onIntroComplete={handleIntroComplete}
@@ -77,11 +79,19 @@ export default function App() {
       />
 
       {/* Main Portfolio Surface */}
-      <main>
+      <main className="relative z-10">
         <PortfolioHomepage 
           isReducedMotion={isReducedMotion} 
         />
       </main>
+
+      {/* Roaming Companion Character — Mikey the Tabby Cat */}
+      {hasSeenIntro && (
+        <MikeyTheCat 
+          isReducedMotion={isReducedMotion} 
+          initialX={mikeyLandingX}
+        />
+      )}
     </div>
   );
 }

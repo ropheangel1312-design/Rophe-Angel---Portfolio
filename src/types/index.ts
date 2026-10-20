@@ -1,6 +1,5 @@
 export type IntroPhase = 
   | 'CHIBI_GREETING'
-  | 'DOMAIN_EXPANSION'
   | 'HOMEPAGE_REVEAL';
 
 export interface ProjectLink {

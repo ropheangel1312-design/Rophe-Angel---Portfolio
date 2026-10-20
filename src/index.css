@@ -41,97 +41,108 @@ body {
   font-family: 'Orbitron', 'Rajdhani', sans-serif;
 }
 
-/* Subtle F1-inspired telemetry grid */
-.f1-telemetry-grid {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 36px 36px;
-}
-
-/* Subtle Red light sweep */
-@keyframes f1LightSweep {
-  0% { transform: translateX(-100%); }
-  50%, 100% { transform: translateX(200%); }
-}
-
-.animate-f1-sweep {
-  animation: f1LightSweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-/* Precision F1 Card Surface */
+/* Premium Liquid-Glass Card Surface */
 .f1-card {
-  background: #121212;
+  background: linear-gradient(135deg, rgba(22, 22, 24, 0.72) 0%, rgba(13, 13, 15, 0.65) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 20px 0 rgba(225, 6, 0, 0.02),
+    0 8px 32px rgba(0, 0, 0, 0.55);
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .f1-card:hover {
-  border-color: rgba(225, 6, 0, 0.6);
+  background: linear-gradient(135deg, rgba(28, 28, 32, 0.82) 0%, rgba(16, 16, 18, 0.75) 100%);
+  border-color: rgba(225, 6, 0, 0.35);
   box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.8),
-    0 0 24px rgba(225, 6, 0, 0.15);
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 24px 0 rgba(225, 6, 0, 0.06),
+    0 16px 40px rgba(0, 0, 0, 0.75),
+    0 0 20px rgba(225, 6, 0, 0.12);
 }
 
-/* F1 Primary Button in Ferrari Red */
+/* Liquid-Glass Primary Button in Ferrari Red */
 .f1-btn-primary {
-  background: #E10600;
+  background: linear-gradient(180deg, #FF1A14 0%, #D40500 50%, #B30500 100%);
   color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.25),
+    0 6px 20px rgba(225, 6, 0, 0.35);
   font-weight: 700;
   letter-spacing: 0.05em;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 16px rgba(225, 6, 0, 0.35);
 }
 
 .f1-btn-primary:hover {
-  background: #FF1A14;
+  background: linear-gradient(180deg, #FF2B26 0%, #E60802 50%, #C40600 100%);
+  border-color: rgba(255, 255, 255, 0.45);
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 24px rgba(225, 6, 0, 0.55);
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.25),
+    0 8px 28px rgba(225, 6, 0, 0.55);
 }
 
 .f1-btn-primary:active {
   transform: scale(0.98);
 }
 
-/* F1 Secondary Outline Button */
+/* Liquid-Glass Secondary Smoked Button */
 .f1-btn-secondary {
-  background: #141414;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #FFFFFF;
   font-weight: 700;
   letter-spacing: 0.05em;
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.14),
+    0 4px 16px rgba(0, 0, 0, 0.35);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .f1-btn-secondary:hover {
-  border-color: #E10600;
-  color: #E10600;
-  background: rgba(225, 6, 0, 0.08);
+  background: linear-gradient(135deg, rgba(225, 6, 0, 0.14) 0%, rgba(225, 6, 0, 0.04) 100%);
+  border-color: rgba(225, 6, 0, 0.38);
+  color: #FFFFFF;
   transform: translateY(-1.5px);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
+    0 6px 20px rgba(0, 0, 0, 0.55),
+    0 0 16px rgba(225, 6, 0, 0.15);
 }
 
 .f1-btn-secondary:active {
   transform: scale(0.98);
 }
 
-/* Navigation bar */
+/* Liquid-Glass Navigation Bar without bottom separator line */
 .f1-nav-bar {
-  background: rgba(10, 10, 10, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  background: rgba(12, 12, 14, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 32px rgba(0, 0, 0, 0.65);
 }
 
-/* Modal styling */
+/* Liquid-Glass Modal Surface */
 .f1-modal-surface {
-  background: #121212;
-  border: 1px solid rgba(225, 6, 0, 0.35);
+  background: linear-gradient(145deg, rgba(20, 20, 22, 0.94) 0%, rgba(12, 12, 14, 0.96) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 
-    0 24px 60px rgba(0, 0, 0, 0.95),
-    0 0 32px rgba(225, 6, 0, 0.2);
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 40px 0 rgba(225, 6, 0, 0.04),
+    0 32px 80px rgba(0, 0, 0, 0.95),
+    0 0 30px rgba(225, 6, 0, 0.15);
 }
 
 /* Modal animations */
@@ -163,6 +174,92 @@ body {
 
 .animate-modal-out {
   animation: modalOut 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Mikey the Cat Animations */
+@keyframes catStride {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-1.8px); }
+}
+
+@keyframes catTailIdle {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-8deg); }
+}
+
+@keyframes catTailWalk {
+  0%, 100% { transform: rotate(5deg); }
+  50% { transform: rotate(-10deg); }
+}
+
+@keyframes catHeadCurious {
+  0%, 100% { transform: rotate(0deg); }
+  35% { transform: rotate(6deg) translateY(-0.5px); }
+  70% { transform: rotate(-4deg); }
+}
+
+@keyframes catHeadIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.5px); }
+}
+
+@keyframes catPurr {
+  0%, 100% { transform: scale(1) translateY(0); }
+  25% { transform: scale(1.08) translateY(-4px); }
+  50% { transform: scale(0.96) translateY(0); }
+  75% { transform: scale(1.04) translateY(-2px); }
+}
+
+.animate-cat-stride {
+  animation: catStride 0.28s ease-in-out infinite;
+}
+
+.animate-cat-tail-idle {
+  animation: catTailIdle 2.8s ease-in-out infinite;
+}
+
+.animate-cat-tail-walk {
+  animation: catTailWalk 0.5s ease-in-out infinite;
+}
+
+.animate-cat-head-curious {
+  animation: catHeadCurious 2.2s ease-in-out infinite;
+}
+
+.animate-cat-head-idle {
+  animation: catHeadIdle 3.2s ease-in-out infinite;
+}
+
+.animate-cat-purr {
+  animation: catPurr 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes catCarried {
+  0%, 100% { transform: translateY(-2px) rotate(-1.5deg); }
+  50% { transform: translateY(0px) rotate(1.5deg); }
+}
+
+.animate-cat-carried {
+  animation: catCarried 0.6s ease-in-out infinite;
+}
+
+@keyframes catLanding {
+  0% { transform: scale(1.14, 0.86); }
+  50% { transform: scale(0.95, 1.05); }
+  100% { transform: scale(1, 1); }
+}
+
+.animate-cat-landing {
+  animation: catLanding 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes catFalling {
+  0%, 100% { transform: translateY(-1px) rotate(-2deg); }
+  50% { transform: translateY(1px) rotate(2deg); }
+}
+
+.animate-cat-falling {
+  animation: catFalling 0.32s ease-in-out infinite;
 }
 
 /* Custom Scrollbar */

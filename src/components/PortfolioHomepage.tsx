@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { portfolioData } from '../data/portfolioData';
 import { ProjectCard } from './ProjectCard';
-import { SpatialHeroObject } from './SpatialHeroObject';
 import { 
   ArrowDown,
   ArrowUpRight,
@@ -41,21 +40,6 @@ interface PortfolioHomepageProps {
 export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
   isReducedMotion
 }) => {
-  // Gentle pointer-responsive parallax offsets for hero and graphics
-  const [parallax, setParallax] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (isReducedMotion) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      // Restrained, subtle physical parallax shift (-12px to +12px)
-      const nx = (e.clientX / window.innerWidth - 0.5) * 16;
-      const ny = (e.clientY / window.innerHeight - 0.5) * 16;
-      setParallax({ x: nx, y: ny });
-    };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isReducedMotion]);
-
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -68,35 +52,20 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
   return (
     <div className="min-h-screen bg-transparent text-[#FFFFFF] flex flex-col font-body selection:bg-[#E10600]/35 selection:text-[#FFFFFF] relative overflow-hidden">
       
-      {/* ===================== F1 HERO SECTION ===================== */}
+      {/* ===================== HERO SECTION ===================== */}
       <section 
         id="hero" 
-        className="relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 border-b border-neutral-800/80 overflow-hidden"
+        className="relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 overflow-hidden"
       >
-        {/* Technical telemetry grid background with parallax */}
-        <div 
-          className="absolute inset-0 pointer-events-none f1-telemetry-grid opacity-60"
-          style={{
-            transform: !isReducedMotion ? `translate3d(${parallax.x * 0.35}px, ${parallax.y * 0.35}px, 0)` : undefined,
-            transition: 'transform 0.12s ease-out'
-          }}
-        />
-
-        {/* Ambient Ferrari Red subtle radial spotlight */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(225,6,0,0.09)_0%,transparent_70%)] pointer-events-none -z-10" />
-
-        {/* Precision horizontal racing sweep beam */}
-        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#E10600] to-transparent animate-f1-sweep pointer-events-none opacity-70" />
-
-        <div className="max-w-6xl mx-auto w-full py-20 sm:py-28 relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12">
+        <div className="max-w-5xl mx-auto w-full py-20 sm:py-28 relative z-10 flex flex-col justify-center">
           
           <motion.div 
-            className="flex-1 max-w-2xl"
+            className="w-full max-w-4xl"
             initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, ease: cinematicEase }}
           >
-            {/* Top F1 Editorial Kicker (Zero-Pill Compliance) */}
+            {/* Top Editorial Kicker (Zero-Pill Compliance) */}
             <div className="flex flex-wrap items-center gap-3 text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-6">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-[#E10600] rounded-xs" />
@@ -108,7 +77,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               <span className="text-neutral-400">FOUNDER · GRADEARN</span>
             </div>
 
-            {/* Bold, Oversized F1 Typographic Title with Mask Reveal */}
+            {/* Bold, Oversized Typographic Title */}
             <div className="space-y-3 mb-8 overflow-hidden">
               <motion.h1 
                 className="font-display text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-[#FFFFFF] tracking-tight leading-[0.94] max-w-5xl"
@@ -165,7 +134,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             </motion.div>
 
             {/* Bottom Status Strip */}
-            <div className="mt-16 pt-6 border-t border-neutral-800/80 flex flex-wrap items-center justify-between gap-4 text-xs font-tech text-neutral-400">
+            <div className="mt-16 pt-6 flex flex-wrap items-center justify-between gap-4 text-xs font-tech text-neutral-400">
               <div className="flex items-center gap-3">
                 <span className="text-[#E10600] font-bold">STATUS //</span>
                 <span className="text-[#FFFFFF]">Active Developer & Venture Founder</span>
@@ -178,27 +147,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             </div>
           </motion.div>
 
-          {/* Precision 3D Spatial Kinetic Aerodynamic Sculpture */}
-          <motion.div 
-            className="hidden lg:flex items-center justify-center shrink-0"
-            initial={!isReducedMotion ? { opacity: 0, scale: 0.92 } : false}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.1, delay: 0.25, ease: cinematicEase }}
-            style={{
-              transform: !isReducedMotion ? `translate3d(${-parallax.x * 0.5}px, ${-parallax.y * 0.5}px, 0)` : undefined,
-              transition: 'transform 0.14s ease-out'
-            }}
-          >
-            <SpatialHeroObject isReducedMotion={isReducedMotion} />
-          </motion.div>
-
         </div>
       </section>
 
       {/* ===================== SECTION 1: MINIMAL ABOUT ME ===================== */}
       <motion.section 
         id="about" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
@@ -216,10 +171,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Authentic Portrait Framing */}
           <div className="lg:col-span-5 relative group">
-            <div className="relative rounded-xl overflow-hidden border border-neutral-800 group-hover:border-[#E10600]/80 transition-colors bg-[#121212] shadow-2xl">
+            <div className="relative rounded-xl overflow-hidden f1-card shadow-2xl">
               
               {/* Corner tech accents */}
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-[#0A0A0A]/85 px-2.5 py-1 rounded text-[11px] font-tech text-[#FFFFFF] border border-neutral-800">
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-tech text-[#FFFFFF] border border-white/[0.1] shadow-md">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
                 <span>ROPHE ANGEL</span>
               </div>
@@ -233,7 +188,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                 />
               </div>
 
-              <div className="p-4 bg-[#141414] border-t border-neutral-800 flex items-center justify-between text-xs font-tech text-neutral-400">
+              <div className="p-4 bg-white/[0.03] backdrop-blur-md flex items-center justify-between text-xs font-tech text-neutral-400">
                 <span>DEGREE: B.TECH CSE</span>
                 <span className="text-[#E10600] font-semibold">EST. 2026</span>
               </div>
@@ -256,7 +211,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               {portfolioData.identity.focusAreas.map((area, i) => (
                 <div 
                   key={i} 
-                  className="p-3 rounded-lg bg-[#141414] border border-neutral-800 flex items-center gap-2 hover:border-[#E10600]/50 transition-colors"
+                  className="p-3 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.08] flex items-center gap-2 hover:border-[#E10600]/50 hover:bg-white/[0.07] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
                   <span className="text-xs font-tech font-semibold tracking-wider text-[#FFFFFF] uppercase">
@@ -272,7 +227,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 2: TECHNICAL SKILLS ===================== */}
       <motion.section 
         id="skills" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
@@ -300,7 +255,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               >
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600]">
+                    <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
@@ -317,7 +272,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                     {categoryGroup.skills.map((skill, sIdx) => (
                       <span
                         key={sIdx}
-                        className="px-3 py-1.5 rounded bg-[#181818] text-xs font-tech tracking-wider text-neutral-200 border border-neutral-800 hover:border-[#E10600] hover:text-[#FFFFFF] transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-white/[0.04] backdrop-blur-xs text-xs font-tech tracking-wider text-neutral-200 border border-white/[0.08] hover:border-[#E10600]/60 hover:bg-white/[0.08] hover:text-[#FFFFFF] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
                       >
                         {skill}
                       </span>
@@ -333,7 +288,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 3: PROJECT CASE STUDIES ===================== */}
       <motion.section 
         id="projects" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
@@ -365,7 +320,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 4: FOUNDER & VENTURE (GRADEARN) ===================== */}
       <motion.section 
         id="venture" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
@@ -383,11 +338,11 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           </p>
         </div>
 
-        <div className="f1-card rounded-2xl p-6 sm:p-10 border border-neutral-800 hover:border-[#E10600]/80 transition-all shadow-2xl relative overflow-hidden">
+        <div className="f1-card rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 border-b border-neutral-800 gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 gap-4">
             <div>
-              <span className="text-xs font-tech font-bold uppercase text-[#E10600] px-3 py-1 rounded bg-[#181818] border border-neutral-800 inline-block mb-2">
+              <span className="text-xs font-tech font-bold uppercase text-[#E10600] px-3 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] inline-block mb-2">
                 {portfolioData.venture.badge}
               </span>
               <h3 className="font-display text-2xl sm:text-4xl font-bold text-[#FFFFFF]">
@@ -428,7 +383,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               {portfolioData.venture.pillars.map((pillar, pIdx) => (
                 <div 
                   key={pIdx}
-                  className="p-4 rounded-xl bg-[#161616] border border-neutral-800 hover:border-[#E10600]/50 transition-colors"
+                  className="p-4 rounded-xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08] hover:border-[#E10600]/50 hover:bg-white/[0.07] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
                 >
                   <div className="text-xs font-tech font-bold text-[#E10600] uppercase mb-1">
                     0{pIdx + 1} //
@@ -450,7 +405,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 5: PRACTICAL EXPERIENCE (NPTEL & V-Vortex REMOVED) ===================== */}
       <motion.section 
         id="experience" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
@@ -472,12 +427,12 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           {portfolioData.operationalExperience.map((exp) => (
             <div 
               key={exp.id}
-              className="f1-card rounded-xl p-6 sm:p-8 flex flex-col justify-between border border-neutral-800 hover:border-[#E10600]/80 transition-all shadow-xl"
+              className="f1-card rounded-xl p-6 sm:p-8 flex flex-col justify-between shadow-xl"
             >
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600]">
+                    <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                       <Briefcase className="w-5 h-5" />
                     </div>
                     <div>
@@ -490,10 +445,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-tech font-bold uppercase text-neutral-300 px-3 py-1 rounded bg-[#181818] border border-neutral-800">
+                    <span className="text-xs font-tech font-bold uppercase text-neutral-300 px-3 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
                       {exp.dates}
                     </span>
-                    <span className="text-xs font-tech font-bold uppercase text-[#E10600] px-3 py-1 rounded bg-[#181818] border border-neutral-800">
+                    <span className="text-xs font-tech font-bold uppercase text-[#E10600] px-3 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
                       {exp.typeOrDuration}
                     </span>
                   </div>
@@ -511,7 +466,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                     {exp.toolsAndWorkflows?.map((tool, idx) => (
                       <span 
                         key={idx}
-                        className="px-3 py-1 rounded bg-[#161616] text-xs font-tech text-neutral-300 border border-neutral-800 hover:border-[#E10600]/40 transition-colors"
+                        className="px-3 py-1 rounded-lg bg-white/[0.04] text-xs font-tech text-neutral-300 border border-white/[0.08] hover:border-[#E10600]/40 hover:bg-white/[0.07] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
                       >
                         {tool}
                       </span>
@@ -550,10 +505,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           {/* Email */}
           <a
             href={`mailto:${portfolioData.contact.email}`}
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
           >
             <div>
-              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                 <Mail className="w-5 h-5" />
               </div>
               <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">EMAIL DIRECT</span>
@@ -572,10 +527,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             href={portfolioData.contact.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
           >
             <div>
-              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                 <Linkedin className="w-5 h-5" />
               </div>
               <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">LINKEDIN</span>
@@ -594,10 +549,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             href={portfolioData.contact.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
           >
             <div>
-              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                 <Github className="w-5 h-5" />
               </div>
               <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">GITHUB REPOSITORIES</span>
@@ -616,10 +571,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             href={portfolioData.contact.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
           >
             <div>
-              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                 <Instagram className="w-5 h-5" />
               </div>
               <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">INSTAGRAM</span>
@@ -637,7 +592,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       </motion.section>
 
       {/* ===================== FOOTER ===================== */}
-      <footer className="mt-auto py-8 px-4 sm:px-6 lg:px-12 border-t border-neutral-800 bg-[#0A0A0A] text-xs font-tech text-neutral-400">
+      <footer className="mt-auto py-8 px-4 sm:px-6 lg:px-12 bg-transparent text-xs font-tech text-neutral-400">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img 
@@ -652,7 +607,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             <span className="text-neutral-700">/</span>
             <span>ENGINEERING PORTFOLIO</span>
             <span className="text-neutral-700">/</span>
-            <span className="text-neutral-500">DOMAIN EXPANSION: ETERNAL BUFFERING</span>
+            <span className="text-neutral-500">LIQUID MOTION · CREATIVE ENGINEERING</span>
           </div>
 
           <div className="flex items-center gap-6">

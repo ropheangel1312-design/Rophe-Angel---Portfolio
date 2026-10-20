@@ -367,6 +367,116 @@ class DomainAudioEngine {
   public playRacingSpeedPass(): void {
     this.playRacingTransitionSpeedPass();
   }
+
+  /**
+   * Cat Purr — Warm, rhythmic low-frequency vibration
+   * Triggered when Mikey is tapped/clicked without dragging.
+   */
+  public playCatPurr(): void {
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    if (now - this.lastBlipTime < 0.3) return; // Debounce rapid spam
+    this.lastBlipTime = now;
+
+    try {
+      const duration = 1.35;
+
+      // 1. Core purr tone (triangle wave around 138Hz to 124Hz)
+      const carrier = ctx.createOscillator();
+      carrier.type = 'triangle';
+      carrier.frequency.setValueAtTime(138, now);
+      carrier.frequency.exponentialRampToValueAtTime(124, now + duration);
+
+      // 2. Amplitude modulation (LFO at ~24Hz creates rhythmic motor-like purr flutter)
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(24, now);
+
+      const modGain = ctx.createGain();
+      modGain.gain.setValueAtTime(0.5, now);
+
+      // 3. Lowpass filter for muffled feline warmth
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(360, now);
+
+      // 4. Output gain envelope: gentle fade-in, steady purr, gentle fade-out
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0.001, now);
+      masterGain.gain.linearRampToValueAtTime(0.12, now + 0.15);
+      masterGain.gain.setValueAtTime(0.12, now + duration - 0.25);
+      masterGain.gain.linearRampToValueAtTime(0.001, now + duration);
+
+      // Routing: LFO modulates carrier gain
+      lfo.connect(modGain.gain);
+      carrier.connect(modGain);
+      modGain.connect(filter);
+      filter.connect(masterGain);
+      masterGain.connect(ctx.destination);
+
+      carrier.start(now);
+      lfo.start(now);
+      carrier.stop(now + duration);
+      lfo.stop(now + duration);
+
+      this.activeNodes.push(carrier, lfo);
+    } catch {
+      // Graceful fallback if Web Audio is restricted
+    }
+  }
+
+  /**
+   * Cat Hiss — Sibilant air-burst with shaped bandpass noise
+   * Triggered once when Mikey is dragged and dropped upon release.
+   */
+  public playCatHiss(): void {
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const duration = 0.36;
+
+      // Noise buffer for realistic breath/hiss
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        // High-frequency shaped noise
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize * 0.4);
+      }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      // Bandpass filter centered at cat-hiss sibilant frequencies (~3200Hz - 4200Hz)
+      const bandpass = ctx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.Q.setValueAtTime(2.2, now);
+      bandpass.frequency.setValueAtTime(3200, now);
+      bandpass.frequency.linearRampToValueAtTime(4200, now + 0.08);
+      bandpass.frequency.exponentialRampToValueAtTime(2600, now + duration);
+
+      // Gain envelope: fast attack, sharp hiss body, clean decay
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.085, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      noise.connect(bandpass);
+      bandpass.connect(gain);
+      gain.connect(ctx.destination);
+
+      noise.start(now);
+      noise.stop(now + duration);
+
+      this.activeNodes.push(noise);
+    } catch {
+      // Graceful fallback
+    }
+  }
 }
 
 export const domainAudio = new DomainAudioEngine();
