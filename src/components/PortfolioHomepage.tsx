@@ -1,117 +1,60 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { portfolioData } from '../data/portfolioData';
 import { ProjectCard } from './ProjectCard';
+import { SpatialHeroObject } from './SpatialHeroObject';
 import { 
-  Sparkles, 
-  ExternalLink, 
-  Mail, 
-  GraduationCap, 
-  RotateCcw,
+  ArrowDown,
   ArrowUpRight,
-  School,
-  Calendar,
+  ExternalLink,
+  Mail,
   Linkedin,
   Github,
   Instagram,
-  Award,
-  FileCheck,
-  Code2,
-  X,
-  Maximize2,
+  Briefcase,
   Terminal,
-  Cpu,
   Globe,
   Brain,
-  BarChart3,
   Layers,
-  Workflow,
-  GitBranch
+  Code2
 } from 'lucide-react';
 
-const getSkillIcon = (skillName: string) => {
-  switch (skillName) {
-    case 'Python':
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case 'Programming Languages':
       return Terminal;
-    case 'Java':
-      return Cpu;
-    case 'JavaScript':
-      return Code2;
     case 'Web Development':
       return Globe;
-    case 'Artificial Intelligence (AI)':
+    case 'AI & API Integration':
       return Brain;
-    case 'Prompt Engineering':
-      return Sparkles;
-    case 'Data Analysis':
-      return BarChart3;
-    case 'Software Development':
+    case 'Developer Tools & Workflows':
       return Layers;
-    case 'API Integration':
-      return Workflow;
-    case 'Git and GitHub':
-      return GitBranch;
     default:
       return Code2;
   }
 };
 
 interface PortfolioHomepageProps {
-  onReplayIntro: () => void;
   isReducedMotion: boolean;
 }
 
 export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
-  onReplayIntro,
   isReducedMotion
 }) => {
-  // State for certificate preview modal
-  const [certModalOpen, setCertModalOpen] = useState(false);
-  const [isCertClosing, setIsCertClosing] = useState(false);
-  const certTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Gentle pointer-responsive parallax offsets for hero and graphics
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
 
-  const openCertModal = () => {
-    if (certTimerRef.current) clearTimeout(certTimerRef.current);
-    setIsCertClosing(false);
-    setCertModalOpen(true);
-  };
-
-  const closeCertModal = () => {
-    if (isCertClosing) return;
-    setIsCertClosing(true);
-    certTimerRef.current = setTimeout(() => {
-      setCertModalOpen(false);
-      setIsCertClosing(false);
-    }, 220);
-  };
-
-  // Clear timer on unmount
   useEffect(() => {
-    return () => {
-      if (certTimerRef.current) clearTimeout(certTimerRef.current);
+    if (isReducedMotion) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      // Restrained, subtle physical parallax shift (-12px to +12px)
+      const nx = (e.clientX / window.innerWidth - 0.5) * 16;
+      const ny = (e.clientY / window.innerHeight - 0.5) * 16;
+      setParallax({ x: nx, y: ny });
     };
-  }, []);
-
-  // Esc key handler for certificate modal
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && certModalOpen && !isCertClosing) {
-        closeCertModal();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [certModalOpen, isCertClosing]);
-
-  // Lock body scroll when cert modal is open
-  useEffect(() => {
-    if (certModalOpen) {
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalStyle;
-      };
-    }
-  }, [certModalOpen]);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isReducedMotion]);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -120,682 +63,608 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
     }
   };
 
+  const cinematicEase = [0.16, 1, 0.3, 1] as const;
+
   return (
-    <div className="min-h-screen bg-[#101626] text-[#F7F0E6] flex flex-col font-body selection:bg-[#AFA0FF]/30 selection:text-[#A8E6D4]">
+    <div className="min-h-screen bg-transparent text-[#FFFFFF] flex flex-col font-body selection:bg-[#E10600]/35 selection:text-[#FFFFFF] relative overflow-hidden">
       
-      {/* ===================== HERO SECTION ===================== */}
+      {/* ===================== F1 HERO SECTION ===================== */}
       <section 
         id="hero" 
-        className="relative pt-14 pb-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center overflow-hidden border-b border-[#A8E6D4]/15"
+        className="relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 border-b border-neutral-800/80 overflow-hidden"
       >
-        {/* Subtle background supernatural aura with mint and lilac glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[540px] h-[540px] bg-[radial-gradient(circle,rgba(175,160,255,0.08)_0%,rgba(168,230,212,0.05)_40%,transparent_70%)] pointer-events-none -z-10" />
+        {/* Technical telemetry grid background with parallax */}
+        <div 
+          className="absolute inset-0 pointer-events-none f1-telemetry-grid opacity-60"
+          style={{
+            transform: !isReducedMotion ? `translate3d(${parallax.x * 0.35}px, ${parallax.y * 0.35}px, 0)` : undefined,
+            transition: 'transform 0.12s ease-out'
+          }}
+        />
 
-        {/* Small Domain Tag */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#101626]/90 border border-[#A8E6D4]/30 text-[11px] font-tech font-bold tracking-wider text-[#A8E6D4] mb-5 shadow-xs backdrop-blur-md">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#F6B86F] animate-pulse" />
-          <span>DOMAIN EXPANSION: ETERNAL BUFFERING</span>
-        </div>
+        {/* Ambient Ferrari Red subtle radial spotlight */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(225,6,0,0.09)_0%,transparent_70%)] pointer-events-none -z-10" />
 
-        {/* Header brand name: Rophe Angel */}
-        <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-black text-[#F7F0E6] tracking-tight max-w-3xl leading-tight">
-          {portfolioData.identity.name}
-        </h1>
+        {/* Precision horizontal racing sweep beam */}
+        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#E10600] to-transparent animate-f1-sweep pointer-events-none opacity-70" />
 
-        {/* Tagline */}
-        <p className="font-tech text-base sm:text-xl text-[#AFA0FF] font-bold tracking-widest uppercase mt-2.5 mb-4">
-          {portfolioData.identity.tagline}
-        </p>
-
-        {/* Introduction */}
-        <p className="font-body text-sm sm:text-base text-[#F7F0E6]/85 max-w-xl leading-relaxed mb-7">
-          {portfolioData.identity.shortIntro}
-        </p>
-
-        {/* Action Buttons — Liquid glass styling & subtle elevation */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <button
-            onClick={() => scrollTo('projects')}
-            className="liquid-btn-primary w-full sm:w-auto px-6 py-2.5 rounded-xl font-tech text-sm font-bold tracking-wider uppercase focus:outline-hidden focus:ring-2 focus:ring-[#AFA0FF] cursor-pointer"
+        <div className="max-w-6xl mx-auto w-full py-20 sm:py-28 relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12">
+          
+          <motion.div 
+            className="flex-1 max-w-2xl"
+            initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: cinematicEase }}
           >
-            View Projects
-          </button>
+            {/* Top F1 Editorial Kicker (Zero-Pill Compliance) */}
+            <div className="flex flex-wrap items-center gap-3 text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-6">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-[#E10600] rounded-xs" />
+                <span>ENGINEERING PORTFOLIO</span>
+              </span>
+              <span aria-hidden="true" className="text-neutral-700">/</span>
+              <span className="text-neutral-400">COMPUTER SCIENCE & ENGINEERING</span>
+              <span aria-hidden="true" className="text-neutral-700">/</span>
+              <span className="text-neutral-400">FOUNDER · GRADEARN</span>
+            </div>
 
-          <button
-            onClick={() => scrollTo('about')}
-            className="liquid-btn-secondary w-full sm:w-auto px-6 py-2.5 rounded-xl font-tech text-sm font-bold tracking-wider uppercase focus:outline-hidden focus:ring-2 focus:ring-[#AFA0FF] cursor-pointer"
+            {/* Bold, Oversized F1 Typographic Title with Mask Reveal */}
+            <div className="space-y-3 mb-8 overflow-hidden">
+              <motion.h1 
+                className="font-display text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-[#FFFFFF] tracking-tight leading-[0.94] max-w-5xl"
+                initial={!isReducedMotion ? { y: 40, opacity: 0 } : false}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.9, delay: 0.1, ease: cinematicEase }}
+              >
+                ROPHE ANGEL
+              </motion.h1>
+              
+              <motion.p 
+                className="font-tech text-xl sm:text-3xl md:text-4xl font-bold uppercase tracking-wider text-[#E10600]"
+                initial={!isReducedMotion ? { y: 20, opacity: 0 } : false}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.85, delay: 0.2, ease: cinematicEase }}
+              >
+                BUILDING SYSTEMS THROUGH EXPERIMENTATION.
+              </motion.p>
+            </div>
+
+            {/* Concise Persona Statement */}
+            <motion.div 
+              className="max-w-2xl mb-10"
+              initial={!isReducedMotion ? { opacity: 0 } : false}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: cinematicEase }}
+            >
+              <p className="font-body text-base sm:text-lg text-neutral-300 leading-relaxed">
+                Computer Science & Engineering student exploring artificial intelligence, modern web architecture, and production software. Driven by problem-solving, rapid iteration, and turning technical concepts into real working projects.
+              </p>
+            </motion.div>
+
+            {/* Primary & Secondary CTAs */}
+            <motion.div 
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
+              initial={!isReducedMotion ? { opacity: 0, y: 16 } : false}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: cinematicEase }}
+            >
+              <button
+                onClick={() => scrollTo('projects')}
+                className="f1-btn-primary px-8 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-3 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#E10600] group"
+              >
+                <span>EXPLORE PROJECTS</span>
+                <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+              </button>
+
+              <button
+                onClick={() => scrollTo('about')}
+                className="f1-btn-secondary px-7 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
+              >
+                <span>READ ABOUT ME</span>
+              </button>
+            </motion.div>
+
+            {/* Bottom Status Strip */}
+            <div className="mt-16 pt-6 border-t border-neutral-800/80 flex flex-wrap items-center justify-between gap-4 text-xs font-tech text-neutral-400">
+              <div className="flex items-center gap-3">
+                <span className="text-[#E10600] font-bold">STATUS //</span>
+                <span className="text-[#FFFFFF]">Active Developer & Venture Founder</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span>LOCATION // Chennai, India</span>
+                <span className="text-neutral-700">|</span>
+                <span>SPECIALISATION // Web & AI Systems</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Precision 3D Spatial Kinetic Aerodynamic Sculpture */}
+          <motion.div 
+            className="hidden lg:flex items-center justify-center shrink-0"
+            initial={!isReducedMotion ? { opacity: 0, scale: 0.92 } : false}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.1, delay: 0.25, ease: cinematicEase }}
+            style={{
+              transform: !isReducedMotion ? `translate3d(${-parallax.x * 0.5}px, ${-parallax.y * 0.5}px, 0)` : undefined,
+              transition: 'transform 0.14s ease-out'
+            }}
           >
-            About Me
-          </button>
+            <SpatialHeroObject isReducedMotion={isReducedMotion} />
+          </motion.div>
+
         </div>
       </section>
 
-      {/* ===================== SECTION 1: ABOUT ME ===================== */}
-      <section 
+      {/* ===================== SECTION 1: MINIMAL ABOUT ME ===================== */}
+      <motion.section 
         id="about" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-b border-[#A8E6D4]/15"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="flex items-center gap-2.5 mb-6">
-          <div className="w-2 h-2 rounded-full bg-[#A8E6D4]" />
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-            {portfolioData.about.heading}
+        <div className="mb-10">
+          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
+            01 // PROFILE & BACKGROUND
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
+            ABOUT ME
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          
-          {/* Bio Text Column */}
-          <div className="lg:col-span-7 space-y-3.5">
-            {portfolioData.about.bioParagraphs.map((paragraph, index) => (
-              <p key={index} className="font-body text-xs sm:text-sm text-[#F7F0E6]/90 leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
-
-            {/* Interests & Creative Spaces */}
-            <div className="pt-2">
-              <span className="text-[11px] font-tech font-bold text-[#A8E6D4] uppercase tracking-wider block mb-2">
-                Interests & Exploration:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {portfolioData.about.interests.map((interest) => (
-                  <span 
-                    key={interest}
-                    className="px-2.5 py-1 rounded-lg bg-[#101626]/85 border border-[#A8E6D4]/30 text-xs font-tech font-semibold text-[#F7F0E6] flex items-center gap-1 hover:border-[#AFA0FF] transition-colors"
-                  >
-                    <Sparkles className="w-2.5 h-2.5 text-[#F6B86F]" />
-                    {interest}
-                  </span>
-                ))}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Authentic Portrait Framing */}
+          <div className="lg:col-span-5 relative group">
+            <div className="relative rounded-xl overflow-hidden border border-neutral-800 group-hover:border-[#E10600]/80 transition-colors bg-[#121212] shadow-2xl">
+              
+              {/* Corner tech accents */}
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-[#0A0A0A]/85 px-2.5 py-1 rounded text-[11px] font-tech text-[#FFFFFF] border border-neutral-800">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
+                <span>ROPHE ANGEL</span>
               </div>
-            </div>
-          </div>
 
-          {/* Actual Photograph Column — Appropriately sized and aligned */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-start w-full lg:pt-1">
-            <div className="relative p-2.5 sm:p-3 rounded-2xl bg-[#101626]/90 border border-[#A8E6D4]/40 shadow-xl w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[400px] group backdrop-blur-md">
-              <div className="relative aspect-square rounded-xl overflow-hidden bg-[#101626]/40">
+              <div className="aspect-4/5 w-full overflow-hidden bg-[#0A0A0A]">
                 <img
                   src={portfolioData.about.photoUrl}
-                  alt="Rophe Angel"
-                  className="w-full h-full object-cover object-center rounded-lg transition-transform duration-500 group-hover:scale-102"
+                  alt="Rophe Angel portrait"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover object-center filter contrast-105 brightness-95 group-hover:scale-103 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 />
               </div>
 
-              <div className="mt-2.5 text-center text-[11px] font-tech text-[#F7F0E6]/70">
-                Rophe Angel — Computer Science & Engineering
+              <div className="p-4 bg-[#141414] border-t border-neutral-800 flex items-center justify-between text-xs font-tech text-neutral-400">
+                <span>DEGREE: B.TECH CSE</span>
+                <span className="text-[#E10600] font-semibold">EST. 2026</span>
               </div>
             </div>
           </div>
 
-        </div>
-      </section>
-
-      {/* ===================== SECTION 2: EDUCATION ===================== */}
-      <section 
-        id="education" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-b border-[#A8E6D4]/15"
-      >
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#A8E6D4]" />
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-              {portfolioData.education.heading}
-            </h2>
-          </div>
-          <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/70">
-            {portfolioData.education.subtitle}
-          </p>
-        </div>
-
-        {/* Current College — Featured Entry with Liquid Glass */}
-        <div className="mb-5">
-          <div className="seance-panel rounded-2xl p-5 sm:p-6 border border-[#A8E6D4]/50 relative overflow-hidden shadow-lg">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#AFA0FF]/15 border border-[#AFA0FF]/50 text-[11px] font-tech font-bold uppercase tracking-wider text-[#AFA0FF]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#AFA0FF] animate-pulse" />
-                Current College · {portfolioData.education.college.currentYear}
+          {/* Concise 2-3 sentence introduction */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="f1-card rounded-xl p-6 sm:p-8 space-y-4">
+              <span className="text-xs font-tech font-bold uppercase text-[#E10600] tracking-widest">
+                ENGINEERING PROFILE
               </span>
-
-              <div className="inline-flex items-center gap-1 text-[11px] font-tech font-bold text-[#A8E6D4] bg-[#101626]/80 px-2.5 py-0.5 rounded-md border border-[#A8E6D4]/30">
-                <Calendar className="w-3 h-3" />
-                <span>{portfolioData.education.college.duration}</span>
-              </div>
+              <p className="font-body text-base sm:text-lg text-neutral-200 leading-relaxed font-normal">
+                {portfolioData.about.bio}
+              </p>
             </div>
 
-            <div className="flex items-start gap-3.5">
-              <div className="p-2.5 rounded-xl bg-[#101626] border border-[#A8E6D4]/40 text-[#A8E6D4] shrink-0 mt-0.5 hidden sm:block">
-                <GraduationCap className="w-5 h-5" />
-              </div>
-
-              <div className="space-y-1.5">
-                <h3 className="font-display text-lg sm:text-xl font-bold text-[#F7F0E6]">
-                  {portfolioData.education.college.institution}
-                </h3>
-
-                <p className="font-tech text-xs sm:text-sm text-[#A8E6D4] font-bold tracking-wide">
-                  {portfolioData.education.college.degree}
-                </p>
-
-                <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/85 leading-relaxed max-w-3xl">
-                  {portfolioData.education.college.description}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Secondary & Higher Secondary Schools — Compact Coordinated Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {portfolioData.education.schools.map((school, idx) => (
-            <div 
-              key={idx}
-              className="seance-panel rounded-xl p-4 border border-[#A8E6D4]/20 flex items-start gap-3 hover:-translate-y-0.5 transition-all"
-            >
-              <div className="p-2 rounded-lg bg-[#101626] border border-[#A8E6D4]/30 text-[#A8E6D4] shrink-0 mt-0.5">
-                <School className="w-4 h-4" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-[10px] font-tech font-bold uppercase tracking-wider text-[#AFA0FF]">
-                  {school.level}
-                </span>
-                <h4 className="font-display text-sm sm:text-base font-bold text-[#F7F0E6]">
-                  {school.institution}
-                </h4>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ===================== SECTION 3: SKILLS ===================== */}
-      <section 
-        id="skills" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-b border-[#A8E6D4]/15"
-      >
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#F6B86F]" />
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-              Skills
-            </h2>
-          </div>
-          <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/70">
-            Core technical skills and technologies.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {portfolioData.skills.map((skill, index) => {
-            const Icon = getSkillIcon(skill);
-            return (
-              <div 
-                key={skill}
-                className="seance-panel rounded-xl p-3.5 sm:p-4 border border-[#A8E6D4]/25 shadow-sm hover:border-[#AFA0FF] transition-all duration-300 group hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between relative overflow-hidden"
-              >
-                {/* Subtle top gloss reflection */}
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#A8E6D4]/40 to-transparent pointer-events-none" />
-                
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="p-2 rounded-lg bg-[#101626]/80 border border-[#A8E6D4]/20 text-[#A8E6D4] group-hover:text-[#AFA0FF] group-hover:border-[#AFA0FF]/40 transition-colors">
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <span className="font-tech text-[10px] font-semibold text-[#A8E6D4]/50 group-hover:text-[#AFA0FF]/70 tracking-wider">
-                    {String(index + 1).padStart(2, '0')}
+            {/* Focus areas */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {portfolioData.identity.focusAreas.map((area, i) => (
+                <div 
+                  key={i} 
+                  className="p-3 rounded-lg bg-[#141414] border border-neutral-800 flex items-center gap-2 hover:border-[#E10600]/50 transition-colors"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
+                  <span className="text-xs font-tech font-semibold tracking-wider text-[#FFFFFF] uppercase">
+                    {area}
                   </span>
                 </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
-                <div className="flex items-start gap-1.5 pt-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#F6B86F] mt-1.5 shrink-0" />
-                  <h3 className="font-tech text-xs sm:text-sm font-semibold text-[#F7F0E6] group-hover:text-[#A8E6D4] transition-colors leading-snug">
-                    {skill}
-                  </h3>
+      {/* ===================== SECTION 2: TECHNICAL SKILLS ===================== */}
+      <motion.section 
+        id="skills" 
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.8, ease: cinematicEase }}
+      >
+        <div className="mb-12">
+          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
+            02 // STACK & CAPABILITIES
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
+            TECHNICAL EXPERTISE
+          </h2>
+          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
+            Practical development toolsets and production languages used in building systems.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {portfolioData.skills.map((categoryGroup, index) => {
+            const Icon = getCategoryIcon(categoryGroup.category);
+            return (
+              <div 
+                key={index}
+                className="f1-card rounded-xl p-6 sm:p-7 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600]">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-base sm:text-lg font-bold text-[#FFFFFF]">
+                        {categoryGroup.category}
+                      </h3>
+                      <p className="text-xs font-body text-neutral-400">
+                        {categoryGroup.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {categoryGroup.skills.map((skill, sIdx) => (
+                      <span
+                        key={sIdx}
+                        className="px-3 py-1.5 rounded bg-[#181818] text-xs font-tech tracking-wider text-neutral-200 border border-neutral-800 hover:border-[#E10600] hover:text-[#FFFFFF] transition-colors"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
-      </section>
+      </motion.section>
 
-      {/* ===================== SECTION 4: PROJECTS (ONLY 3: HUSH, Thadam, ICHNOVA) ===================== */}
-      <section 
+      {/* ===================== SECTION 3: PROJECT CASE STUDIES ===================== */}
+      <motion.section 
         id="projects" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-b border-[#A8E6D4]/15"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#AFA0FF]" />
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-              Projects
-            </h2>
+        <div className="mb-12">
+          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
+            03 // TECHNICAL WORK
           </div>
-          <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/70">
-            Three selected projects. Click any project card to view full details and interface screenshots.
+          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
+            FEATURED CASE STUDIES
+          </h2>
+          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
+            Detailed engineering breakdowns highlighting architectural decisions, technical problem-solving, and implementation details.
           </p>
         </div>
 
-        {/* 3 Project Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {portfolioData.projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {portfolioData.projects.map((project, idx) => (
+            <ProjectCard 
+              key={project.id} 
+              project={project} 
+              index={idx} 
+            />
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      {/* ===================== SECTION 5: EXPERIENCE (GradEarn belongs here) ===================== */}
-      <section 
-        id="experience" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-b border-[#A8E6D4]/15"
+      {/* ===================== SECTION 4: FOUNDER & VENTURE (GRADEARN) ===================== */}
+      <motion.section 
+        id="venture" 
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#A8E6D4]" />
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-              Experience
-            </h2>
+        <div className="mb-10">
+          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
+            04 // VENTURE & ENTREPRENEURSHIP
           </div>
-          <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/70">
-            Founder role and practical operational experience.
+          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
+            FOUNDER OF GRADEARN
+          </h2>
+          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
+            A student freelancing initiative designed to connect early-career talent with real client projects.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {portfolioData.experience.map((exp) => (
+        <div className="f1-card rounded-2xl p-6 sm:p-10 border border-neutral-800 hover:border-[#E10600]/80 transition-all shadow-2xl relative overflow-hidden">
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 border-b border-neutral-800 gap-4">
+            <div>
+              <span className="text-xs font-tech font-bold uppercase text-[#E10600] px-3 py-1 rounded bg-[#181818] border border-neutral-800 inline-block mb-2">
+                {portfolioData.venture.badge}
+              </span>
+              <h3 className="font-display text-2xl sm:text-4xl font-bold text-[#FFFFFF]">
+                {portfolioData.venture.title}
+              </h3>
+              <p className="text-sm font-tech text-neutral-400 mt-1">
+                {portfolioData.venture.founderRole} · {portfolioData.venture.dates}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {portfolioData.venture.links.map((link, idx) => (
+                <a
+                  key={idx}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="f1-btn-secondary px-4 py-2 rounded text-xs font-tech tracking-wider uppercase inline-flex items-center gap-2 cursor-pointer"
+                >
+                  <span>{link.label}</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-xs font-tech font-bold uppercase tracking-wider text-neutral-400 mb-2">
+                VENTURE MISSION
+              </h4>
+              <p className="font-body text-base sm:text-lg text-neutral-200 leading-relaxed max-w-3xl">
+                {portfolioData.venture.mission}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+              {portfolioData.venture.pillars.map((pillar, pIdx) => (
+                <div 
+                  key={pIdx}
+                  className="p-4 rounded-xl bg-[#161616] border border-neutral-800 hover:border-[#E10600]/50 transition-colors"
+                >
+                  <div className="text-xs font-tech font-bold text-[#E10600] uppercase mb-1">
+                    0{pIdx + 1} //
+                  </div>
+                  <h5 className="font-display text-sm font-bold text-[#FFFFFF] mb-2">
+                    {pillar.title}
+                  </h5>
+                  <p className="font-body text-xs text-neutral-400 leading-relaxed">
+                    {pillar.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </motion.section>
+
+      {/* ===================== SECTION 5: PRACTICAL EXPERIENCE (NPTEL & V-Vortex REMOVED) ===================== */}
+      <motion.section 
+        id="experience" 
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full border-b border-neutral-800/80"
+        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.8, ease: cinematicEase }}
+      >
+        <div className="mb-10">
+          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
+            05 // WORKPLACE & OPERATIONS
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
+            PRACTICAL EXPERIENCE
+          </h2>
+          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
+            Practical retail workflow management, customer checkout systems, and inventory operations.
+          </p>
+        </div>
+
+        <div className="max-w-3xl">
+          {portfolioData.operationalExperience.map((exp) => (
             <div 
               key={exp.id}
-              className="seance-panel rounded-2xl p-5 sm:p-6 border border-[#A8E6D4]/25 shadow-sm flex flex-col justify-between"
+              className="f1-card rounded-xl p-6 sm:p-8 flex flex-col justify-between border border-neutral-800 hover:border-[#E10600]/80 transition-all shadow-xl"
             >
               <div>
-                {/* Header Badge & Duration */}
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <span className="text-[10px] font-tech font-bold uppercase tracking-wider text-[#A8E6D4] px-2.5 py-0.5 rounded-full bg-[#101626] border border-[#A8E6D4]/30">
-                    {exp.typeOrDuration}
-                  </span>
-                  <span className="text-[11px] font-tech font-bold text-[#AFA0FF]">
-                    {exp.dates}
-                  </span>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600]">
+                      <Briefcase className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-xl sm:text-2xl font-bold text-[#FFFFFF]">
+                        {exp.role}
+                      </h3>
+                      <p className="font-tech text-sm text-[#E10600] font-semibold">
+                        {exp.organization}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-tech font-bold uppercase text-neutral-300 px-3 py-1 rounded bg-[#181818] border border-neutral-800">
+                      {exp.dates}
+                    </span>
+                    <span className="text-xs font-tech font-bold uppercase text-[#E10600] px-3 py-1 rounded bg-[#181818] border border-neutral-800">
+                      {exp.typeOrDuration}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Role and Organization */}
-                <h3 className="font-display text-lg sm:text-xl font-bold text-[#F7F0E6] mb-1">
-                  {exp.role} <span className="text-[#AFA0FF]">— {exp.organization}</span>
-                </h3>
-
-                {/* Description */}
-                <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/85 leading-relaxed mb-4">
+                <p className="font-body text-sm sm:text-base text-neutral-300 leading-relaxed mb-6">
                   {exp.description}
                 </p>
 
-                {/* Responsibilities if GradEarn */}
-                {exp.responsibilities && exp.responsibilities.length > 0 && (
-                  <div className="mb-4 space-y-1.5">
-                    <span className="text-[11px] font-tech font-bold uppercase text-[#A8E6D4] block mb-1">
-                      Responsibilities:
-                    </span>
-                    {exp.responsibilities.map((resp, i) => (
-                      <div key={i} className="flex items-start gap-1.5 text-xs text-[#F7F0E6]/80 font-body">
-                        <span className="text-[#A8E6D4] font-bold">›</span>
-                        <span>{resp}</span>
-                      </div>
+                <div>
+                  <div className="text-xs font-tech font-bold uppercase tracking-wider text-neutral-400 mb-2">
+                    Workflows & Tools Applied:
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {exp.toolsAndWorkflows?.map((tool, idx) => (
+                      <span 
+                        key={idx}
+                        className="px-3 py-1 rounded bg-[#161616] text-xs font-tech text-neutral-300 border border-neutral-800 hover:border-[#E10600]/40 transition-colors"
+                      >
+                        {tool}
+                      </span>
                     ))}
                   </div>
-                )}
-
-                {/* Tools and workflows if Nissi Fresh */}
-                {exp.toolsAndWorkflows && exp.toolsAndWorkflows.length > 0 && (
-                  <div className="mb-4">
-                    <span className="text-[11px] font-tech font-bold uppercase text-[#A8E6D4] block mb-1.5">
-                      Tools & Workflows:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {exp.toolsAndWorkflows.map((t, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded-md bg-[#101626] border border-[#A8E6D4]/30 text-[11px] font-tech text-[#F7F0E6]/80">
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Requirement 7: GradEarn links with both LinkedIn and Instagram */}
-              {exp.id === 'gradearn' && exp.links && (
-                <div className="pt-3 border-t border-[#A8E6D4]/15 mt-2 flex flex-wrap items-center gap-3">
-                  {exp.links.map((lnk) => (
-                    <a
-                      key={lnk.url}
-                      href={lnk.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-tech font-bold px-3 py-1.5 rounded-lg bg-[#101626] border border-[#A8E6D4]/30 hover:border-[#AFA0FF] text-[#F7F0E6] hover:text-[#AFA0FF] transition-all active:scale-95"
-                    >
-                      {lnk.type === 'linkedin' ? (
-                        <Linkedin className="w-3.5 h-3.5 text-[#AFA0FF]" />
-                      ) : (
-                        <Instagram className="w-3.5 h-3.5 text-[#F6B86F]" />
-                      )}
-                      <span>{lnk.label}</span>
-                      <ExternalLink className="w-3 h-3 opacity-60 ml-0.5" />
-                    </a>
-                  ))}
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ===================== SECTION 6: ACHIEVEMENTS ===================== */}
-      <section 
-        id="achievements" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-b border-[#A8E6D4]/15"
-      >
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#AFA0FF]" />
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-              Achievements
-            </h2>
-          </div>
-          <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/70">
-            Competitions and hackathon recognitions.
-          </p>
-        </div>
-
-        <div className="max-w-2xl">
-          {portfolioData.achievements.map((item) => (
-            <div 
-              key={item.id}
-              className="seance-panel rounded-2xl p-5 border border-[#A8E6D4]/25 flex items-start gap-3.5 shadow-sm hover:-translate-y-0.5 transition-all"
-            >
-              <div className="p-2.5 rounded-xl bg-[#101626] border border-[#AFA0FF]/40 text-[#AFA0FF] shrink-0 mt-0.5">
-                <Award className="w-5 h-5" />
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-display text-base sm:text-lg font-bold text-[#F7F0E6]">
-                    {item.title}
-                  </h3>
-                  <span className="px-2 py-0.5 rounded-md bg-[#AFA0FF]/20 border border-[#AFA0FF] text-[10px] font-tech font-bold uppercase text-[#AFA0FF]">
-                    {item.recognition}
-                  </span>
-                </div>
-
-                <p className="font-tech text-xs text-[#A8E6D4] font-semibold">
-                  {item.organization}
-                </p>
-
-                <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/80 leading-relaxed pt-1">
-                  {item.description}
-                </p>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      {/* ===================== SECTION 7: CERTIFICATIONS ===================== */}
-      <section 
-        id="certifications" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full border-b border-[#A8E6D4]/15"
-      >
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#F6B86F]" />
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-              Certifications
-            </h2>
-          </div>
-          <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/70">
-            Verified course certifications and academic credentials.
-          </p>
-        </div>
-
-        <div className="max-w-2xl">
-          {portfolioData.certifications.map((cert) => (
-            <div 
-              key={cert.id}
-              className="seance-panel rounded-2xl p-5 border border-[#A8E6D4]/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
-            >
-              <div className="flex items-start gap-3.5">
-                <div className="p-2.5 rounded-xl bg-[#101626] border border-[#A8E6D4]/30 text-[#A8E6D4] shrink-0 mt-0.5">
-                  <FileCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-display text-base sm:text-lg font-bold text-[#F7F0E6]">
-                    {cert.title}
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs font-tech text-[#A8E6D4] mt-0.5">
-                    <span>Provider: {cert.provider}</span>
-                    <span>•</span>
-                    <span className="text-[#F6B86F] font-semibold">Score: {cert.score}</span>
-                  </div>
-                  <span className="inline-block mt-2 text-[10px] font-tech text-[#AFA0FF] uppercase px-2.5 py-0.5 rounded-full bg-[#101626] border border-[#AFA0FF]/30">
-                    {cert.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* View Certificate Action Button with Liquid Glass */}
-              <button
-                onClick={openCertModal}
-                className="liquid-btn-secondary w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-tech font-bold flex items-center justify-center gap-1.5 shrink-0 active:scale-95 cursor-pointer"
-              >
-                <span>View Certificate</span>
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ===================== SECTION 8: CONTACT ===================== */}
-      <section 
+      {/* ===================== SECTION 6: CONTACT ===================== */}
+      <motion.section 
         id="contact" 
-        className="py-14 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-8">
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#AFA0FF]" />
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F0E6]">
-              {portfolioData.contact.heading}
-            </h2>
+        <div className="mb-10">
+          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
+            06 // CHANNELS
           </div>
-          <p className="font-body text-xs sm:text-sm text-[#F7F0E6]/80">
+          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
+            GET IN TOUCH
+          </h2>
+          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
             {portfolioData.contact.description}
           </p>
         </div>
 
-        {/* 4 Compact Contact Links / Cards with Liquid Glass */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Email */}
-          <a 
+          <a
             href={`mailto:${portfolioData.contact.email}`}
-            className="seance-panel rounded-2xl p-4 flex flex-col justify-between border border-[#A8E6D4]/25 hover:border-[#AFA0FF] transition-all hover:-translate-y-1 active:scale-98 group block focus:outline-hidden focus:ring-1 focus:ring-[#AFA0FF]"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
           >
             <div>
-              <div className="w-8 h-8 rounded-lg bg-[#101626] border border-[#A8E6D4]/30 flex items-center justify-center text-[#A8E6D4] mb-3 group-hover:border-[#AFA0FF] group-hover:text-[#AFA0FF] transition-colors">
-                <Mail className="w-4 h-4" />
+              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+                <Mail className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-tech font-bold uppercase tracking-wider text-[#A8E6D4] block mb-1">
-                Email
-              </span>
-              <p className="font-body text-xs font-semibold text-[#F7F0E6] break-all group-hover:text-[#AFA0FF] transition-colors">
+              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">EMAIL DIRECT</span>
+              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
                 {portfolioData.contact.email}
               </p>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#A8E6D4]/15 flex items-center justify-between text-[11px] font-tech font-bold text-[#A8E6D4] group-hover:text-[#AFA0FF] transition-colors">
-              <span>Send Email</span>
-              <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </div>
+            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
+              <span>Send Message</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </span>
           </a>
 
           {/* LinkedIn */}
-          <a 
+          <a
             href={portfolioData.contact.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="seance-panel rounded-2xl p-4 flex flex-col justify-between border border-[#A8E6D4]/25 hover:border-[#AFA0FF] transition-all hover:-translate-y-1 active:scale-98 group block focus:outline-hidden focus:ring-1 focus:ring-[#AFA0FF]"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
           >
             <div>
-              <div className="w-8 h-8 rounded-lg bg-[#101626] border border-[#AFA0FF]/30 flex items-center justify-center text-[#AFA0FF] mb-3 group-hover:border-[#AFA0FF] transition-colors">
-                <Linkedin className="w-4 h-4" />
+              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+                <Linkedin className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-tech font-bold uppercase tracking-wider text-[#AFA0FF] block mb-1">
-                LinkedIn
-              </span>
-              <p className="font-body text-xs font-semibold text-[#F7F0E6] group-hover:text-[#AFA0FF] transition-colors">
+              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">LINKEDIN</span>
+              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
                 Rophe Angel
               </p>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#A8E6D4]/15 flex items-center justify-between text-[11px] font-tech font-bold text-[#AFA0FF]">
+            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
               <span>Connect</span>
-              <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </div>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </span>
           </a>
 
           {/* GitHub */}
-          <a 
+          <a
             href={portfolioData.contact.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="seance-panel rounded-2xl p-4 flex flex-col justify-between border border-[#A8E6D4]/25 hover:border-[#F6B86F] transition-all hover:-translate-y-1 active:scale-98 group block focus:outline-hidden focus:ring-1 focus:ring-[#F6B86F]"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
           >
             <div>
-              <div className="w-8 h-8 rounded-lg bg-[#101626] border border-[#F6B86F]/30 flex items-center justify-center text-[#F6B86F] mb-3 group-hover:border-[#F6B86F] transition-colors">
-                <Github className="w-4 h-4" />
+              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+                <Github className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-tech font-bold uppercase tracking-wider text-[#F6B86F] block mb-1">
-                GitHub
-              </span>
-              <p className="font-body text-xs font-semibold text-[#F7F0E6] group-hover:text-[#F6B86F] transition-colors">
-                ropheangel1312-design
+              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">GITHUB REPOSITORIES</span>
+              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
+                @ropheangel1312-design
               </p>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#A8E6D4]/15 flex items-center justify-between text-[11px] font-tech font-bold text-[#F6B86F]">
-              <span>View Profile</span>
-              <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </div>
+            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
+              <span>View Repositories</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </span>
           </a>
 
-          {/* Instagram — with verified profile URL and username @rophe.sys */}
-          <a 
+          {/* Instagram */}
+          <a
             href={portfolioData.contact.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="seance-panel rounded-2xl p-4 flex flex-col justify-between border border-[#A8E6D4]/25 hover:border-[#A8E6D4] transition-all hover:-translate-y-1 active:scale-98 group block focus:outline-hidden focus:ring-1 focus:ring-[#A8E6D4]"
+            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600] transition-colors"
           >
             <div>
-              <div className="w-8 h-8 rounded-lg bg-[#101626] border border-[#A8E6D4]/30 flex items-center justify-center text-[#A8E6D4] mb-3 group-hover:border-[#A8E6D4] transition-colors">
-                <Instagram className="w-4 h-4" />
+              <div className="p-2.5 rounded bg-[#181818] border border-neutral-800 text-[#E10600] w-fit mb-3">
+                <Instagram className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-tech font-bold uppercase tracking-wider text-[#A8E6D4] block mb-1">
-                Instagram
-              </span>
-              <p className="font-body text-xs font-semibold text-[#F7F0E6] group-hover:text-[#A8E6D4] transition-colors">
+              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">INSTAGRAM</span>
+              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
                 {portfolioData.contact.instagramHandle}
               </p>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#A8E6D4]/15 flex items-center justify-between text-[11px] font-tech font-bold text-[#A8E6D4]">
-              <span>View Profile</span>
-              <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </div>
+            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
+              <span>Follow Updates</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </span>
           </a>
 
         </div>
-      </section>
+      </motion.section>
 
       {/* ===================== FOOTER ===================== */}
-      <footer className="mt-auto py-6 px-4 sm:px-6 lg:px-8 border-t border-[#A8E6D4]/20 bg-[#101626]/95 text-xs font-tech text-[#F7F0E6]/70">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div>
-            <span className="text-[#A8E6D4] font-bold">Rophe Angel</span>
-            <span className="mx-2">•</span>
-            <span>Domain Expansion: Eternal Buffering</span>
+      <footer className="mt-auto py-8 px-4 sm:px-6 lg:px-12 border-t border-neutral-800 bg-[#0A0A0A] text-xs font-tech text-neutral-400">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/logo.png" 
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = 'https://plain-apac-prod-public.komododecks.com/202610/20/YZgT7SnpXc2zs3CnoXeZ/image.png';
+              }}
+              alt="Rophe Angel Racing Emblem" 
+              className="h-6 w-auto object-contain"
+            />
+            <span className="text-[#E10600] font-bold">ROPHE ANGEL</span>
+            <span className="text-neutral-700">/</span>
+            <span>ENGINEERING PORTFOLIO</span>
+            <span className="text-neutral-700">/</span>
+            <span className="text-neutral-500">DOMAIN EXPANSION: ETERNAL BUFFERING</span>
           </div>
 
-          <div className="flex items-center gap-5">
-            <button
-              onClick={onReplayIntro}
-              className="flex items-center gap-1.5 text-[#AFA0FF] hover:text-[#A8E6D4] font-bold transition-all active:scale-95 focus:outline-hidden cursor-pointer"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Replay Intro</span>
-            </button>
-
+          <div className="flex items-center gap-6">
             <button
               onClick={() => scrollTo('hero')}
-              className="hover:text-[#A8E6D4] font-bold transition-colors active:scale-95 cursor-pointer"
+              className="hover:text-[#E10600] font-bold uppercase tracking-wider transition-colors active:scale-95 cursor-pointer"
             >
               Back to Top ↑
             </button>
           </div>
         </div>
       </footer>
-
-      {/* ===================== CERTIFICATE PREVIEW MODAL / LIGHTBOX ===================== */}
-      {certModalOpen && (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto ${
-            isCertClosing ? 'animate-glass-backdrop-out' : 'animate-glass-backdrop-in'
-          }`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="NPTEL Python for Data Science Certificate Preview"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeCertModal();
-          }}
-        >
-          <div 
-            className={`liquid-glass-modal-surface rounded-2xl max-w-2xl w-full p-4 sm:p-5 shadow-2xl relative my-auto text-left relative ${
-              isCertClosing ? 'animate-glass-modal-out' : 'animate-glass-modal-in'
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Subtle glossy reflection highlight overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.08] via-white/[0.015] to-transparent pointer-events-none rounded-2xl" />
-            <div className="absolute -top-20 -left-20 w-60 h-40 bg-gradient-to-br from-white/10 to-transparent rotate-12 pointer-events-none rounded-full blur-xl" />
-
-            <div className="flex items-center justify-between pb-3 border-b border-[#A8E6D4]/20 mb-3 relative z-10 animate-stagger-1">
-              <div>
-                <span className="text-[10px] font-tech font-bold uppercase text-[#A8E6D4] tracking-wider">
-                  NPTEL • Score: 68%
-                </span>
-                <h3 className="font-display text-lg sm:text-xl font-bold text-[#F7F0E6]">
-                  Python for Data Science
-                </h3>
-              </div>
-              <button
-                onClick={closeCertModal}
-                className="p-1.5 rounded-lg bg-[#101626]/80 border border-[#A8E6D4]/30 text-[#F7F0E6] hover:text-[#AFA0FF] hover:border-[#AFA0FF] transition-all active:scale-95 cursor-pointer"
-                aria-label="Close certificate preview"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="rounded-xl overflow-hidden bg-[#101626]/90 border border-[#A8E6D4]/30 flex items-center justify-center max-h-[70vh] p-2 relative z-10 animate-stagger-2">
-              <img
-                src={portfolioData.certifications[0]?.imageUrl}
-                alt="NPTEL Certificate - Python for Data Science - Score 68%"
-                className="max-h-[65vh] w-auto object-contain mx-auto rounded-lg shadow-lg"
-              />
-            </div>
-
-            <div className="mt-3 flex items-center justify-between text-xs font-tech text-[#F7F0E6]/70 relative z-10 animate-stagger-3">
-              <span>Status: Certificate received</span>
-              <button
-                onClick={closeCertModal}
-                className="px-3 py-1 rounded-lg bg-[#101626]/80 border border-[#A8E6D4]/30 text-xs font-tech text-[#F7F0E6] hover:border-[#AFA0FF] hover:text-[#AFA0FF] transition-all active:scale-95 cursor-pointer"
-              >
-                Close Preview
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );

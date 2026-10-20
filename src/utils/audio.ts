@@ -1,7 +1,10 @@
 /**
- * Web Audio API audio engine for anime domain expansion effects.
- * - Realistic flame audio: soft ignition, rising fire whoosh, warm layered flame rush, and peak impact.
- * - Undertale-style soft dialogue text blips.
+ * Web Audio API audio engine for Domain Expansion and Racing-Inspired Transition.
+ * - Dialogue text blips for chibi character (Undertale-style retro blips).
+ * - Cinematic build-up and Domain Expansion title impacts (strike + sub-bass).
+ * - Rising synthetic engine-rev sweep (harmonic multi-oscillator motorsport sound).
+ * - High-speed Doppler racing acceleration whoosh during transition.
+ * - Clean resolution tone as the portfolio appears.
  * - Muted by default, safe against autoplay blocking, graceful cleanup.
  */
 
@@ -62,13 +65,8 @@ class DomainAudioEngine {
     this.activeNodes = [];
   }
 
-  public stopCrtHum(): void {
-    this.stopAll();
-  }
-
   /**
-   * Undertale-style text-box dialogue blip:
-   * Short, soft, retro-game electronic character blip.
+   * Dialogue typing blip for chibi character
    */
   public playTextBlip(): void {
     if (this.isMuted) return;
@@ -92,7 +90,7 @@ class DomainAudioEngine {
       filter.frequency.setValueAtTime(1100, now);
 
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.05, now + 0.002);
+      gain.gain.linearRampToValueAtTime(0.045, now + 0.002);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.024);
 
       osc.connect(filter);
@@ -103,6 +101,40 @@ class DomainAudioEngine {
       osc.stop(now + 0.026);
     } catch {
       // Graceful fallback
+    }
+  }
+
+  /**
+   * Subtle ambient cinematic drone behind chibi dialogue
+   */
+  public playSubtleIntroDrone(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(55, now); // Low A1
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(180, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.025, now + 0.4);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      this.activeNodes.push(osc);
+    } catch {
+      // ignore
     }
   }
 
@@ -120,16 +152,16 @@ class DomainAudioEngine {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(160, now);
-      osc.frequency.exponentialRampToValueAtTime(48, now + 0.45);
+      osc.frequency.setValueAtTime(170, now);
+      osc.frequency.exponentialRampToValueAtTime(50, now + 0.42);
 
       gain.gain.setValueAtTime(0.24, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.6);
+      osc.stop(now + 0.55);
       this.activeNodes.push(osc);
     } catch {
       // ignore
@@ -137,7 +169,7 @@ class DomainAudioEngine {
   }
 
   /**
-   * Title Stage 2: "ETERNAL BUFFERING" deep cinematic slam
+   * Title Stage 2: "ETERNAL BUFFERING" deep sub-bass cinematic slam
    */
   public playBufferingTitleImpact(): void {
     if (this.isMuted) return;
@@ -147,14 +179,14 @@ class DomainAudioEngine {
     try {
       const now = ctx.currentTime;
 
-      // Warm low-frequency swell
+      // Low frequency sub-bass swell
       const subOsc = ctx.createOscillator();
       const subGain = ctx.createGain();
       subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(110, now);
-      subOsc.frequency.exponentialRampToValueAtTime(32, now + 0.65);
+      subOsc.frequency.setValueAtTime(115, now);
+      subOsc.frequency.exponentialRampToValueAtTime(32, now + 0.7);
 
-      subGain.gain.setValueAtTime(0.32, now);
+      subGain.gain.setValueAtTime(0.3, now);
       subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
 
       subOsc.connect(subGain);
@@ -163,20 +195,20 @@ class DomainAudioEngine {
       subOsc.stop(now + 0.9);
       this.activeNodes.push(subOsc);
 
-      // Warm harmonic overtone
+      // Subtle metallic resonance chime
       const chime = ctx.createOscillator();
       const chimeGain = ctx.createGain();
-      chime.type = 'sine';
-      chime.frequency.setValueAtTime(440, now);
-      chime.frequency.exponentialRampToValueAtTime(180, now + 0.4);
+      chime.type = 'triangle';
+      chime.frequency.setValueAtTime(420, now);
+      chime.frequency.exponentialRampToValueAtTime(160, now + 0.38);
 
-      chimeGain.gain.setValueAtTime(0.08, now);
-      chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      chimeGain.gain.setValueAtTime(0.06, now);
+      chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
 
       chime.connect(chimeGain);
       chimeGain.connect(ctx.destination);
       chime.start(now);
-      chime.stop(now + 0.55);
+      chime.stop(now + 0.5);
       this.activeNodes.push(chime);
     } catch {
       // ignore
@@ -184,182 +216,156 @@ class DomainAudioEngine {
   }
 
   /**
-   * Flame Ignition: Soft spark and warm flame catch
+   * Rising synthetic engine-rev soundscape:
+   * Multi-oscillator harmonic build simulating a high-revving motorsport engine climbing toward redline.
    */
-  public playFlameEnergyCharge(): void {
+  public playEngineRevAcceleration(): void {
     if (this.isMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 
     try {
       const now = ctx.currentTime;
-      const duration = 1.15;
+      const duration = 1.2;
 
-      // 1. Soft organic fire ignition roar (filtered pink noise simulating burning air)
-      const bufferSize = Math.floor(ctx.sampleRate * duration);
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
-      
-      let lastOut = 0.0;
-      for (let i = 0; i < bufferSize; i++) {
-        // Pink noise filtering for warm organic flame roar
-        const white = Math.random() * 2 - 1;
-        lastOut = (lastOut * 0.95) + (white * 0.05);
-        // Envelope: soft start, swell, warm sustain
-        const env = Math.sin((i / bufferSize) * Math.PI);
-        // Random micro-crackle simulating real burning embers
-        const crackle = Math.random() < 0.02 ? (Math.random() * 0.8) : 0;
-        data[i] = (lastOut * 2.8 + crackle) * env;
-      }
-      
-      const noise = ctx.createBufferSource();
-      noise.buffer = noiseBuffer;
-
-      // Warm bandpass filter sweeping upward as fire spreads
+      // Primary engine harmonic oscillator (sawtooth)
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const engineGain = ctx.createGain();
       const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.Q.setValueAtTime(1.6, now);
-      filter.frequency.setValueAtTime(260, now);
-      filter.frequency.exponentialRampToValueAtTime(850, now + duration * 0.85);
 
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.01, now);
-      gain.gain.linearRampToValueAtTime(0.26, now + duration * 0.65); // Strongest moment
-      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      osc1.type = 'sawtooth';
+      osc2.type = 'triangle';
 
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
+      // Pitch sweep: climbing from low idle (130Hz) up through high rpm rev (480Hz)
+      osc1.frequency.setValueAtTime(130, now);
+      osc1.frequency.exponentialRampToValueAtTime(480, now + duration * 0.85);
 
-      noise.start(now);
-      this.activeNodes.push(noise);
+      // Slightly detuned second oscillator for rich chorus
+      osc2.frequency.setValueAtTime(133, now);
+      osc2.frequency.exponentialRampToValueAtTime(486, now + duration * 0.85);
 
-      // 2. Warm low-end fire rumble
-      const rumble = ctx.createOscillator();
-      const rumbleGain = ctx.createGain();
-      rumble.type = 'sine';
-      rumble.frequency.setValueAtTime(65, now);
-      rumble.frequency.linearRampToValueAtTime(120, now + duration * 0.7);
-
-      rumbleGain.gain.setValueAtTime(0.01, now);
-      rumbleGain.gain.linearRampToValueAtTime(0.18, now + duration * 0.6);
-      rumbleGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-      rumble.connect(rumbleGain);
-      rumbleGain.connect(ctx.destination);
-      rumble.start(now);
-      rumble.stop(now + duration);
-      this.activeNodes.push(rumble);
-    } catch {
-      // ignore
-    }
-  }
-
-  /**
-   * Flame Peak: Deep, warm impact as the fire engulfs the screen
-   */
-  public playFlamePeakImpact(): void {
-    if (this.isMuted) return;
-    const ctx = this.initContext();
-    if (!ctx) return;
-
-    try {
-      const now = ctx.currentTime;
-
-      // Warm flame impact punch (clean sub drop, not harsh)
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(125, now);
-      osc.frequency.exponentialRampToValueAtTime(30, now + 0.6);
-
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.8);
-      this.activeNodes.push(osc);
-
-      // Soft fiery rush burst
-      const burstSize = Math.floor(ctx.sampleRate * 0.2);
-      const burstBuffer = ctx.createBuffer(1, burstSize, ctx.sampleRate);
-      const data = burstBuffer.getChannelData(0);
-      for (let i = 0; i < burstSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (burstSize * 0.35));
-      }
-      const burst = ctx.createBufferSource();
-      burst.buffer = burstBuffer;
-
-      const burstFilter = ctx.createBiquadFilter();
-      burstFilter.type = 'lowpass';
-      burstFilter.frequency.setValueAtTime(800, now);
-
-      const burstGain = ctx.createGain();
-      burstGain.gain.setValueAtTime(0.14, now);
-
-      burst.connect(burstFilter);
-      burstFilter.connect(burstGain);
-      burstGain.connect(ctx.destination);
-      burst.start(now);
-      this.activeNodes.push(burst);
-    } catch {
-      // ignore
-    }
-  }
-
-  /**
-   * Homepage Reveal: Soft, warm trailing whoosh as the flames part
-   */
-  public playRevealWhoosh(): void {
-    if (this.isMuted) return;
-    const ctx = this.initContext();
-    if (!ctx) return;
-
-    try {
-      const now = ctx.currentTime;
-      const duration = 0.8;
-
-      const bufferSize = Math.floor(ctx.sampleRate * duration);
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
-      }
-      const noise = ctx.createBufferSource();
-      noise.buffer = noiseBuffer;
-
-      const filter = ctx.createBiquadFilter();
+      // Resonant filter climbing with the revs
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(950, now);
-      filter.frequency.exponentialRampToValueAtTime(180, now + duration);
+      filter.Q.setValueAtTime(3.2, now);
+      filter.frequency.setValueAtTime(280, now);
+      filter.frequency.exponentialRampToValueAtTime(1600, now + duration * 0.85);
 
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      // Envelope: swelling up and cutting at peak shift
+      engineGain.gain.setValueAtTime(0.02, now);
+      engineGain.gain.linearRampToValueAtTime(0.18, now + duration * 0.75);
+      engineGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      noise.start(now);
-      this.activeNodes.push(noise);
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(engineGain);
+      engineGain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + duration);
+      osc2.stop(now + duration);
+
+      this.activeNodes.push(osc1, osc2);
     } catch {
       // ignore
     }
   }
 
-  // Backward compatibility aliases
-  public playTitleImpact(): void {
-    this.playDomainTitleImpact();
+  /**
+   * High-speed racing streak transition pass:
+   * Doppler frequency sweep + aerodynamic rushing whoosh + clean resolution tail
+   */
+  public playRacingTransitionSpeedPass(): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const duration = 0.95;
+
+      // 1. Doppler engine streak pass (sharp frequency drop)
+      const engine = ctx.createOscillator();
+      const engineGain = ctx.createGain();
+      engine.type = 'sawtooth';
+      engine.frequency.setValueAtTime(620, now);
+      engine.frequency.exponentialRampToValueAtTime(130, now + duration * 0.65);
+
+      const engineFilter = ctx.createBiquadFilter();
+      engineFilter.type = 'lowpass';
+      engineFilter.frequency.setValueAtTime(1500, now);
+      engineFilter.frequency.exponentialRampToValueAtTime(350, now + duration);
+
+      engineGain.gain.setValueAtTime(0.02, now);
+      engineGain.gain.linearRampToValueAtTime(0.16, now + 0.12);
+      engineGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      engine.connect(engineFilter);
+      engineFilter.connect(engineGain);
+      engineGain.connect(ctx.destination);
+
+      engine.start(now);
+      engine.stop(now + duration);
+      this.activeNodes.push(engine);
+
+      // 2. Aerodynamic air rush noise buffer
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      const airFilter = ctx.createBiquadFilter();
+      airFilter.type = 'bandpass';
+      airFilter.Q.setValueAtTime(1.5, now);
+      airFilter.frequency.setValueAtTime(1100, now);
+      airFilter.frequency.exponentialRampToValueAtTime(220, now + duration);
+
+      const airGain = ctx.createGain();
+      airGain.gain.setValueAtTime(0.2, now);
+      airGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      noise.connect(airFilter);
+      airFilter.connect(airGain);
+      airGain.connect(ctx.destination);
+      noise.start(now);
+      this.activeNodes.push(noise);
+
+      // 3. Clean resolution chime as portfolio reveals
+      const chime = ctx.createOscillator();
+      const chimeGain = ctx.createGain();
+      chime.type = 'sine';
+      chime.frequency.setValueAtTime(523.25, now + 0.45); // C5 note
+      chime.frequency.exponentialRampToValueAtTime(659.25, now + 0.7); // E5
+
+      chimeGain.gain.setValueAtTime(0.0001, now + 0.45);
+      chimeGain.gain.linearRampToValueAtTime(0.05, now + 0.52);
+      chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+
+      chime.connect(chimeGain);
+      chimeGain.connect(ctx.destination);
+      chime.start(now + 0.45);
+      chime.stop(now + 1.15);
+      this.activeNodes.push(chime);
+    } catch {
+      // ignore
+    }
   }
 
-  public playRingWhoosh(): void {
-    this.playFlameEnergyCharge();
+  public playRevealWhoosh(): void {
+    this.playRacingTransitionSpeedPass();
   }
 
-  public playHomepageReveal(): void {
-    this.playRevealWhoosh();
+  public playEnergyCharge(): void {
+    this.playEngineRevAcceleration();
+  }
+
+  public playRacingSpeedPass(): void {
+    this.playRacingTransitionSpeedPass();
   }
 }
 

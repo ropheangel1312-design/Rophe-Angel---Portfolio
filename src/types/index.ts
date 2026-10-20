@@ -1,6 +1,5 @@
 export type IntroPhase = 
   | 'CHIBI_GREETING'
-  | 'DOMAIN_ANNOUNCEMENT'
   | 'DOMAIN_EXPANSION'
   | 'HOMEPAGE_REVEAL';
 
@@ -20,38 +19,43 @@ export interface ProjectItem {
   id: string;
   title: string;
   category: string;
-  description: string;
+  overview: string;
+  problem: string;
+  approach: string[];
   myContribution: string;
-  technologies?: string[];
+  technologies: string[];
   toolsExplored?: string[];
+  challenges: string;
+  outcome?: string;
   isLocalOnly?: boolean;
   screenshots: ProjectScreenshot[];
   links: ProjectLink[];
 }
 
-export interface CollegeEducation {
-  institution: string;
-  degree: string;
-  duration: string;
-  currentYear: string;
+export interface SkillCategory {
+  category: string;
+  skills: string[];
   description: string;
 }
 
-export interface SchoolEducation {
-  institution: string;
-  level: string;
+export interface VenturePillar {
+  title: string;
+  description: string;
 }
 
-export interface EducationData {
-  heading: string;
-  subtitle: string;
-  college: CollegeEducation;
-  schools: SchoolEducation[];
-}
-
-export interface SkillGroup {
-  category: string;
-  skills: string[];
+export interface VentureData {
+  badge: string;
+  title: string;
+  founderRole: string;
+  dates: string;
+  tagline: string;
+  mission: string;
+  pillars: VenturePillar[];
+  links: {
+    label: string;
+    url: string;
+    type: 'linkedin' | 'instagram';
+  }[];
 }
 
 export interface ExperienceItem {
@@ -61,17 +65,7 @@ export interface ExperienceItem {
   dates: string;
   typeOrDuration: string;
   description: string;
-  responsibilities?: string[];
   toolsAndWorkflows?: string[];
-  link?: {
-    label: string;
-    url: string;
-  };
-  links?: {
-    label: string;
-    url: string;
-    type: 'instagram' | 'linkedin' | 'external';
-  }[];
 }
 
 export interface AchievementItem {
@@ -96,19 +90,23 @@ export interface PortfolioData {
     name: string;
     tagline: string;
     shortIntro: string;
-    domainTitle: string;
-    domainSubtitle: string;
+    discipline: string;
+    focusAreas: string[];
   };
   about: {
     heading: string;
     photoUrl: string;
-    bioParagraphs: string[];
-    interests: string[];
+    bio: string;
+    highlights: {
+      label: string;
+      value: string;
+    }[];
+    coreInterests: string[];
   };
-  education: EducationData;
-  skills: string[];
+  skills: SkillCategory[];
   projects: ProjectItem[];
-  experience: ExperienceItem[];
+  venture: VentureData;
+  operationalExperience: ExperienceItem[];
   achievements: AchievementItem[];
   certifications: CertificationItem[];
   contact: {
