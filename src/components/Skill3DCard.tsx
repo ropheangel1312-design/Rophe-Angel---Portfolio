@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { SkillCardData } from '../data/skillsGalleryData';
 import { ArrowUpRight, Cpu, Code, Layers, Compass, Radio, BarChart3 } from 'lucide-react';
 
@@ -173,103 +174,140 @@ export const Skill3DCard: React.FC<Skill3DCardProps> = ({
     }
   };
 
+  const lateralRotations = [-5, 0, 5];
+  const initialRotateY = isReducedMotion ? 0 : lateralRotations[index % 3] ?? 0;
+  const staggerDelay = Math.min(0.3, (index % 6) * 0.08);
+
   return (
     <div
       ref={containerRef}
       className="group/card relative w-full h-full select-none"
-      style={{ perspective: '1100px' }}
+      style={{ perspective: isReducedMotion ? 'none' : '1100px' }}
     >
-      <div
-        ref={cardRef}
-        role="button"
-        tabIndex={0}
-        onClick={(e) => onSelect(card, e.currentTarget)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onSelect(card, e.currentTarget);
-          }
+      <motion.div
+        initial={isReducedMotion ? { opacity: 0, y: 14 } : {
+          opacity: 0.35,
+          y: 38,
+          z: -110,
+          rotateX: 14,
+          rotateY: initialRotateY,
+          scale: 0.94
         }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        aria-haspopup="dialog"
-        aria-label={`Open detailed profile for ${card.title}`}
+        whileInView={isReducedMotion ? { opacity: 1, y: 0 } : {
+          opacity: 1,
+          y: 0,
+          z: 0,
+          rotateX: 0,
+          rotateY: 0,
+          scale: 1
+        }}
+        viewport={{ once: true, amount: 0.15, margin: '0px 0px -30px 0px' }}
+        transition={isReducedMotion ? { duration: 0.35, delay: staggerDelay, ease: 'easeOut' as const } : {
+          opacity: { duration: 0.35, ease: 'easeOut' as const, delay: staggerDelay },
+          y: { duration: 0.85, ease: [0.16, 1, 0.3, 1] as const, delay: staggerDelay },
+          z: { duration: 0.85, ease: [0.16, 1, 0.3, 1] as const, delay: staggerDelay },
+          rotateX: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: staggerDelay },
+          rotateY: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const, delay: staggerDelay },
+          scale: { duration: 0.85, ease: [0.16, 1, 0.3, 1] as const, delay: staggerDelay }
+        }}
         style={{
-          transformStyle: 'preserve-3d',
-          transform: 'rotateX(0deg) rotateY(0deg) translateZ(0px)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08)',
-          transition: isReducedMotion
-            ? 'none'
-            : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+          transformStyle: isReducedMotion ? 'flat' : 'preserve-3d',
+          willChange: isReducedMotion ? 'auto' : 'transform, opacity'
         }}
-        className="relative w-full min-h-[340px] sm:min-h-[380px] p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#121214]/90 via-[#0C0C0E]/95 to-[#08080A] backdrop-blur-xl flex flex-col justify-between text-left cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#FF2800] overflow-hidden"
+        className="w-full h-full"
       >
-        {/* Specular Glare Overlay */}
         <div
-          ref={glareRef}
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none rounded-2xl opacity-0 transition-opacity duration-300 z-20"
-        />
-
-        {/* Dynamic Highlight Border */}
-        <div
-          ref={edgeRef}
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none rounded-2xl border border-white/[0.08] opacity-35 transition-all duration-300 z-10"
-        />
-
-        {/* Top Header: Number and Category Tag */}
-        <div 
-          className="relative z-10 flex items-start justify-between gap-3 mb-6"
-          style={{ transform: 'translateZ(18px)' }}
+          ref={cardRef}
+          role="button"
+          tabIndex={0}
+          onClick={(e) => onSelect(card, e.currentTarget)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onSelect(card, e.currentTarget);
+            }
+          }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          aria-haspopup="dialog"
+          aria-label={`Open detailed profile for ${card.title}`}
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: 'rotateX(0deg) rotateY(0deg) translateZ(0px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+            transition: isReducedMotion
+              ? 'none'
+              : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          className="relative w-full min-h-[340px] sm:min-h-[380px] p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#121214]/90 via-[#0C0C0E]/95 to-[#08080A] backdrop-blur-xl flex flex-col justify-between text-left cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#FF2800] overflow-hidden"
         >
-          <div className="flex flex-col">
-            <span className="font-tech text-2xl sm:text-3xl font-bold text-[#FF2800] tracking-wider">
-              {card.number}
-            </span>
-            <span className="font-tech text-[11px] font-semibold tracking-widest text-neutral-400 uppercase mt-0.5">
-              DOMAIN DISCIPLINE
-            </span>
+          {/* Specular Glare Overlay */}
+          <div
+            ref={glareRef}
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none rounded-2xl opacity-0 transition-opacity duration-300 z-20"
+          />
+
+          {/* Dynamic Highlight Border */}
+          <div
+            ref={edgeRef}
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none rounded-2xl border border-white/[0.08] opacity-35 transition-all duration-300 z-10"
+          />
+
+          {/* Top Header: Number and Category Tag */}
+          <div 
+            className="relative z-10 flex items-start justify-between gap-3 mb-6"
+            style={{ transform: 'translateZ(18px)' }}
+          >
+            <div className="flex flex-col">
+              <span className="font-tech text-2xl sm:text-3xl font-bold text-[#FF2800] tracking-wider">
+                {card.number}
+              </span>
+              <span className="font-tech text-[11px] font-semibold tracking-widest text-neutral-400 uppercase mt-0.5">
+                DOMAIN DISCIPLINE
+              </span>
+            </div>
+
+            <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-neutral-400 group-hover/card:text-white group-hover/card:border-[#FF2800]/50 transition-colors">
+              <ArrowUpRight className="w-4 h-4 transition-transform group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5" />
+            </div>
           </div>
 
-          <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-neutral-400 group-hover/card:text-white group-hover/card:border-[#FF2800]/50 transition-colors">
-            <ArrowUpRight className="w-4 h-4 transition-transform group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5" />
-          </div>
-        </div>
+          {/* Middle Visual Anchor: Suspended 3D Motif */}
+          <div 
+            className="relative z-10 my-auto py-2 flex items-center justify-between"
+            style={{ transform: 'translateZ(26px)' }}
+          >
+            <div className="flex-1 pr-4">
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug group-hover/card:text-white">
+                {card.title}
+              </h3>
+              <p className="font-tech text-xs text-[#FF2800] tracking-wide uppercase font-semibold mt-1.5">
+                {card.tagline}
+              </p>
+            </div>
 
-        {/* Middle Visual Anchor: Suspended 3D Motif */}
-        <div 
-          className="relative z-10 my-auto py-2 flex items-center justify-between"
-          style={{ transform: 'translateZ(26px)' }}
-        >
-          <div className="flex-1 pr-4">
-            <h3 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug group-hover/card:text-white">
-              {card.title}
-            </h3>
-            <p className="font-tech text-xs text-[#FF2800] tracking-wide uppercase font-semibold mt-1.5">
-              {card.tagline}
+            <div className="shrink-0 transition-transform duration-500 group-hover/card:scale-108">
+              {renderGraphicMotif()}
+            </div>
+          </div>
+
+          {/* Bottom Prose & Cue */}
+          <div 
+            className="relative z-10 pt-4 border-t border-white/[0.06] mt-4 flex items-end justify-between gap-3"
+            style={{ transform: 'translateZ(14px)' }}
+          >
+            <p className="font-body text-xs sm:text-sm text-neutral-400 line-clamp-2 leading-relaxed max-w-[82%]">
+              {card.shortDescription}
             </p>
-          </div>
 
-          <div className="shrink-0 transition-transform duration-500 group-hover/card:scale-108">
-            {renderGraphicMotif()}
+            <span className="font-tech text-[11px] font-bold tracking-wider text-neutral-400 group-hover/card:text-[#FF2800] uppercase shrink-0 transition-colors">
+              EXPAND ⤢
+            </span>
           </div>
         </div>
-
-        {/* Bottom Prose & Cue */}
-        <div 
-          className="relative z-10 pt-4 border-t border-white/[0.06] mt-4 flex items-end justify-between gap-3"
-          style={{ transform: 'translateZ(14px)' }}
-        >
-          <p className="font-body text-xs sm:text-sm text-neutral-400 line-clamp-2 leading-relaxed max-w-[82%]">
-            {card.shortDescription}
-          </p>
-
-          <span className="font-tech text-[11px] font-bold tracking-wider text-neutral-400 group-hover/card:text-[#FF2800] uppercase shrink-0 transition-colors">
-            EXPAND ⤢
-          </span>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

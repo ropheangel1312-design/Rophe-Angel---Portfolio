@@ -10,6 +10,7 @@ import { CinematicEndCredits } from './CinematicEndCredits';
 import { PapersSection } from './PapersSection';
 import { WipSection } from './WipSection';
 import { SkillsGallery3D } from './SkillsGallery3D';
+import { Card3D } from './Card3D';
 import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
@@ -270,8 +271,12 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Authentic Portrait Framing */}
           <div className="lg:col-span-5 relative group">
-            <div className="relative rounded-xl overflow-hidden f1-card shadow-2xl">
-              
+            <Card3D 
+              index={0} 
+              isReducedMotion={isReducedMotion} 
+              maxTilt={4.5}
+              className="relative rounded-xl overflow-hidden f1-card shadow-2xl"
+            >
               {/* Corner tech accents */}
               <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-tech text-[#FFFFFF] border border-white/[0.1] shadow-md">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
@@ -291,19 +296,24 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                 <span>DEGREE: B.TECH CSE</span>
                 <span className="text-[#E10600] font-semibold">EST. 2026</span>
               </div>
-            </div>
+            </Card3D>
           </div>
 
           {/* Concise 2-3 sentence introduction */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="f1-card rounded-xl p-6 sm:p-8 space-y-4">
+            <Card3D 
+              index={1} 
+              isReducedMotion={isReducedMotion} 
+              maxTilt={4}
+              className="f1-card rounded-xl p-6 sm:p-8 space-y-4"
+            >
               <span className="text-xs font-tech font-bold uppercase text-[#E10600] tracking-widest fx-lens" data-text="ENGINEERING PROFILE">
                 ENGINEERING PROFILE
               </span>
               <p className="font-body text-base sm:text-lg text-neutral-200 leading-relaxed font-normal">
                 {portfolioData.about.bio}
               </p>
-            </div>
+            </Card3D>
 
             {/* Focus areas */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -385,8 +395,11 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             {portfolioData.skills.map((categoryGroup, index) => {
               const Icon = getCategoryIcon(categoryGroup.category);
               return (
-                <div 
+                <Card3D 
                   key={index}
+                  index={index}
+                  isReducedMotion={isReducedMotion}
+                  maxTilt={4.5}
                   className="f1-card rounded-xl p-6 sm:p-7 flex flex-col justify-between"
                 >
                   <div>
@@ -415,7 +428,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                       ))}
                     </div>
                   </div>
-                </div>
+                </Card3D>
               );
             })}
           </div>
@@ -453,6 +466,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               key={project.id} 
               project={project} 
               index={idx} 
+              isReducedMotion={isReducedMotion}
             />
           ))}
         </div>
@@ -489,15 +503,19 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           </p>
         </div>
 
-        <div className="f1-card rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
-          
+        <Card3D 
+          index={0} 
+          isReducedMotion={isReducedMotion} 
+          maxTilt={3}
+          className="f1-card rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden"
+        >
           <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 gap-4">
             <div>
               <span className="text-xs font-tech font-bold uppercase text-[#E10600] px-3 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] inline-block mb-2">
                 {portfolioData.venture.badge}
               </span>
               <h3 className="font-display text-2xl sm:text-4xl font-bold text-[#FFFFFF]">
-                {portfolioData.venture.title}
+                GradEarn
               </h3>
               <p className="text-sm font-tech text-neutral-400 mt-1">
                 {portfolioData.venture.founderRole} · {portfolioData.venture.dates}
@@ -532,8 +550,11 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
               {portfolioData.venture.pillars.map((pillar, pIdx) => (
-                <div 
+                <Card3D 
                   key={pIdx}
+                  index={pIdx}
+                  isReducedMotion={isReducedMotion}
+                  maxTilt={4}
                   className="p-4 rounded-xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08] hover:border-[#E10600]/50 hover:bg-white/[0.07] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
                 >
                   <div className="text-xs font-tech font-bold text-[#E10600] uppercase mb-1">
@@ -545,12 +566,11 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                   <p className="font-body text-xs text-neutral-400 leading-relaxed">
                     {pillar.description}
                   </p>
-                </div>
+                </Card3D>
               ))}
             </div>
           </div>
-
-        </div>
+        </Card3D>
       </motion.section>
 
       {/* ===================== SECTION 5: PRACTICAL EXPERIENCE (NPTEL & V-Vortex REMOVED) ===================== */}
@@ -579,9 +599,12 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         </div>
 
         <div className="max-w-3xl">
-          {portfolioData.operationalExperience.map((exp) => (
-            <div 
+          {portfolioData.operationalExperience.map((exp, expIdx) => (
+            <Card3D 
               key={exp.id}
+              index={expIdx}
+              isReducedMotion={isReducedMotion}
+              maxTilt={3.5}
               className="f1-card rounded-xl p-6 sm:p-8 flex flex-col justify-between shadow-xl"
             >
               <div>
@@ -592,10 +615,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                     </div>
                     <div>
                       <h3 className="font-display text-xl sm:text-2xl font-bold text-[#FFFFFF]">
-                        {exp.role}
+                        {exp.organization}
                       </h3>
                       <p className="font-tech text-sm text-[#E10600] font-semibold">
-                        {exp.organization}
+                        {exp.role}
                       </p>
                     </div>
                   </div>
@@ -629,7 +652,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </Card3D>
           ))}
         </div>
       </motion.section>

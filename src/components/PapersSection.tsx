@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { PaperItem } from '../types';
 import { papersData } from '../data/papersData';
 import { TextScramble } from './TextScramble';
+import { Card3D } from './Card3D';
 import { 
   FileText, 
   ExternalLink, 
@@ -77,48 +78,6 @@ export const PapersSection: React.FC<PapersSectionProps> = ({ isReducedMotion })
 
   const cinematicEase = [0.16, 1, 0.3, 1] as const;
 
-  // Staggered 3D spatial orientation configuration for Phase B materialization
-  const getDocumentSpatialConfig = (index: number) => {
-    if (isReducedMotion) {
-      return {
-        initial: { opacity: 0, y: 16 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.35, delay: index * 0.1, ease: 'easeOut' as const }
-      };
-    }
-
-    // Index-based spatial divergence (left card tilts inward from -5.5deg, right from +5.5deg)
-    const lateralRotations = [-5.5, 0, 5.5];
-    const initialRotateY = lateralRotations[index] ?? 0;
-
-    return {
-      initial: {
-        opacity: 0,
-        y: 45,
-        z: -180,
-        rotateX: 20,
-        rotateY: initialRotateY,
-        scale: 0.92
-      },
-      animate: {
-        opacity: 1,
-        y: 0,
-        z: 0,
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1
-      },
-      transition: {
-        opacity: { duration: 0.28, ease: 'easeOut' as const, delay: 0.08 + index * 0.15 },
-        y: { duration: 0.95, ease: cinematicEase, delay: 0.08 + index * 0.15 },
-        z: { duration: 0.95, ease: cinematicEase, delay: 0.08 + index * 0.15 },
-        rotateX: { duration: 1.0, ease: cinematicEase, delay: 0.08 + index * 0.15 },
-        rotateY: { duration: 1.0, ease: cinematicEase, delay: 0.08 + index * 0.15 },
-        scale: { duration: 0.95, ease: cinematicEase, delay: 0.08 + index * 0.15 }
-      }
-    };
-  };
-
   return (
     <section 
       id="papers" 
@@ -180,106 +139,99 @@ export const PapersSection: React.FC<PapersSectionProps> = ({ isReducedMotion })
         className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7 relative"
       >
         {papersData.map((paper, index) => {
-          const spatialConfig = getDocumentSpatialConfig(index);
+          const paperName = paper.title.split(':')[0].trim();
+          const paperSubtitle = paper.title.includes(':') 
+            ? paper.title.split(':').slice(1).join(':').trim() 
+            : '';
 
           return (
-            <div
+            <Card3D
               key={paper.id}
-              className="w-full flex"
-              style={{
-                perspective: isReducedMotion ? 'none' : '1000px',
-                perspectiveOrigin: 'center center'
+              index={index}
+              isReducedMotion={isReducedMotion}
+              lateralTilt={true}
+              role="button"
+              tabIndex={0}
+              onClick={(e) => handleOpen(paper, e)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOpen(paper, e);
+                }
               }}
+              aria-haspopup="dialog"
+              aria-label={`Open research dossier for ${paperName}`}
+              className="f1-card rounded-xl p-6 sm:p-7 flex flex-col justify-between cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left overflow-hidden"
             >
-              <motion.div
-                initial={spatialConfig.initial}
-                whileInView={spatialConfig.animate}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={spatialConfig.transition}
-                style={{ 
-                  transformStyle: isReducedMotion ? 'flat' : 'preserve-3d',
-                  willChange: isReducedMotion ? 'auto' : 'transform, opacity'
-                }}
-                className="flex w-full"
-              >
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => handleOpen(paper, e)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleOpen(paper, e);
-                    }
-                  }}
-                  aria-haspopup="dialog"
-                  aria-label={`Open research dossier for ${paper.title}`}
-                  className="f1-card rounded-xl p-6 sm:p-7 flex flex-col justify-between group relative overflow-hidden cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left transition-all duration-300 hover:-translate-y-1.5 w-full"
-                >
-                  {/* Top red laser rim accent */}
-                  <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#E10600]/60 to-transparent group-hover:via-[#E10600] group-hover:shadow-[0_0_12px_rgba(225,6,0,0.6)] transition-all duration-300" />
+              {/* Top red laser rim accent */}
+              <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#E10600]/60 to-transparent group-hover:via-[#E10600] group-hover:shadow-[0_0_12px_rgba(225,6,0,0.6)] transition-all duration-300" />
 
-                  <div>
-                    {/* Category & Status Bar — Zero-Pill Typography */}
-                    <div className="flex items-center justify-between gap-2 mb-4 text-xs font-tech">
-                      <span className="font-bold text-[#E10600] uppercase tracking-wider flex items-center gap-1.5">
-                        <span>MS-{paper.number}</span>
-                        <span className="text-neutral-600">/</span>
-                        <span className="text-neutral-400 font-normal">VAULT</span>
-                      </span>
-                      <span className="font-mono text-[11px] text-neutral-400 tracking-wider">
-                        [{paper.status}]
-                      </span>
-                    </div>
-
-                    {/* High-Precision Recessed Emblem Display */}
-                    <div className="h-20 w-full mb-5 flex items-center justify-start p-2.5 rounded-lg bg-black/50 border border-white/[0.06] group-hover:border-white/[0.14] transition-colors shadow-inner">
-                      <img
-                        src={paper.logoUrl}
-                        alt={`${paper.title.split(':')[0]} Official Logo`}
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const img = e.currentTarget as HTMLImageElement;
-                          if (img.src !== paper.fallbackLogoUrl) {
-                            img.src = paper.fallbackLogoUrl;
-                          }
-                        }}
-                        className="max-h-full max-w-full object-contain filter brightness-105 group-hover:scale-102 transition-transform duration-300"
-                      />
-                    </div>
-
-                    {/* Clean unboxed category kicker */}
-                    <div className="mb-2">
-                      <span className="text-[11px] font-tech uppercase tracking-wider text-neutral-400 font-semibold">
-                        {paper.category}
-                      </span>
-                    </div>
-
-                    {/* Paper Title with balanced wrapping */}
-                    <h3 className="font-display text-base sm:text-lg font-bold text-[#FFFFFF] group-hover:text-[#E10600] transition-colors leading-snug mb-3">
-                      {paper.title}
-                    </h3>
-
-                    {/* Abstract Preview */}
-                    <p className="font-body text-xs sm:text-sm text-neutral-300 line-clamp-3 leading-relaxed mb-4">
-                      {paper.abstract}
-                    </p>
-                  </div>
-
-                  {/* Bottom Meta & Interactive Trigger */}
-                  <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between gap-2 mt-auto">
-                    <div className="text-[11px] font-tech text-neutral-400 truncate max-w-[65%]">
-                      <span className="text-neutral-500">STAGE: </span>
-                      <span className="text-neutral-300">{paper.researchStage.split(';')[0]}</span>
-                    </div>
-                    <div className="inline-flex items-center gap-1.5 text-xs font-tech font-bold uppercase tracking-wider text-[#E10600] group-hover:translate-x-1 transition-transform shrink-0">
-                      <span>DOSSIER</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
+              <div>
+                {/* Category & Status Bar — Zero-Pill Typography */}
+                <div className="flex items-center justify-between gap-2 mb-4 text-xs font-tech">
+                  <span className="font-bold text-[#E10600] uppercase tracking-wider flex items-center gap-1.5">
+                    <span>MS-{paper.number}</span>
+                    <span className="text-neutral-600">/</span>
+                    <span className="text-neutral-400 font-normal">VAULT</span>
+                  </span>
+                  <span className="font-mono text-[11px] text-neutral-400 tracking-wider">
+                    [{paper.status}]
+                  </span>
                 </div>
-              </motion.div>
-            </div>
+
+                {/* High-Precision Recessed Emblem Display */}
+                <div className="h-20 w-full mb-5 flex items-center justify-start p-2.5 rounded-lg bg-black/50 border border-white/[0.06] group-hover:border-white/[0.14] transition-colors shadow-inner">
+                  <img
+                    src={paper.logoUrl}
+                    alt={`${paperName} Official Logo`}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const img = e.currentTarget as HTMLImageElement;
+                      if (img.src !== paper.fallbackLogoUrl) {
+                        img.src = paper.fallbackLogoUrl;
+                      }
+                    }}
+                    className="max-h-full max-w-full object-contain filter brightness-105 group-hover:scale-102 transition-transform duration-300"
+                  />
+                </div>
+
+                {/* Clean unboxed category kicker */}
+                <div className="mb-2">
+                  <span className="text-[11px] font-tech uppercase tracking-wider text-neutral-400 font-semibold">
+                    {paper.category}
+                  </span>
+                </div>
+
+                {/* Paper Title: Shortened to actual name */}
+                <h3 className="font-display text-lg sm:text-xl font-bold text-[#FFFFFF] group-hover:text-[#E10600] transition-colors leading-snug mb-1.5">
+                  {paperName}
+                </h3>
+
+                {/* Subtitle describing scope */}
+                {paperSubtitle && (
+                  <p className="font-tech text-xs text-neutral-400 leading-snug line-clamp-2 mb-3">
+                    {paperSubtitle}
+                  </p>
+                )}
+
+                {/* Abstract Preview */}
+                <p className="font-body text-xs sm:text-sm text-neutral-300 line-clamp-3 leading-relaxed mb-4">
+                  {paper.abstract}
+                </p>
+              </div>
+
+              {/* Bottom Meta & Interactive Trigger */}
+              <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between gap-2 mt-auto">
+                <div className="text-[11px] font-tech text-neutral-400 truncate max-w-[65%]">
+                  <span className="text-neutral-500">STAGE: </span>
+                  <span className="text-neutral-300">{paper.researchStage.split(';')[0]}</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 text-xs font-tech font-bold uppercase tracking-wider text-[#E10600] group-hover:translate-x-1 transition-transform shrink-0">
+                  <span>DOSSIER</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            </Card3D>
           );
         })}
       </div>

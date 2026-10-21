@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { WipItem } from '../types';
 import { wipData } from '../data/wipData';
 import { TextScramble } from './TextScramble';
+import { Card3D } from './Card3D';
 import { 
   Sparkles, 
   Compass, 
@@ -10,11 +11,11 @@ import {
   Target, 
   CheckCircle, 
   X, 
-  ArrowRight,
-  Flame,
-  Radio,
-  Clock,
-  Milestone
+  ArrowRight, 
+  Flame, 
+  Radio, 
+  Clock, 
+  Milestone 
 } from 'lucide-react';
 
 interface WipSectionProps {
@@ -110,11 +111,14 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
 
       {/* WIP Teaser Cards (2-Column Showcase) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-        {wipData.map((wip) => {
+        {wipData.map((wip, idx) => {
           const isAstral = wip.atmosphericTheme === 'astral';
           return (
-            <div
+            <Card3D
               key={wip.id}
+              index={idx}
+              isReducedMotion={isReducedMotion}
+              lateralTilt={true}
               role="button"
               tabIndex={0}
               onClick={(e) => handleOpen(wip, e)}
@@ -126,7 +130,7 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
               }}
               aria-haspopup="dialog"
               aria-label={`Open cinematic overlay for ${wip.title}`}
-              className="f1-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between group relative overflow-hidden cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left transition-all duration-300 hover:-translate-y-1.5 shadow-2xl"
+              className="f1-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left overflow-hidden shadow-2xl"
             >
               {/* Atmospheric Background Ambient Radial Glow */}
               <div 
@@ -203,7 +207,7 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
-            </div>
+            </Card3D>
           );
         })}
       </div>

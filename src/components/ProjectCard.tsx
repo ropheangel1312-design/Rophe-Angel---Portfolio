@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ProjectItem } from '../types';
 import { TextScramble } from './TextScramble';
+import { Card3D } from './Card3D';
 import { 
   ExternalLink, 
   Github, 
@@ -20,23 +21,20 @@ import {
 interface ProjectCardProps {
   project: ProjectItem;
   index: number;
+  isReducedMotion?: boolean;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, isReducedMotion = false }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isLightboxClosing, setIsLightboxClosing] = useState(false);
   
-  // Studio 3D Dynamic Specular Tilt (direct rAF-scheduled DOM updates avoiding React component rerenders)
-  const cardRef = useRef<HTMLDivElement>(null);
-  const glareRef = useRef<HTMLDivElement>(null);
-  const cardRectRef = useRef<DOMRect | null>(null);
-  const tiltRafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
+  const cardRef = useRef<HTMLDivElement>(null);
   const modalCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lightboxCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -45,7 +43,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
     return () => {
       if (modalCloseTimerRef.current) clearTimeout(modalCloseTimerRef.current);
       if (lightboxCloseTimerRef.current) clearTimeout(lightboxCloseTimerRef.current);
-      if (tiltRafRef.current) cancelAnimationFrame(tiltRafRef.current);
     };
   }, []);
 
@@ -59,53 +56,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
       };
     }
   }, [modalOpen, lightboxOpen]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    if (!cardRectRef.current) {
-      cardRectRef.current = cardRef.current.getBoundingClientRect();
-    }
-    const rect = cardRectRef.current;
-    const nx = (e.clientX - rect.left) / rect.width;
-    const ny = (e.clientY - rect.top) / rect.height;
-    
-    // Controlled, studio-grade angular tilt (max 5.5 degrees)
-    const tiltX = -(ny - 0.5) * 5.5;
-    const tiltY = (nx - 0.5) * 5.5;
-    const glareX = nx * 100;
-    const glareY = ny * 100;
-
-    if (tiltRafRef.current) cancelAnimationFrame(tiltRafRef.current);
-    tiltRafRef.current = requestAnimationFrame(() => {
-      if (!cardRef.current) return;
-      cardRef.current.style.transform = `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-5px)`;
-      cardRef.current.style.boxShadow = `${-tiltY * 2.2}px ${tiltX * 2.2 + 14}px 32px rgba(0, 0, 0, 0.92), 0 0 24px rgba(225, 6, 0, 0.16)`;
-      if (glareRef.current) {
-        glareRef.current.style.opacity = '0.12';
-        glareRef.current.style.background = `radial-gradient(circle 320px at ${glareX}% ${glareY}%, rgba(255, 255, 255, 0.08), rgba(225, 6, 0, 0.12) 35%, transparent 70%)`;
-      }
-    });
-  };
-
-  const handleMouseEnter = () => {
-    if (cardRef.current) {
-      cardRectRef.current = cardRef.current.getBoundingClientRect();
-    }
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    cardRectRef.current = null;
-    if (tiltRafRef.current) cancelAnimationFrame(tiltRafRef.current);
-    setIsHovered(false);
-    if (cardRef.current) {
-      cardRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)';
-      cardRef.current.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.6)';
-    }
-    if (glareRef.current) {
-      glareRef.current.style.opacity = '0';
-    }
-  };
 
   const openModal = () => {
     if (modalCloseTimerRef.current) clearTimeout(modalCloseTimerRef.current);
@@ -168,14 +118,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
   return (
     <>
       {/* ===================== F1 STUDIO CASE STUDY CARD ===================== */}
-      <div
+      <Card3D
         ref={cardRef}
+        index={index}
+        isReducedMotion={isReducedMotion}
         role="button"
         tabIndex={0}
         onClick={openModal}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onKeyDown={(e) => {
@@ -186,25 +137,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
         }}
         aria-haspopup="dialog"
         aria-label={`Open case study for ${project.title}`}
-        style={{
-          transform: 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.6)',
-          transition: isHovered 
-            ? 'transform 0.08s ease-out, box-shadow 0.08s ease-out' 
-            : 'transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease-out, box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}
-        className="f1-card rounded-xl p-5 flex flex-col justify-between group relative overflow-hidden cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left"
+        className="f1-card rounded-xl p-5 flex flex-col justify-between cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600] text-left overflow-hidden"
       >
-        {/* Studio Anamorphic Surface Glare & Specular Reflection */}
-        <div 
-          ref={glareRef}
-          className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-10"
-          style={{
-            opacity: 0,
-            background: 'radial-gradient(circle 320px at 50% 50%, rgba(255, 255, 255, 0.08), rgba(225, 6, 0, 0.12) 35%, transparent 70%)'
-          }}
-        />
-
         {/* Top telemetry corner indicator */}
         <div className="absolute top-0 right-0 w-8 h-8 pointer-events-none overflow-hidden z-10">
           <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#E10600]/60 group-hover:border-[#E10600] transition-colors" />
@@ -289,7 +223,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             <ArrowRight className="w-3.5 h-3.5" />
           </span>
         </div>
-      </div>
+      </Card3D>
 
       {/* ===================== FULL MOTORSPORT CASE STUDY MODAL ===================== */}
       {modalOpen && (
