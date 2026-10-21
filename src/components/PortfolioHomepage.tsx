@@ -97,13 +97,23 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       }
     };
 
-    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
-    window.addEventListener('resize', handleScrollOrResize, { passive: true });
+    let scrollRaf: number | null = null;
+    const scheduleCheck = () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = null;
+        handleScrollOrResize();
+      });
+    };
+
+    window.addEventListener('scroll', scheduleCheck, { passive: true });
+    window.addEventListener('resize', scheduleCheck, { passive: true });
 
     return () => {
       clearTimer();
-      window.removeEventListener('scroll', handleScrollOrResize);
-      window.removeEventListener('resize', handleScrollOrResize);
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      window.removeEventListener('scroll', scheduleCheck);
+      window.removeEventListener('resize', scheduleCheck);
     };
   }, [showCredits]);
 

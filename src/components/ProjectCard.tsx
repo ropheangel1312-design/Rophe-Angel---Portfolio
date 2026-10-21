@@ -29,10 +29,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isLightboxClosing, setIsLightboxClosing] = useState(false);
   
-  // Studio 3D Dynamic Specular Tilt states
+  // Studio 3D Dynamic Specular Tilt (direct rAF-scheduled DOM updates avoiding React component rerenders)
   const cardRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
+  const glareRef = useRef<HTMLDivElement>(null);
+  const cardRectRef = useRef<DOMRect | null>(null);
+  const tiltRafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -44,6 +45,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
     return () => {
       if (modalCloseTimerRef.current) clearTimeout(modalCloseTimerRef.current);
       if (lightboxCloseTimerRef.current) clearTimeout(lightboxCloseTimerRef.current);
+      if (tiltRafRef.current) cancelAnimationFrame(tiltRafRef.current);
     };
   }, []);
 
@@ -60,32 +62,49 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
+    if (!cardRectRef.current) {
+      cardRectRef.current = cardRef.current.getBoundingClientRect();
+    }
+    const rect = cardRectRef.current;
     const nx = (e.clientX - rect.left) / rect.width;
     const ny = (e.clientY - rect.top) / rect.height;
     
-    // Controlled, studio-grade angular tilt (max 4.5 degrees)
-    setTilt({ 
-      x: -(ny - 0.5) * 5.5, 
-      y: (nx - 0.5) * 5.5 
-    });
+    // Controlled, studio-grade angular tilt (max 5.5 degrees)
+    const tiltX = -(ny - 0.5) * 5.5;
+    const tiltY = (nx - 0.5) * 5.5;
+    const glareX = nx * 100;
+    const glareY = ny * 100;
 
-    // Realistic specular light reflection position
-    setGlare({
-      x: nx * 100,
-      y: ny * 100,
-      opacity: 0.12
+    if (tiltRafRef.current) cancelAnimationFrame(tiltRafRef.current);
+    tiltRafRef.current = requestAnimationFrame(() => {
+      if (!cardRef.current) return;
+      cardRef.current.style.transform = `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-5px)`;
+      cardRef.current.style.boxShadow = `${-tiltY * 2.2}px ${tiltX * 2.2 + 14}px 32px rgba(0, 0, 0, 0.92), 0 0 24px rgba(225, 6, 0, 0.16)`;
+      if (glareRef.current) {
+        glareRef.current.style.opacity = '0.12';
+        glareRef.current.style.background = `radial-gradient(circle 320px at ${glareX}% ${glareY}%, rgba(255, 255, 255, 0.08), rgba(225, 6, 0, 0.12) 35%, transparent 70%)`;
+      }
     });
   };
 
   const handleMouseEnter = () => {
+    if (cardRef.current) {
+      cardRectRef.current = cardRef.current.getBoundingClientRect();
+    }
     setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
+    cardRectRef.current = null;
+    if (tiltRafRef.current) cancelAnimationFrame(tiltRafRef.current);
     setIsHovered(false);
-    setTilt({ x: 0, y: 0 });
-    setGlare((prev) => ({ ...prev, opacity: 0 }));
+    if (cardRef.current) {
+      cardRef.current.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+      cardRef.current.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.6)';
+    }
+    if (glareRef.current) {
+      glareRef.current.style.opacity = '0';
+    }
   };
 
   const openModal = () => {
@@ -168,12 +187,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
         aria-haspopup="dialog"
         aria-label={`Open case study for ${project.title}`}
         style={{
-          transform: isHovered 
-            ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(-5px)` 
-            : 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)',
-          boxShadow: isHovered
-            ? `${-tilt.y * 2.2}px ${tilt.x * 2.2 + 14}px 32px rgba(0, 0, 0, 0.92), 0 0 24px rgba(225, 6, 0, 0.16)`
-            : '0 4px 20px rgba(0, 0, 0, 0.6)',
+          transform: 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.6)',
           transition: isHovered 
             ? 'transform 0.08s ease-out, box-shadow 0.08s ease-out' 
             : 'transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease-out, box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1)'
@@ -182,10 +197,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
       >
         {/* Studio Anamorphic Surface Glare & Specular Reflection */}
         <div 
+          ref={glareRef}
           className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-10"
           style={{
-            opacity: glare.opacity,
-            background: `radial-gradient(circle 320px at ${glare.x}% ${glare.y}%, rgba(255, 255, 255, 0.08), rgba(225, 6, 0, 0.12) 35%, transparent 70%)`
+            opacity: 0,
+            background: 'radial-gradient(circle 320px at 50% 50%, rgba(255, 255, 255, 0.08), rgba(225, 6, 0, 0.12) 35%, transparent 70%)'
           }}
         />
 

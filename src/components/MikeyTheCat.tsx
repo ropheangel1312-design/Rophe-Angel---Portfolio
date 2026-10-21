@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { domainAudio } from '../utils/audio';
 import { MikeySprite, CatState } from './MikeySprite';
+import { pageVisibility } from '../utils/performance';
 
 interface MikeyTheCatProps {
   isReducedMotion?: boolean;
@@ -173,8 +174,21 @@ export const MikeyTheCat: React.FC<MikeyTheCatProps> = ({ isReducedMotion = fals
       roamToNextDestination();
     }, 1500);
 
+    // Suspend roaming timers when page is hidden
+    const unsubscribeVis = pageVisibility.subscribe((isVisible) => {
+      if (!isVisible) {
+        if (moveTimerRef.current) clearTimeout(moveTimerRef.current);
+        if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+      } else {
+        if (!isDraggingRef.current && catStateRef.current !== 'falling') {
+          roamToNextDestination();
+        }
+      }
+    });
+
     return () => {
       clearTimeout(initialTimer);
+      unsubscribeVis();
       if (moveTimerRef.current) clearTimeout(moveTimerRef.current);
       if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
       if (reactionTimerRef.current) clearTimeout(reactionTimerRef.current);

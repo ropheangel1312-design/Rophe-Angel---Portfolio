@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { observeElementVisibility, pageVisibility } from '../utils/performance';
 
 interface VelocityMarqueeProps {
   isReducedMotion?: boolean;
@@ -41,14 +42,28 @@ const ROWS: MarqueeRowConfig[] = [
   },
 ];
 
+/**
+ * High-Performance VelocityMarquee
+ * 
+ * Game-Engine Optimization:
+ * - Frustum Culling: Automatically suspends the continuous requestAnimationFrame loop
+ *   whenever the marquee is outside the viewport, preserving CPU/GPU cycles for active sections.
+ * - Tab Visibility Coordination: Halts animation loop when browser tab is hidden.
+ * - Smooth seamless resume with zero position jumps upon scrolling back into view.
+ */
 export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({ isReducedMotion = false }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    const container = containerRef.current;
+    if (!container) return;
 
     let animId = 0;
+    let isRunning = false;
+    let isVisible = true;
+    let isTabVisible = pageVisibility.getIsVisible();
     const offsets = ROWS.map(() => 0);
     const halves: number[] = ROWS.map(() => 0);
 
@@ -76,6 +91,11 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({ isReducedMotio
     let velocity = 0;
 
     const tick = () => {
+      if (!isVisible || !isTabVisible) {
+        isRunning = false;
+        return;
+      }
+
       const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
       const moved = currentScroll - lastScroll;
       lastScroll = currentScroll;
@@ -102,10 +122,45 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({ isReducedMotio
       animId = requestAnimationFrame(tick);
     };
 
-    animId = requestAnimationFrame(tick);
+    const startLoop = () => {
+      if (isRunning || !isVisible || !isTabVisible) return;
+      isRunning = true;
+      lastScroll = window.scrollY || document.documentElement.scrollTop || 0;
+      animId = requestAnimationFrame(tick);
+    };
+
+    const stopLoop = () => {
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+      isRunning = false;
+    };
+
+    // Frustum culling: Only run when marquee is inside or near the viewport
+    const unobserve = observeElementVisibility(container, (inView) => {
+      isVisible = inView;
+      if (inView) {
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    }, { threshold: 0.05, rootMargin: '120px' });
+
+    // Tab visibility handling
+    const unsubscribeTab = pageVisibility.subscribe((tabVis) => {
+      isTabVisible = tabVis;
+      if (tabVis && isVisible) {
+        startLoop();
+      } else if (!tabVis) {
+        stopLoop();
+      }
+    });
 
     return () => {
-      cancelAnimationFrame(animId);
+      stopLoop();
+      unobserve();
+      unsubscribeTab();
       window.removeEventListener('resize', handleResize);
     };
   }, [isReducedMotion]);

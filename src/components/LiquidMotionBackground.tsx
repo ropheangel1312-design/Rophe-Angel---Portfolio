@@ -295,6 +295,10 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
             canvas.width = w;
             canvas.height = h;
             gl.viewport(0, 0, w, h);
+            if (resUniform && program) {
+              gl.useProgram(program);
+              gl.uniform2f(resUniform, w, h);
+            }
           }
         };
 
@@ -302,14 +306,16 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
         window.addEventListener('resize', updateSize, { passive: true });
 
         const startTime = performance.now();
+        let isRunning = false;
+        let isTabVisible = !document.hidden;
 
         const renderWebGL = () => {
-          if (!gl || !program) return;
+          if (!gl || !program || !isTabVisible) {
+            isRunning = false;
+            return;
+          }
           const elapsed = (performance.now() - startTime) * 0.001;
 
-          if (resUniform) {
-            gl.uniform2f(resUniform, canvas.width, canvas.height);
-          }
           if (timeUniform) {
             gl.uniform1f(timeUniform, elapsed);
           }
@@ -318,11 +324,36 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
           animId = requestAnimationFrame(renderWebGL);
         };
 
-        animId = requestAnimationFrame(renderWebGL);
+        const startLoop = () => {
+          if (isRunning || !isTabVisible) return;
+          isRunning = true;
+          animId = requestAnimationFrame(renderWebGL);
+        };
+
+        const stopLoop = () => {
+          if (animId) {
+            cancelAnimationFrame(animId);
+            animId = 0;
+          }
+          isRunning = false;
+        };
+
+        startLoop();
+
+        const handleVisibilityChange = () => {
+          isTabVisible = !document.hidden;
+          if (isTabVisible) {
+            startLoop();
+          } else {
+            stopLoop();
+          }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange, { passive: true });
 
         return () => {
-          cancelAnimationFrame(animId);
+          stopLoop();
           window.removeEventListener('resize', updateSize);
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
           if (gl) {
             if (positionBuffer) gl.deleteBuffer(positionBuffer);
             if (program) gl.deleteProgram(program);
