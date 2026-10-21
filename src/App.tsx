@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { PortfolioHomepage } from './components/PortfolioHomepage';
 import { LiquidMotionBackground } from './components/LiquidMotionBackground';
+import { RippleGrid } from './components/RippleGrid';
 import { MikeyTheCat } from './components/MikeyTheCat';
 import { IntroController } from './components/IntroController';
 import { domainAudio } from './utils/audio';
@@ -55,6 +56,9 @@ export default function App() {
     <div className="relative min-h-screen bg-transparent text-[#FFFFFF] overflow-x-clip selection:bg-[#E10600]/35 selection:text-[#FFFFFF]">
       {/* Premium Liquid Motion Background System (Organic ripple propagation, continuous liquid distortion, Ferrari Red highlights) */}
       <LiquidMotionBackground isReducedMotion={isReducedMotion} />
+
+      {/* Ripple Grid Interactive Overlay (Transparent, non-blocking dots that ripple on click) */}
+      <RippleGrid isReducedMotion={isReducedMotion} />
 
       {/* Signature Chibi Character Talking Intro Sequence */}
       {!hasSeenIntro && (

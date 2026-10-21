@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Parkinsans:wght@400;500&display=swap");
+
+:root {
+  --ground: #0b0a14;
+  --ink-secondary: #b1b1b3;
+  --orbit: #73bde7;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--ground);
+}
+
+.grid {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: crosshair;
+  /* Taps drop ripples; a vertical swipe still scrolls */
+  touch-action: pan-y;
+}
+
+.caption {
+  position: fixed;
+  inset: auto 0 1.5rem;
+  margin: 0 auto;
+  width: min(92vw, 560px);
+  color: var(--ink-secondary);
+  font-family: "Parkinsans", system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+  /* Clicks pass through to the canvas, except on the link */
+  pointer-events: none;
+}
+
+.caption a {
+  color: var(--orbit);
+  text-underline-offset: 0.2em;
+  pointer-events: auto;
+}

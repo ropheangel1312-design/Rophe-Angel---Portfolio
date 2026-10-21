@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { portfolioData } from '../data/portfolioData';
 import { ProjectCard } from './ProjectCard';
+import { VelocityMarquee } from './VelocityMarquee';
 import { 
   ArrowDown,
   ArrowUpRight,
@@ -77,26 +78,8 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               <span className="text-neutral-400">FOUNDER · GRADEARN</span>
             </div>
 
-            {/* Bold, Oversized Typographic Title */}
-            <div className="space-y-3 mb-8 overflow-hidden">
-              <motion.h1 
-                className="font-display text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-[#FFFFFF] tracking-tight leading-[0.94] max-w-5xl"
-                initial={!isReducedMotion ? { y: 40, opacity: 0 } : false}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.9, delay: 0.1, ease: cinematicEase }}
-              >
-                ROPHE ANGEL
-              </motion.h1>
-              
-              <motion.p 
-                className="font-tech text-xl sm:text-3xl md:text-4xl font-bold uppercase tracking-wider text-[#E10600]"
-                initial={!isReducedMotion ? { y: 20, opacity: 0 } : false}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.85, delay: 0.2, ease: cinematicEase }}
-              >
-                BUILDING SYSTEMS THROUGH EXPERIMENTATION.
-              </motion.p>
-            </div>
+            {/* Velocity Marquee: Dynamic continuous typographic centerpiece */}
+            <VelocityMarquee isReducedMotion={isReducedMotion} />
 
             {/* Concise Persona Statement */}
             <motion.div 
