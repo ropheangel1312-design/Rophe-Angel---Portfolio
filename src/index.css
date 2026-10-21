@@ -277,6 +277,85 @@ body {
   background: #E10600;
 }
 
+/* =========================================================================
+   88 Liquid-Lens — Glass puck glides over text with refraction & chromatic split
+   Adapted from liq_lens_2ebf7946.txt with Ferrari Red #E10600 & Pure White #FFFFFF
+   ========================================================================= */
+.fx-lens {
+  position: relative;
+  display: inline-block;
+  letter-spacing: .08em;
+  color: color-mix(in srgb, currentColor 85%, transparent);
+}
+
+.fx-lens::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: -6px 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  font-size: 1.06em;
+  color: #FFFFFF;
+  text-shadow:
+    -2px 0 rgba(225, 6, 0, 0.75),
+     2px 0 rgba(255, 255, 255, 0.65);
+  -webkit-mask-image: radial-gradient(ellipse 38px 28px at 50% 50%,
+      #000 0 54%, rgb(0 0 0 / .55) 78%, transparent 88%);
+  mask-image: radial-gradient(ellipse 38px 28px at 50% 50%,
+      #000 0 54%, rgb(0 0 0 / .55) 78%, transparent 88%);
+  -webkit-mask-size: 86px 100%;
+  mask-size: 86px 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: fx-lens-refract 4.6s cubic-bezier(.6, 0, .4, 1) infinite;
+}
+
+.fx-lens::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 38px 28px at 50% 50%,
+      transparent 0 66%,
+      rgb(255 255 255 / .5) 78% 86%,
+      transparent 96%),
+    radial-gradient(ellipse 28px 18px at 38% 26%,
+      rgb(255 255 255 / .16),
+      transparent 72%),
+    radial-gradient(ellipse 34px 24px at 50% 58%,
+      rgba(225, 6, 0, 0.22),
+      transparent 78%);
+  background-size: 86px 100%;
+  background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(1px) saturate(1.8) brightness(1.14);
+  backdrop-filter: blur(1px) saturate(1.8) brightness(1.14);
+  animation: fx-lens-glass 4.6s cubic-bezier(.6, 0, .4, 1) infinite;
+}
+
+@keyframes fx-lens-refract {
+  0%, 6% {
+    -webkit-mask-position: -86px 0;
+    mask-position: -86px 0;
+  }
+  94%, 100% {
+    -webkit-mask-position: calc(100% + 86px) 0;
+    mask-position: calc(100% + 86px) 0;
+  }
+}
+
+@keyframes fx-lens-glass {
+  0%, 6% {
+    clip-path: ellipse(40px 30px at -43px 50%);
+    background-position: -86px 0;
+  }
+  94%, 100% {
+    clip-path: ellipse(40px 30px at calc(100% + 43px) 50%);
+    background-position: calc(100% + 86px) 0;
+  }
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
@@ -284,5 +363,8 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .fx-lens::before, .fx-lens::after {
+    display: none !important;
   }
 }

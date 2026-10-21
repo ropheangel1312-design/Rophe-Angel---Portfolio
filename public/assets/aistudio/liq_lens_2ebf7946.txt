@@ -1,0 +1,82 @@
+<!-- Markup: <div class="fx-lens" data-text="REFRACT">REFRACT</div> -->
+
+/* Colour tokens — override to re-skin the effect:
+   --ink    main text colour (defaults to currentColor)
+   --ink-2  primary accent   --ink-3  secondary accent */
+:root { --ink: currentColor; --ink-2: #FF4FD8; --ink-3: #4FF8FF; }
+
+/* 88 Liquid-Lens — a glass puck glides over the word: a soft-masked copy
+   refracts the letters while the puck itself is clipped to an ellipse
+   (clip-path, not a mask — a mask does not clip `backdrop-filter`) */
+.fx-lens {
+  position: relative;
+  font: 600 30px/1.2 "JetBrains Mono", monospace;
+  letter-spacing: .1em;
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
+}
+/* the magnified, chromatically split copy seen through the glass */
+.fx-lens::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: -16px 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  font-size: 1.12em;
+  color: var(--ink);
+  text-shadow:
+    -2px 0 color-mix(in srgb, var(--ink-2) 70%, transparent),
+     2px 0 color-mix(in srgb, var(--ink-3) 70%, transparent);
+  -webkit-mask-image: radial-gradient(ellipse 38px 28px at 50% 50%,
+      #000 0 54%, rgb(0 0 0 / .55) 78%, transparent 88%);
+  mask-image: radial-gradient(ellipse 38px 28px at 50% 50%,
+      #000 0 54%, rgb(0 0 0 / .55) 78%, transparent 88%);
+  -webkit-mask-size: 86px 100%;
+  mask-size: 86px 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: fx-lens-refract 4.6s cubic-bezier(.6, 0, .4, 1) infinite;
+}
+/* the puck itself: rim highlight, sheen and a real backdrop blur */
+.fx-lens::after {
+  content: "";
+  position: absolute;
+  inset: -16px 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 38px 28px at 50% 50%,
+      transparent 0 66%,
+      rgb(255 255 255 / .5) 78% 86%,
+      transparent 96%),
+    radial-gradient(ellipse 28px 18px at 38% 26%,
+      rgb(255 255 255 / .16),
+      transparent 72%),
+    radial-gradient(ellipse 34px 24px at 50% 58%,
+      color-mix(in srgb, var(--ink-3) 14%, transparent),
+      transparent 78%);
+  background-size: 86px 100%;
+  background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(1px) saturate(1.8) brightness(1.14);
+  backdrop-filter: blur(1px) saturate(1.8) brightness(1.14);
+  animation: fx-lens-glass 4.6s cubic-bezier(.6, 0, .4, 1) infinite;
+}
+@keyframes fx-lens-refract {
+  0%, 6% {
+    -webkit-mask-position: -86px 0;
+    mask-position: -86px 0;
+  }
+  94%, 100% {
+    -webkit-mask-position: calc(100% + 86px) 0;
+    mask-position: calc(100% + 86px) 0;
+  }
+}
+@keyframes fx-lens-glass {
+  0%, 6% {
+    clip-path: ellipse(40px 30px at -43px 50%);
+    background-position: -86px 0;
+  }
+  94%, 100% {
+    clip-path: ellipse(40px 30px at calc(100% + 43px) 50%);
+    background-position: calc(100% + 86px) 0;
+  }
+}

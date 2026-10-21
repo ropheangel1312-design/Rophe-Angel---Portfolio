@@ -5,6 +5,8 @@ import { ProjectCard } from './ProjectCard';
 import { VelocityMarquee } from './VelocityMarquee';
 import { TextScramble } from './TextScramble';
 import { PitWallRadio } from './PitWallRadio';
+import { Magnetic } from './Magnetic';
+import { CinematicEndCredits } from './CinematicEndCredits';
 import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
@@ -50,7 +52,32 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
 }) => {
   const [isChannelOpen, setIsChannelOpen] = useState(false);
   const [isContactInView, setIsContactInView] = useState(false);
+  const [showCredits, setShowCredits] = useState<boolean>(false);
+  const [autoCreditsNotice, setAutoCreditsNotice] = useState<boolean>(false);
+  const [countdownSeconds, setCountdownSeconds] = useState<number>(3);
   const contactSectionRef = useRef<HTMLElement | null>(null);
+
+  // When radio communication check is completed, automatically trigger the cinematic end credits sequence
+  useEffect(() => {
+    if (isChannelOpen) {
+      setAutoCreditsNotice(true);
+      setCountdownSeconds(3);
+    }
+  }, [isChannelOpen]);
+
+  // Auto-launch countdown effect
+  useEffect(() => {
+    if (!autoCreditsNotice) return;
+    if (countdownSeconds <= 0) {
+      setAutoCreditsNotice(false);
+      setShowCredits(true);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setCountdownSeconds(prev => prev - 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [autoCreditsNotice, countdownSeconds]);
 
   // Contact section viewport intersection observer:
   // Smoothly lowers BGM to 10% (0.03) when in view, and restores to base volume (0.30) when leaving
@@ -109,7 +136,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             <div className="flex flex-wrap items-center gap-3 text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-6">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-[#E10600] rounded-xs" />
-                <span>ENGINEERING PORTFOLIO</span>
+                <span className="fx-lens" data-text="ENGINEERING PORTFOLIO">ENGINEERING PORTFOLIO</span>
               </span>
               <span aria-hidden="true" className="text-neutral-700">/</span>
               <span className="text-neutral-400">COMPUTER SCIENCE & ENGINEERING</span>
@@ -132,27 +159,31 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               </p>
             </motion.div>
 
-            {/* Primary & Secondary CTAs */}
+            {/* Primary & Secondary CTAs with Magnetic Spring Pull */}
             <motion.div 
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
               initial={!isReducedMotion ? { opacity: 0, y: 16 } : false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: cinematicEase }}
             >
-              <button
-                onClick={() => scrollTo('projects')}
-                className="f1-btn-primary px-8 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-3 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#E10600] group"
-              >
-                <span>EXPLORE PROJECTS</span>
-                <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" />
-              </button>
+              <Magnetic magneticDistance={140} strength={0.35}>
+                <button
+                  onClick={() => scrollTo('projects')}
+                  className="f1-btn-primary px-8 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-3 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#E10600] group"
+                >
+                  <span>EXPLORE PROJECTS</span>
+                  <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+                </button>
+              </Magnetic>
 
-              <button
-                onClick={() => scrollTo('about')}
-                className="f1-btn-secondary px-7 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
-              >
-                <span>READ ABOUT ME</span>
-              </button>
+              <Magnetic magneticDistance={140} strength={0.35}>
+                <button
+                  onClick={() => scrollTo('about')}
+                  className="f1-btn-secondary px-7 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
+                >
+                  <span>READ ABOUT ME</span>
+                </button>
+              </Magnetic>
             </motion.div>
 
             {/* Bottom Status Strip */}
@@ -224,7 +255,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           {/* Concise 2-3 sentence introduction */}
           <div className="lg:col-span-7 space-y-6">
             <div className="f1-card rounded-xl p-6 sm:p-8 space-y-4">
-              <span className="text-xs font-tech font-bold uppercase text-[#E10600] tracking-widest">
+              <span className="text-xs font-tech font-bold uppercase text-[#E10600] tracking-widest fx-lens" data-text="ENGINEERING PROFILE">
                 ENGINEERING PROFILE
               </span>
               <p className="font-body text-base sm:text-lg text-neutral-200 leading-relaxed font-normal">
@@ -556,6 +587,55 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             onChannelOpened={setIsChannelOpen}
             isInView={isContactInView}
           />
+
+          {/* Automatic Transmission Complete -> End Credits Transition Toast */}
+          {autoCreditsNotice && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="mt-4 p-4 rounded-xl border border-[#E10600]/40 bg-[#160b0c]/90 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 text-xs font-tech shadow-[0_0_24px_rgba(225,6,0,0.18)]"
+            >
+              <div className="flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#E10600] animate-ping" />
+                <span className="font-bold text-white tracking-wider uppercase text-xs sm:text-sm">
+                  RADIO CHECK COMPLETE // INITIATING END CREDITS IN {countdownSeconds}S
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setAutoCreditsNotice(false);
+                    setShowCredits(true);
+                  }}
+                  className="px-4 py-1.5 rounded bg-[#E10600] hover:bg-[#ff1a14] text-white font-bold tracking-wider uppercase text-xs cursor-pointer active:scale-95 transition-all shadow-md"
+                >
+                  WATCH NOW ⏵
+                </button>
+                <button
+                  onClick={() => setAutoCreditsNotice(false)}
+                  className="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-neutral-300 font-bold uppercase text-xs cursor-pointer transition-all"
+                >
+                  STAY ON PIT WALL
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Subtle dedicated launch button right below the console */}
+          <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
+            <button
+              onClick={() => setShowCredits(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-[#E10600]/15 border border-white/10 hover:border-[#E10600]/50 text-neutral-300 hover:text-white text-xs font-tech font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 group shadow-sm"
+              title="Experience the full-screen cinematic end credits sequence"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#E10600] group-hover:shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
+              <span>ROLL CINEMATIC END CREDITS ⏵</span>
+            </button>
+            <span className="text-[11px] font-mono text-neutral-500">
+              TRANSMISSION COMPLETE · SECTOR 03
+            </span>
+          </div>
         </div>
       </motion.section>
 
@@ -580,6 +660,12 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
 
           <div className="flex items-center gap-6">
             <button
+              onClick={() => setShowCredits(true)}
+              className="hover:text-[#E10600] font-bold uppercase tracking-wider transition-colors active:scale-95 cursor-pointer text-neutral-400 hover:text-white"
+            >
+              End Credits ⏵
+            </button>
+            <button
               onClick={() => scrollTo('hero')}
               className="hover:text-[#E10600] font-bold uppercase tracking-wider transition-colors active:scale-95 cursor-pointer"
             >
@@ -588,6 +674,15 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           </div>
         </div>
       </footer>
+
+      {/* ===================== CINEMATIC FULL-SCREEN END CREDITS ===================== */}
+      <CinematicEndCredits 
+        isOpen={showCredits}
+        onClose={() => setShowCredits(false)}
+        isReducedMotion={isReducedMotion}
+        isMuted={isMuted}
+        onToggleSound={onToggleSound || (() => {})}
+      />
 
     </div>
   );

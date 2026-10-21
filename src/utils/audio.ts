@@ -9,8 +9,8 @@
  */
 
 export const BGM_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792573550904-dc5c4c13-e25b-4f85-b17f-f48569ce3e26.mp3';
-export const RADIO_CHECK_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792573478807-3a0c394a-1cb4-49f6-9bab-cbe17f779a60.m4a';
-export const BOOSTED_RADIO_AUDIO_URL = '/audio/radio-check-boosted.m4a';
+export const RADIO_CHECK_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792584125817-dc1386d4-f9eb-4361-80fe-6c4ab5f57721.m4a';
+export const END_CREDITS_BGM_URL = 'https://www.image2url.com/r2/default/audio/1792584101377-87a082c9-563d-47ec-ae14-3ae69462a2fb.m4a';
 
 class DomainAudioEngine {
   private ctx: AudioContext | null = null;
@@ -27,6 +27,11 @@ class DomainAudioEngine {
   private bgmFadeAnimId: number | null = null;
   private hasStartedBGM: boolean = false;
   private isInContactSection: boolean = false;
+
+  // Dedicated End-Credits Background Music Instance
+  private creditsAudio: HTMLAudioElement | null = null;
+  private isCreditsActive: boolean = false;
+  private creditsBaseVolume: number = 0.35;
 
   // Pit Wall Radio Check Persistent Audio Instance
   private radioAudio: HTMLAudioElement | null = null;
@@ -60,12 +65,18 @@ class DomainAudioEngine {
     this.isMuted = muted;
     if (!muted) {
       this.initContext();
-      // Unmuting: update BGM & Radio mute properties
+      // Unmuting: update BGM, Credits & Radio mute properties
       if (this.bgmAudio) {
         this.bgmAudio.muted = false;
-        // Resume playing BGM only if it was previously started
-        if (this.hasStartedBGM) {
+        // Resume playing BGM only if it was previously started AND not currently in credits
+        if (this.hasStartedBGM && !this.isCreditsActive) {
           this.bgmAudio.play().catch(() => {});
+        }
+      }
+      if (this.creditsAudio) {
+        this.creditsAudio.muted = false;
+        if (this.isCreditsActive) {
+          this.creditsAudio.play().catch(() => {});
         }
       }
       if (this.radioAudio) {
@@ -73,9 +84,12 @@ class DomainAudioEngine {
       }
     } else {
       this.stopAll();
-      // Muting: immediately silence BGM and any active radio check
+      // Muting: immediately silence BGM, Credits and any active radio check
       if (this.bgmAudio) {
         this.bgmAudio.muted = true;
+      }
+      if (this.creditsAudio) {
+        this.creditsAudio.muted = true;
       }
       if (this.radioAudio) {
         this.radioAudio.muted = true;
@@ -121,6 +135,11 @@ class DomainAudioEngine {
     if (typeof window === 'undefined') return;
     const audio = this.getBGMAudio();
     if (!audio) return;
+
+    // If end credits are currently active, do not play main BGM to avoid overlap
+    if (this.isCreditsActive) {
+      return;
+    }
 
     // If music is already playing, do not restart it or duplicate
     if (!audio.paused && !audio.ended && audio.currentTime > 0) {
@@ -228,21 +247,127 @@ class DomainAudioEngine {
   }
 
   /**
+   * Initialize or retrieve the persistent dedicated End Credits audio element.
+   */
+  private getCreditsAudio(): HTMLAudioElement | null {
+    if (typeof window === 'undefined') return null;
+    if (!this.creditsAudio) {
+      try {
+        const audio = new Audio(END_CREDITS_BGM_URL);
+        audio.loop = true;
+        audio.preload = 'auto';
+        audio.volume = this.creditsBaseVolume;
+        audio.muted = this.isMuted;
+        audio.addEventListener('error', (e) => {
+          console.warn('[DomainAudio] End credits audio load error:', e);
+        });
+        this.creditsAudio = audio;
+      } catch (err) {
+        console.warn('[DomainAudio] Failed to instantiate credits audio:', err);
+      }
+    }
+    return this.creditsAudio;
+  }
+
+  /**
+   * Start dedicated End Credits BGM.
+   * Stops main BGM cleanly without overlap.
+   */
+  public startCreditsBGM(restart: boolean = false): void {
+    if (typeof window === 'undefined') return;
+    this.isCreditsActive = true;
+
+    // 1. Cleanly stop main BGM to prevent overlap
+    this.pauseBGM(false);
+
+    const audio = this.getCreditsAudio();
+    if (!audio) return;
+
+    if (restart) {
+      audio.currentTime = 0;
+    }
+
+    audio.muted = this.isMuted;
+    audio.volume = this.creditsBaseVolume;
+
+    // Prevent duplicate playback instances
+    if (!audio.paused && !restart) {
+      return;
+    }
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        console.warn('[DomainAudio] Credits audio play blocked/deferred:', err);
+        // Autoplay policy fallback: unlock on next user interaction if unmuted
+        if (!this.isMuted) {
+          const unlock = () => {
+            window.removeEventListener('pointerdown', unlock);
+            window.removeEventListener('keydown', unlock);
+            if (this.isCreditsActive && !this.isMuted && this.creditsAudio) {
+              this.creditsAudio.play().catch(() => {});
+            }
+          };
+          window.addEventListener('pointerdown', unlock, { once: true, passive: true });
+          window.addEventListener('keydown', unlock, { once: true, passive: true });
+        }
+      });
+    }
+  }
+
+  /**
+   * Stop and reset the end-credit audio when visitor exits credits.
+   * Restores main BGM cleanly without overlap.
+   */
+  public stopCreditsBGM(): void {
+    if (typeof window === 'undefined') return;
+    this.isCreditsActive = false;
+
+    if (this.creditsAudio) {
+      try {
+        this.creditsAudio.pause();
+        this.creditsAudio.currentTime = 0;
+      } catch {
+        // ignore
+      }
+    }
+
+    // Cleanly restore main BGM if unmuted and was previously started
+    if (!this.isMuted && this.hasStartedBGM && this.bgmAudio) {
+      this.bgmAudio.muted = false;
+      this.bgmAudio.volume = this.isInContactSection ? this.bgmContactVolume : this.bgmBaseVolume;
+      this.bgmAudio.play().catch(() => {});
+    }
+  }
+
+  /**
+   * Replay end credits audio from the beginning.
+   */
+  public replayCreditsBGM(): void {
+    this.startCreditsBGM(true);
+  }
+
+  /**
+   * Check if end-credits BGM is active.
+   */
+  public isCreditsBGMActive(): boolean {
+    return this.isCreditsActive;
+  }
+
+  /**
    * Initialize or retrieve the persistent Radio Check audio element.
-   * Uses processed normalized/companded copy with fallback to original URL.
+   * Uses exact new URL: https://www.image2url.com/r2/default/audio/1792584125817-dc1386d4-f9eb-4361-80fe-6c4ab5f57721.m4a
    */
   private getRadioAudio(): HTMLAudioElement | null {
     if (typeof window === 'undefined') return null;
     if (!this.radioAudio) {
       try {
-        const audio = new Audio(BOOSTED_RADIO_AUDIO_URL);
+        const audio = new Audio(RADIO_CHECK_AUDIO_URL);
         audio.preload = 'auto';
         audio.volume = 1.0;
         audio.muted = this.isMuted;
-        audio.addEventListener('error', () => {
-          console.warn('[PitWallAudio] Local boosted audio load warning, falling back to remote URL');
-          audio.src = RADIO_CHECK_AUDIO_URL;
-          audio.load();
+        audio.addEventListener('error', (e) => {
+          console.warn('[PitWallAudio] Radio check audio load warning:', e);
         });
         this.radioAudio = audio;
       } catch (err) {
