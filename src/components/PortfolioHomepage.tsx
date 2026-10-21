@@ -5,6 +5,7 @@ import { ProjectCard } from './ProjectCard';
 import { VelocityMarquee } from './VelocityMarquee';
 import { TextScramble } from './TextScramble';
 import { PitWallRadio } from './PitWallRadio';
+import { RopheRadioTranscript } from './RopheRadioTranscript';
 import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
@@ -547,103 +548,159 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           </p>
         </div>
 
-        {/* Ferrari Pit Wall Radio Audio Telemetry & Live Waveform */}
-        <PitWallRadio 
-          isReducedMotion={isReducedMotion}
-          isMuted={isMuted}
-          onToggleMute={onToggleSound}
-          onChannelOpened={setIsChannelOpen}
-          isInView={isContactInView}
-        />
+        {/* Unified ROPHE RADIO Console Card */}
+        <div 
+          className="f1-card rounded-2xl p-5 sm:p-7 md:p-9 border border-white/[0.1] relative overflow-hidden shadow-2xl bg-[#0A0A0A]/90 backdrop-blur-xl"
+          role="region"
+          aria-label="Rophe Radio Unified Telemetry & Communications Console"
+        >
+          {/* Background motorsport telemetry grid scanline accent */}
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(255,255,255,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.8)_1px,transparent_1px)] bg-[size:16px_16px]" 
+            aria-hidden="true"
+          />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          
-          {/* Email */}
-          <a
-            href={`mailto:${portfolioData.contact.email}`}
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
-          >
-            <div>
-              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                <Mail className="w-5 h-5" />
-              </div>
-              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">EMAIL DIRECT</span>
-              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
-                {portfolioData.contact.email}
-              </p>
+          {/* Console Top Bar: Live telemetry metadata */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-6 border-b border-white/[0.08] text-xs font-tech relative z-10">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#E10600] animate-pulse shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
+              <span className="font-bold text-[#FFFFFF] tracking-wider uppercase text-xs sm:text-sm">
+                ROPHE RADIO // UNIFIED PIT WALL CONSOLE
+              </span>
+              <span className="text-neutral-600 hidden sm:inline">/</span>
+              <span className="text-neutral-400 font-mono text-[11px] hidden sm:inline">
+                CONSOLE ID: RR-2026-F1
+              </span>
             </div>
-            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
-              <span>Send Message</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </span>
-          </a>
-
-          {/* LinkedIn */}
-          <a
-            href={portfolioData.contact.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
-          >
-            <div>
-              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                <Linkedin className="w-5 h-5" />
-              </div>
-              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">LINKEDIN</span>
-              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
-                Rophe Angel
-              </p>
+            <div className="flex items-center gap-3 text-[11px] font-mono text-neutral-400">
+              <span className="px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.1] text-emerald-400 font-semibold">
+                {isChannelOpen ? 'COMMS: VERIFIED' : 'COMMS: ONLINE'}
+              </span>
+              <span className="text-neutral-500 hidden md:inline">FREQ: 446.006 MHz</span>
             </div>
-            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
-              <span>Connect</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </span>
-          </a>
+          </div>
 
-          {/* GitHub */}
-          <a
-            href={portfolioData.contact.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
-          >
-            <div>
-              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                <Github className="w-5 h-5" />
+          {/* 1. Ferrari Pit Wall Radio Audio Telemetry & Live Waveform (Preserved perfectly) */}
+          <PitWallRadio 
+            isReducedMotion={isReducedMotion}
+            isMuted={isMuted}
+            onToggleMute={onToggleSound}
+            onChannelOpened={setIsChannelOpen}
+            isInView={isContactInView}
+          />
+
+          {/* 2. ROPHE RADIO Conversation Transcript (Reference image inspired layout) */}
+          <div className="mt-6 mb-8">
+            <RopheRadioTranscript 
+              isReducedMotion={isReducedMotion}
+              isChannelOpen={isChannelOpen}
+            />
+          </div>
+
+          {/* 3. Integrated Communications Channels Dock inside the Unified Console */}
+          <div className="pt-6 border-t border-white/[0.08] relative z-10">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
+                <span className="text-xs font-tech font-bold uppercase text-neutral-200 tracking-wider">
+                  DIRECT COMMUNICATIONS CHANNELS // TELEMETRY UPLINKS
+                </span>
               </div>
-              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">GITHUB REPOSITORIES</span>
-              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
-                @ropheangel1312-design
-              </p>
+              <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">
+                4 CHANNELS MONITORED
+              </span>
             </div>
-            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
-              <span>View Repositories</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </span>
-          </a>
 
-          {/* Instagram */}
-          <a
-            href={portfolioData.contact.instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="f1-card rounded-xl p-5 flex flex-col justify-between group hover:border-[#E10600]/60 transition-all"
-          >
-            <div>
-              <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                <Instagram className="w-5 h-5" />
-              </div>
-              <span className="text-[11px] font-tech font-bold uppercase text-neutral-400">INSTAGRAM</span>
-              <p className="font-tech text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-1">
-                {portfolioData.contact.instagramHandle}
-              </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              
+              {/* Email */}
+              <a
+                href={`mailto:${portfolioData.contact.email}`}
+                className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#E10600]/60 hover:bg-white/[0.06] transition-all flex flex-col justify-between group shadow-md"
+              >
+                <div>
+                  <div className="p-2 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-2.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">EMAIL DIRECT</span>
+                  <p className="font-tech text-xs sm:text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-0.5">
+                    {portfolioData.contact.email}
+                  </p>
+                </div>
+                <span className="text-[11px] font-tech text-[#E10600] uppercase mt-3.5 flex items-center gap-1 font-bold">
+                  <span>Send Message</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </span>
+              </a>
+
+              {/* LinkedIn */}
+              <a
+                href={portfolioData.contact.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#E10600]/60 hover:bg-white/[0.06] transition-all flex flex-col justify-between group shadow-md"
+              >
+                <div>
+                  <div className="p-2 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-2.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform">
+                    <Linkedin className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">LINKEDIN</span>
+                  <p className="font-tech text-xs sm:text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-0.5">
+                    Rophe Angel
+                  </p>
+                </div>
+                <span className="text-[11px] font-tech text-[#E10600] uppercase mt-3.5 flex items-center gap-1 font-bold">
+                  <span>Connect</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </span>
+              </a>
+
+              {/* GitHub */}
+              <a
+                href={portfolioData.contact.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#E10600]/60 hover:bg-white/[0.06] transition-all flex flex-col justify-between group shadow-md"
+              >
+                <div>
+                  <div className="p-2 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-2.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform">
+                    <Github className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">GITHUB REPOSITORIES</span>
+                  <p className="font-tech text-xs sm:text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-0.5">
+                    @ropheangel1312-design
+                  </p>
+                </div>
+                <span className="text-[11px] font-tech text-[#E10600] uppercase mt-3.5 flex items-center gap-1 font-bold">
+                  <span>View Repositories</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </span>
+              </a>
+
+              {/* Instagram */}
+              <a
+                href={portfolioData.contact.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#E10600]/60 hover:bg-white/[0.06] transition-all flex flex-col justify-between group shadow-md"
+              >
+                <div>
+                  <div className="p-2 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] w-fit mb-2.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform">
+                    <Instagram className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">INSTAGRAM</span>
+                  <p className="font-tech text-xs sm:text-sm text-[#FFFFFF] font-semibold truncate group-hover:text-[#E10600] transition-colors mt-0.5">
+                    {portfolioData.contact.instagramHandle}
+                  </p>
+                </div>
+                <span className="text-[11px] font-tech text-[#E10600] uppercase mt-3.5 flex items-center gap-1 font-bold">
+                  <span>Follow Updates</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </span>
+              </a>
+
             </div>
-            <span className="text-xs font-tech text-[#E10600] uppercase mt-4 flex items-center gap-1 font-bold">
-              <span>Follow Updates</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </span>
-          </a>
-
+          </div>
         </div>
       </motion.section>
 

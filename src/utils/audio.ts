@@ -10,10 +10,11 @@
 
 export const BGM_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792573550904-dc5c4c13-e25b-4f85-b17f-f48569ce3e26.mp3';
 export const RADIO_CHECK_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792573478807-3a0c394a-1cb4-49f6-9bab-cbe17f779a60.m4a';
+export const BOOSTED_RADIO_AUDIO_URL = '/audio/radio-check-boosted.m4a';
 
 class DomainAudioEngine {
   private ctx: AudioContext | null = null;
-  private isMuted: boolean = true;
+  private isMuted: boolean = false; // Default unmuted on fresh visit
   private lastBlipTime: number = 0;
   private activeNodes: (AudioNode | OscillatorNode | AudioBufferSourceNode)[] = [];
   private waterWaveNodes: (AudioNode | OscillatorNode | AudioBufferSourceNode)[] = [];
@@ -34,7 +35,7 @@ class DomainAudioEngine {
   private gestureListenerAttached: boolean = false;
 
   constructor() {
-    this.isMuted = true;
+    this.isMuted = false;
   }
 
   private initContext(): AudioContext | null {
@@ -206,17 +207,20 @@ class DomainAudioEngine {
 
   /**
    * Initialize or retrieve the persistent Radio Check audio element.
+   * Uses processed normalized/companded copy with fallback to original URL.
    */
   private getRadioAudio(): HTMLAudioElement | null {
     if (typeof window === 'undefined') return null;
     if (!this.radioAudio) {
       try {
-        const audio = new Audio(RADIO_CHECK_AUDIO_URL);
+        const audio = new Audio(BOOSTED_RADIO_AUDIO_URL);
         audio.preload = 'auto';
-        audio.volume = 0.95;
+        audio.volume = 1.0;
         audio.muted = this.isMuted;
-        audio.addEventListener('error', (e) => {
-          console.warn('[PitWallAudio] Radio check load warning:', e);
+        audio.addEventListener('error', () => {
+          console.warn('[PitWallAudio] Local boosted audio load warning, falling back to remote URL');
+          audio.src = RADIO_CHECK_AUDIO_URL;
+          audio.load();
         });
         this.radioAudio = audio;
       } catch (err) {
@@ -228,11 +232,12 @@ class DomainAudioEngine {
 
   /**
    * Play the combined radio-check recording once.
-   * Synchronizes interface strictly with native audio events ('playing', 'ended', 'error').
+   * Synchronizes interface strictly with native audio events ('playing', 'timeupdate', 'ended', 'error').
    */
   public playRadioCheck(callbacks?: {
     onStart?: () => void;
     onPlaying?: () => void;
+    onTimeUpdate?: (currentTime: number, duration: number) => void;
     onEnded?: () => void;
     onError?: (err: string) => void;
     onCancel?: () => void;
@@ -264,10 +269,11 @@ class DomainAudioEngine {
 
     radio.currentTime = 0;
     radio.muted = this.isMuted;
-    radio.volume = 0.95;
+    radio.volume = 1.0;
 
     const cleanup = () => {
       radio.removeEventListener('playing', handlePlaying);
+      radio.removeEventListener('timeupdate', handleTimeUpdate);
       radio.removeEventListener('ended', handleEnded);
       radio.removeEventListener('error', handleError);
     };
@@ -278,6 +284,11 @@ class DomainAudioEngine {
         return;
       }
       callbacks?.onPlaying?.();
+    };
+
+    const handleTimeUpdate = () => {
+      if (this.radioSessionId !== sessionId) return;
+      callbacks?.onTimeUpdate?.(radio.currentTime, radio.duration || 3.55);
     };
 
     const handleEnded = () => {
@@ -296,6 +307,7 @@ class DomainAudioEngine {
     };
 
     radio.addEventListener('playing', handlePlaying, { once: true });
+    radio.addEventListener('timeupdate', handleTimeUpdate);
     radio.addEventListener('ended', handleEnded, { once: true });
     radio.addEventListener('error', handleError, { once: true });
 
