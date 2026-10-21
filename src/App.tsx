@@ -44,6 +44,7 @@ export default function App() {
   };
 
   const handleReplayIntro = () => {
+    domainAudio.pauseBGM(true);
     setHasSeenIntro(false);
   };
 
@@ -54,21 +55,6 @@ export default function App() {
       domainAudio.startBGM(true);
     }
   };
-
-  // Start BGM on first user interaction if audio is already active
-  useEffect(() => {
-    const handleFirstGesture = () => {
-      if (!domainAudio.getMuted()) {
-        domainAudio.startBGM(true);
-      }
-    };
-    window.addEventListener('pointerdown', handleFirstGesture, { once: true, passive: true });
-    window.addEventListener('keydown', handleFirstGesture, { once: true, passive: true });
-    return () => {
-      window.removeEventListener('pointerdown', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
-    };
-  }, []);
 
   return (
     <div className="relative min-h-screen bg-transparent text-[#FFFFFF] overflow-x-clip selection:bg-[#E10600]/35 selection:text-[#FFFFFF]">

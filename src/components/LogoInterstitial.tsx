@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { domainAudio } from '../utils/audio';
 
 interface LogoInterstitialProps {
   onComplete: () => void;
@@ -31,6 +32,9 @@ export const LogoInterstitial: React.FC<LogoInterstitialProps> = ({
 
   useEffect(() => {
     hasCompletedRef.current = false;
+
+    // Start main BGM at the exact moment logo fade-in begins
+    domainAudio.startBGM();
 
     // Reduced motion handling
     if (isReducedMotion) {

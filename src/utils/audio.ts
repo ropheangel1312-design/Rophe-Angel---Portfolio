@@ -122,6 +122,11 @@ class DomainAudioEngine {
     const audio = this.getBGMAudio();
     if (!audio) return;
 
+    // If music is already playing, do not restart it or duplicate
+    if (!audio.paused && !audio.ended && audio.currentTime > 0) {
+      return;
+    }
+
     this.hasStartedBGM = true;
     audio.muted = this.isMuted;
     audio.volume = this.isInContactSection ? this.bgmContactVolume : this.bgmBaseVolume;
@@ -144,6 +149,23 @@ class DomainAudioEngine {
           window.addEventListener('keydown', unlock, { once: true, passive: true });
         }
       });
+    }
+  }
+
+  /**
+   * Pause BGM and optionally reset time to start (used on intro replay)
+   */
+  public pauseBGM(resetTime: boolean = false): void {
+    if (this.bgmAudio) {
+      try {
+        this.bgmAudio.pause();
+        if (resetTime) {
+          this.bgmAudio.currentTime = 0;
+          this.hasStartedBGM = false;
+        }
+      } catch {
+        // ignore
+      }
     }
   }
 

@@ -113,7 +113,7 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
 
   return (
     <div 
-      className="bg-[#0b0b0e] border border-white/[0.08] rounded-xl relative p-4 sm:p-5 lg:p-6 shadow-2xl overflow-hidden font-body text-white selection:bg-[#E10600]/35 selection:text-white"
+      className="bg-[#0b0b0e]/75 backdrop-blur-xl border border-white/[0.1] rounded-xl relative p-4 sm:p-5 lg:p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12),0_16px_40px_rgba(0,0,0,0.65)] overflow-hidden font-body text-white selection:bg-[#E10600]/35 selection:text-white"
       role="region"
       aria-label="Rophe Radio Unified Pit Wall Console"
     >
@@ -298,10 +298,10 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
           {/* Email */}
           <a
             href={`mailto:${portfolioData.contact.email}`}
-            className="bg-[#111114] border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-sm hover:shadow-md cursor-pointer"
+            className="bg-[#121216]/65 backdrop-blur-md border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_16px_rgba(0,0,0,0.35)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.14),0_8px_24px_rgba(0,0,0,0.5),0_0_16px_rgba(225,6,0,0.12)] cursor-pointer"
           >
             <div>
-              <div className="w-9 h-9 rounded-lg bg-[#18181b] border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-white/[0.04] backdrop-blur-xs border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
                 <Mail className="w-4 h-4" />
               </div>
               <div className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">
@@ -322,10 +322,10 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
             href={portfolioData.contact.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#111114] border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-sm hover:shadow-md cursor-pointer"
+            className="bg-[#121216]/65 backdrop-blur-md border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_16px_rgba(0,0,0,0.35)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.14),0_8px_24px_rgba(0,0,0,0.5),0_0_16px_rgba(225,6,0,0.12)] cursor-pointer"
           >
             <div>
-              <div className="w-9 h-9 rounded-lg bg-[#18181b] border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-white/[0.04] backdrop-blur-xs border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
                 <Linkedin className="w-4 h-4" />
               </div>
               <div className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">
@@ -346,10 +346,10 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
             href={portfolioData.contact.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#111114] border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-sm hover:shadow-md cursor-pointer"
+            className="bg-[#121216]/65 backdrop-blur-md border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_16px_rgba(0,0,0,0.35)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.14),0_8px_24px_rgba(0,0,0,0.5),0_0_16px_rgba(225,6,0,0.12)] cursor-pointer"
           >
             <div>
-              <div className="w-9 h-9 rounded-lg bg-[#18181b] border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-white/[0.04] backdrop-blur-xs border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
                 <Github className="w-4 h-4" />
               </div>
               <div className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">
@@ -370,10 +370,10 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
             href={portfolioData.contact.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#111114] border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-sm hover:shadow-md cursor-pointer"
+            className="bg-[#121216]/65 backdrop-blur-md border border-white/[0.08] hover:border-[#E10600]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_16px_rgba(0,0,0,0.35)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.14),0_8px_24px_rgba(0,0,0,0.5),0_0_16px_rgba(225,6,0,0.12)] cursor-pointer"
           >
             <div>
-              <div className="w-9 h-9 rounded-lg bg-[#18181b] border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-white/[0.04] backdrop-blur-xs border border-white/10 flex items-center justify-center text-[#E10600] mb-3 group-hover:border-[#E10600]/40 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
                 <Instagram className="w-4 h-4" />
               </div>
               <div className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">

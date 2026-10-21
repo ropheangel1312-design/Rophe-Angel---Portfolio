@@ -146,11 +146,11 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
         {/* The Original Chibi Character Illustration */}
         <div className="relative flex items-center justify-center min-w-[220px]">
           <img
-            src="/Waving_Anime_Girl_in_Cozy_Streetwear-removebg-preview.png"
+            src="/anime_ferrari_racing_girl_waving.png"
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = 'https://cdn.phototourl.com/member/2026-10-19-bbafa253-fa88-4173-b723-57ba3051548b.png';
+              (e.currentTarget as HTMLImageElement).src = 'https://plain-apac-prod-public.komododecks.com/202610/21/GPSa08uSkeSe4yG2qq6a/image.png';
             }}
-            alt="Rophe Angel waving warmly in cozy streetwear"
+            alt="Rophe Angel waving warmly in Ferrari racing jacket"
             className="w-[200px] sm:w-[240px] md:w-[270px] h-auto object-contain drop-shadow-[0_12px_36px_rgba(0,0,0,0.92)] select-none transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
             loading="eager"
           />

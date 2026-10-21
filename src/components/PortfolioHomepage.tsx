@@ -525,13 +525,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       <motion.section 
         id="contact" 
         ref={contactSectionRef as any}
-        className="py-16 sm:py-20 px-4 sm:px-6 lg:px-12 max-w-5xl mx-auto w-full"
+        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-6 max-w-4xl mx-auto">
+        <div className="mb-10">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             06 // CHANNELS
           </div>
@@ -540,7 +540,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             text="GET IN TOUCH"
             triggerOnView={true}
             isReducedMotion={isReducedMotion}
-            className="font-display text-3xl sm:text-4xl font-bold text-[#FFFFFF] tracking-tight block"
+            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
           />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
             {portfolioData.contact.description}
@@ -548,7 +548,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         </div>
 
         {/* Unified ROPHE RADIO Console matching exact reference layout */}
-        <div className="max-w-4xl mx-auto w-full">
+        <div className="max-w-4xl w-full">
           <PitWallRadio 
             isReducedMotion={isReducedMotion}
             isMuted={isMuted}
