@@ -7,6 +7,9 @@ import { TextScramble } from './TextScramble';
 import { PitWallRadio } from './PitWallRadio';
 import { Magnetic } from './Magnetic';
 import { CinematicEndCredits } from './CinematicEndCredits';
+import { PapersSection } from './PapersSection';
+import { WipSection } from './WipSection';
+import { SkillsGallery3D } from './SkillsGallery3D';
 import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
@@ -53,6 +56,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
   const [isChannelOpen, setIsChannelOpen] = useState(false);
   const [isContactInView, setIsContactInView] = useState(false);
   const [showCredits, setShowCredits] = useState<boolean>(false);
+  const [skillsViewMode, setSkillsViewMode] = useState<'gallery' | 'index'>('gallery');
   const contactSectionRef = useRef<HTMLElement | null>(null);
   const bottomTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasTriggeredCreditsRef = useRef<boolean>(false);
@@ -319,7 +323,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         </div>
       </motion.section>
 
-      {/* ===================== SECTION 2: TECHNICAL SKILLS ===================== */}
+      {/* ===================== SECTION 2: TECHNICAL SKILLS & 3D GALLERY ===================== */}
       <motion.section 
         id="skills" 
         className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
@@ -328,60 +332,94 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-6 sm:mb-8">
-          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            02 // STACK & CAPABILITIES
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+          <div>
+            <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#FF2800] mb-2 flex items-center gap-2">
+              <span>02 // CAPABILITIES & DISCIPLINES</span>
+              <span className="text-neutral-600">/</span>
+              <span className="text-neutral-400">3D GALLERY VIEW</span>
+            </div>
+            <TextScramble
+              as="h2"
+              text="SKILLS & DISCIPLINES"
+              triggerOnView={true}
+              isReducedMotion={isReducedMotion}
+              className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
+            />
+            <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
+              Cinematic 3D gallery of core disciplines, system architectures, and technical competencies.
+            </p>
           </div>
-          <TextScramble
-            as="h2"
-            text="TECHNICAL EXPERTISE"
-            triggerOnView={true}
-            isReducedMotion={isReducedMotion}
-            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
-          />
-          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-            Practical development toolsets and production languages used in building systems.
-          </p>
+
+          {/* Interactive View Switcher Tabs */}
+          <div className="flex items-center gap-1 p-1 bg-black/40 border border-white/[0.08] rounded-lg shrink-0 self-start sm:self-auto backdrop-blur-md">
+            <button
+              onClick={() => setSkillsViewMode('gallery')}
+              className={`px-3 py-1.5 text-xs font-tech font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
+                skillsViewMode === 'gallery'
+                  ? 'bg-[#FF2800]/20 text-white border border-[#FF2800]/50 shadow-[0_0_12px_rgba(255,40,0,0.25)]'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              3D Gallery
+            </button>
+            <button
+              onClick={() => setSkillsViewMode('index')}
+              className={`px-3 py-1.5 text-xs font-tech font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
+                skillsViewMode === 'index'
+                  ? 'bg-[#FF2800]/20 text-white border border-[#FF2800]/50 shadow-[0_0_12px_rgba(255,40,0,0.25)]'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              Stack Index
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {portfolioData.skills.map((categoryGroup, index) => {
-            const Icon = getCategoryIcon(categoryGroup.category);
-            return (
-              <div 
-                key={index}
-                className="f1-card rounded-xl p-6 sm:p-7 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#E10600] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                      <Icon className="w-5 h-5" />
+        {/* View Mode 1: Cinematic 3D Gallery (6 Distinct Cards) */}
+        {skillsViewMode === 'gallery' ? (
+          <SkillsGallery3D isReducedMotion={isReducedMotion} />
+        ) : (
+          /* View Mode 2: Compact Technical Stack Index */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {portfolioData.skills.map((categoryGroup, index) => {
+              const Icon = getCategoryIcon(categoryGroup.category);
+              return (
+                <div 
+                  key={index}
+                  className="f1-card rounded-xl p-6 sm:p-7 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2.5 rounded-lg bg-white/[0.05] border border-white/[0.1] text-[#FF2800] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base sm:text-lg font-bold text-[#FFFFFF]">
+                          {categoryGroup.category}
+                        </h3>
+                        <p className="text-xs font-body text-neutral-400">
+                          {categoryGroup.description}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-display text-base sm:text-lg font-bold text-[#FFFFFF]">
-                        {categoryGroup.category}
-                      </h3>
-                      <p className="text-xs font-body text-neutral-400">
-                        {categoryGroup.description}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {categoryGroup.skills.map((skill, sIdx) => (
-                      <span
-                        key={sIdx}
-                        className="px-3 py-1.5 rounded-lg bg-white/[0.04] backdrop-blur-xs text-xs font-tech tracking-wider text-neutral-200 border border-white/[0.08] hover:border-[#E10600]/60 hover:bg-white/[0.08] hover:text-[#FFFFFF] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {categoryGroup.skills.map((skill, sIdx) => (
+                        <span
+                          key={sIdx}
+                          className="px-3 py-1.5 rounded-lg bg-white/[0.04] backdrop-blur-xs text-xs font-tech tracking-wider text-neutral-200 border border-white/[0.08] hover:border-[#FF2800]/60 hover:bg-white/[0.08] hover:text-[#FFFFFF] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </motion.section>
 
       {/* ===================== SECTION 3: PROJECT CASE STUDIES ===================== */}
@@ -420,7 +458,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         </div>
       </motion.section>
 
-      {/* ===================== SECTION 4: FOUNDER & VENTURE (GRADEARN) ===================== */}
+      {/* ===================== SECTION 4: RESEARCH PAPERS ARCHIVE ===================== */}
+      <PapersSection isReducedMotion={isReducedMotion} />
+
+      {/* ===================== SECTION 5: WORK IN PROGRESS & CONCEPTS ===================== */}
+      <WipSection isReducedMotion={isReducedMotion} />
+
+      {/* ===================== SECTION 6: FOUNDER & VENTURE (GRADEARN) ===================== */}
       <motion.section 
         id="venture" 
         className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
@@ -431,7 +475,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       >
         <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            04 // VENTURE & ENTREPRENEURSHIP
+            06 // VENTURE & ENTREPRENEURSHIP
           </div>
           <TextScramble
             as="h2"
@@ -520,7 +564,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       >
         <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            05 // WORKPLACE & OPERATIONS
+            07 // WORKPLACE & OPERATIONS
           </div>
           <TextScramble
             as="h2"
@@ -602,7 +646,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       >
         <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            06 // CHANNELS
+            08 // CHANNELS
           </div>
           <TextScramble
             as="h2"

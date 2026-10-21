@@ -84,6 +84,41 @@ export interface CertificationItem {
   imageUrl: string;
 }
 
+export interface PaperItem {
+  id: string;
+  number: string;
+  title: string;
+  logoUrl: string;
+  fallbackLogoUrl: string;
+  paperUrl?: string;
+  repositoryUrl?: string;
+  abstract: string;
+  category: string;
+  status: 'UNPUBLISHED';
+  researchStage: string;
+  contribution: string;
+  limitations?: string[];
+  authors?: string[];
+  myRoleClarification?: string;
+}
+
+export interface WipItem {
+  id: string;
+  number: string;
+  title: string;
+  tagline: string;
+  logoUrl: string;
+  fallbackLogoUrl: string;
+  status: string;
+  shortTeaser: string;
+  role: string;
+  visionStatement: string;
+  currentFocus: string;
+  nextMilestones: string[];
+  atmosphericTheme: 'astral' | 'studio';
+  statusClarification: string;
+}
+
 export interface PortfolioData {
   identity: {
     name: string;
@@ -118,3 +153,4 @@ export interface PortfolioData {
     instagramHandle: string;
   };
 }
+

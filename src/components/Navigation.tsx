@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { Menu, X, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 
 interface NavigationProps {
@@ -16,18 +16,259 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Exactly five navigation items in required order
   const navLinks = [
     { label: 'Home', href: '#hero' },
     { label: 'About', href: '#about' },
     { label: 'Skills', href: '#skills' },
     { label: 'Projects', href: '#projects' },
-    { label: 'GradEarn', href: '#venture' },
-    { label: 'Experience', href: '#experience' },
     { label: 'Contact', href: '#contact' },
   ];
 
+  // Map all page sections to one of the 5 canonical navigation tabs
+  const sectionToTabMap: Record<string, string> = {
+    '#hero': '#hero',
+    '#about': '#about',
+    '#skills': '#skills',
+    '#projects': '#projects',
+    '#papers': '#projects',
+    '#wip': '#projects',
+    '#venture': '#projects',
+    '#experience': '#projects',
+    '#contact': '#contact',
+  };
+
+  // Determine initial active tab from window.location.hash on page load or refresh
+  const getInitialHref = useCallback(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash;
+      const mapped = sectionToTabMap[hash] || hash;
+      if (navLinks.some((l) => l.href === mapped)) {
+        return mapped;
+      }
+    }
+    return '#hero';
+  }, []);
+
+  const [activeHref, setActiveHref] = useState<string>(getInitialHref);
+  const [pillStyle, setPillStyle] = useState<{
+    left: number;
+    width: number;
+    ready: boolean;
+    animate: boolean;
+  }>({
+    left: 0,
+    width: 0,
+    ready: false,
+    animate: false
+  });
+
+  const navRef = useRef<HTMLElement | null>(null);
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  
+  // Guard against scroll-based active-section detection overriding clicked tab
+  const isClickScrollingRef = useRef<boolean>(false);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Accurate positioning calculation derived from the actual active tab DOM element
+  const updatePill = useCallback((href: string, animate: boolean = true) => {
+    const navContainer = navRef.current;
+    const targetBtn = itemRefs.current[href];
+    if (!navContainer || !targetBtn) return;
+
+    const left = targetBtn.offsetLeft;
+    const width = targetBtn.offsetWidth;
+
+    // Guard against zero-width unrendered elements
+    if (width === 0) return;
+
+    setPillStyle({
+      left,
+      width,
+      ready: true,
+      animate: animate && !isReducedMotion
+    });
+  }, [isReducedMotion]);
+
+  // Synchronous post-layout measurement via useLayoutEffect before initial paint
+  useLayoutEffect(() => {
+    const initialHref = getInitialHref();
+    setActiveHref(initialHref);
+    updatePill(initialHref, false);
+  }, [getInitialHref, updatePill]);
+
+  // Update pill position whenever activeHref changes
+  useEffect(() => {
+    updatePill(activeHref, true);
+  }, [activeHref, updatePill]);
+
+  // Font-load listener: recalculates without animation when custom fonts render
+  useEffect(() => {
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(() => {
+        updatePill(activeHref, false);
+      });
+    }
+  }, [activeHref, updatePill]);
+
+  // ResizeObserver: keeps pill aligned across container reflows and responsive adjustments
+  useEffect(() => {
+    const navContainer = navRef.current;
+    if (!navContainer) return;
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        updatePill(activeHref, false);
+      });
+
+      ro.observe(navContainer);
+      Object.values(itemRefs.current).forEach((btn) => {
+        if (btn) ro.observe(btn);
+      });
+
+      return () => ro.disconnect();
+    } else {
+      const handleResize = () => updatePill(activeHref, false);
+      window.addEventListener('resize', handleResize, { passive: true });
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [activeHref, updatePill]);
+
+  // User input listeners: cancel click-lock if user manually scrolls or touches
+  useEffect(() => {
+    const handleManualScroll = () => {
+      isClickScrollingRef.current = false;
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+    };
+
+    const handleScrollEnd = () => {
+      isClickScrollingRef.current = false;
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+    };
+
+    window.addEventListener('wheel', handleManualScroll, { passive: true });
+    window.addEventListener('touchmove', handleManualScroll, { passive: true });
+    window.addEventListener('scrollend', handleScrollEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleManualScroll);
+      window.removeEventListener('touchmove', handleManualScroll);
+      window.removeEventListener('scrollend', handleScrollEnd);
+      if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    };
+  }, []);
+
+  // History & hash listener
+  useEffect(() => {
+    const handleLocationChange = () => {
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const hash = window.location.hash;
+        const mapped = sectionToTabMap[hash] || hash;
+        if (navLinks.some((l) => l.href === mapped)) {
+          setActiveHref(mapped);
+          updatePill(mapped, true);
+        }
+      }
+    };
+
+    window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('popstate', handleLocationChange);
+    return () => {
+      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, [updatePill]);
+
+  // IntersectionObserver to sync active tab with scroll position (Zero scroll event overhead)
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    const observedIds = [
+      '#hero',
+      '#about',
+      '#skills',
+      '#projects',
+      '#papers',
+      '#wip',
+      '#venture',
+      '#experience',
+      '#contact',
+    ];
+
+    const sectionElements: { id: string; el: HTMLElement }[] = [];
+    observedIds.forEach((id) => {
+      const section = document.querySelector(id) as HTMLElement | null;
+      if (section) {
+        sectionElements.push({ id, el: section });
+      }
+    });
+
+    if (sectionElements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Critical: Do NOT override clicked destination while programmatic smooth scroll is active!
+        if (isClickScrollingRef.current) return;
+
+        // Bottom of page detection for Contact section
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+        if (scrollHeight > clientHeight && scrollHeight - (scrollTop + clientHeight) <= 36) {
+          setActiveHref('#contact');
+          return;
+        }
+
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          visible.sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
+          const topVisible = visible[0];
+          const targetId = `#${topVisible.target.id}`;
+          const mappedTab = sectionToTabMap[targetId] || targetId;
+          if (navLinks.some((l) => l.href === mappedTab)) {
+            setActiveHref(mappedTab);
+          }
+        }
+      },
+      {
+        rootMargin: '-20% 0px -50% 0px',
+        threshold: [0, 0.2, 0.5]
+      }
+    );
+
+    sectionElements.forEach(({ el }) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   const handleScroll = (href: string) => {
     setMobileMenuOpen(false);
+
+    // 1. Lock click-scrolling flag so observer cannot override this choice while scrolling
+    isClickScrollingRef.current = true;
+    if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    clickTimeoutRef.current = setTimeout(() => {
+      isClickScrollingRef.current = false;
+    }, 950);
+
+    // 2. Immediately update state and target pill to the clicked tab
+    setActiveHref(href);
+    updatePill(href, true);
+
+    // 3. Update URL hash cleanly
+    if (typeof window !== 'undefined' && window.location.hash !== href) {
+      window.history.replaceState(null, '', href);
+    }
+
+    // 4. Smooth scroll to destination
     const target = document.querySelector(href);
     if (target) {
       target.scrollIntoView({ behavior: isReducedMotion ? 'auto' : 'smooth' });
@@ -60,18 +301,45 @@ export const Navigation: React.FC<NavigationProps> = ({
           </div>
         </a>
 
-        {/* Zone 2: Navigation Links (Contains the single Contact link) */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-          {navLinks.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => handleScroll(item.href)}
-              className="px-3 py-1.5 text-xs font-tech font-semibold tracking-wider uppercase text-[#E0E0E0] hover:text-[#FFFFFF] hover:bg-white/[0.06] rounded-md transition-all active:scale-95 focus:outline-hidden focus:ring-1 focus:ring-[#E10600] whitespace-nowrap cursor-pointer relative group"
-            >
-              <span>{item.label}</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#E10600] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-            </button>
-          ))}
+        {/* Zone 2: Five Navigation Items with Animated Sliding Pill */}
+        <nav 
+          ref={navRef}
+          aria-label="Primary Navigation"
+          className="relative hidden md:flex items-center gap-1 p-1 rounded-lg bg-black/30 border border-white/[0.06] backdrop-blur-md"
+        >
+          {/* Sliding Navigation Pill */}
+          {pillStyle.ready && (
+            <div
+              aria-hidden="true"
+              className="absolute top-1 bottom-1 rounded-md pointer-events-none bg-[#E10600]/20 border border-[#E10600]/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.18),0_0_14px_rgba(225,6,0,0.3)] z-0"
+              style={{
+                left: `${pillStyle.left}px`,
+                width: `${pillStyle.width}px`,
+                transition: isReducedMotion || !pillStyle.animate
+                  ? 'none'
+                  : 'left 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+            />
+          )}
+
+          {navLinks.map((item) => {
+            const isActive = activeHref === item.href;
+            return (
+              <button
+                key={item.href}
+                ref={(el) => { itemRefs.current[item.href] = el; }}
+                onClick={() => handleScroll(item.href)}
+                className={`relative z-10 px-3.5 py-1.5 text-xs font-tech font-bold tracking-wider uppercase rounded-md transition-colors cursor-pointer select-none focus:outline-hidden focus:ring-1 focus:ring-[#E10600] whitespace-nowrap ${
+                  isActive 
+                    ? 'text-[#FFFFFF]' 
+                    : 'text-neutral-300 hover:text-[#FFFFFF]'
+                }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Zone 3: Audio & Replay Intro Controls */}
@@ -125,20 +393,28 @@ export const Navigation: React.FC<NavigationProps> = ({
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#121214]/92 backdrop-blur-2xl px-4 py-4 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08)]">
-          <div className="grid grid-cols-2 gap-1.5 py-1">
-            {navLinks.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => handleScroll(item.href)}
-                className="text-left px-3 py-2 text-xs font-tech font-semibold uppercase tracking-wider text-[#E0E0E0] hover:bg-[#171717] hover:text-[#E10600] rounded transition-all active:scale-98 cursor-pointer"
-              >
-                {item.label}
-              </button>
-            ))}
+        <div className="md:hidden bg-[#121214]/94 backdrop-blur-2xl px-4 py-4 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08)]">
+          <div className="flex flex-col gap-1 py-1">
+            {navLinks.map((item) => {
+              const isActive = activeHref === item.href;
+              return (
+                <button
+                  key={item.href}
+                  onClick={() => handleScroll(item.href)}
+                  className={`text-left px-3.5 py-2.5 text-xs font-tech font-semibold uppercase tracking-wider rounded-lg transition-all active:scale-98 cursor-pointer flex items-center justify-between ${
+                    isActive 
+                      ? 'bg-[#E10600]/15 text-[#FFFFFF] border border-[#E10600]/40' 
+                      : 'text-[#E0E0E0] hover:bg-[#171717] hover:text-[#E10600]'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="pt-3 mt-2 flex items-center justify-between gap-2">
+          <div className="pt-3 mt-2 flex items-center justify-between gap-2 border-t border-white/[0.06]">
             {onReplayIntro && (
               <button
                 onClick={() => {
