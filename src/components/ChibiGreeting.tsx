@@ -4,12 +4,14 @@ import { FastForward } from 'lucide-react';
 
 interface ChibiGreetingProps {
   onComplete: () => void;
+  onSkip?: () => void;
   onTypingComplete?: () => void;
   isReducedMotion: boolean;
 }
 
 export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({ 
   onComplete, 
+  onSkip,
   onTypingComplete,
   isReducedMotion 
 }) => {
@@ -102,11 +104,19 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
 
   const handleSkip = () => {
     if (hasFinishedRef.current) return;
-    if (activeTimerRef.current) clearTimeout(activeTimerRef.current);
-    setStage('dissolve');
-    activeTimerRef.current = setTimeout(() => {
-      safeComplete();
-    }, 150);
+    hasFinishedRef.current = true;
+    if (activeTimerRef.current) {
+      clearTimeout(activeTimerRef.current);
+      activeTimerRef.current = null;
+    }
+    if (onSkip) {
+      onSkip();
+    } else {
+      setStage('dissolve');
+      activeTimerRef.current = setTimeout(() => {
+        safeComplete();
+      }, 150);
+    }
   };
 
   return (
@@ -129,16 +139,6 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
 
       {/* Subtle red energy halo behind character */}
       <div className="absolute w-[460px] h-[460px] rounded-full bg-[radial-gradient(circle,rgba(225,6,0,0.16)_0%,transparent_70%)] pointer-events-none -z-10" />
-
-      {/* Skip button in top right */}
-      <button
-        onClick={handleSkip}
-        className="absolute top-6 right-6 z-30 inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-neutral-900/80 border border-neutral-700 hover:border-[#E10600] text-xs font-tech text-neutral-300 hover:text-[#FFFFFF] transition-all cursor-pointer backdrop-blur-sm"
-        aria-label="Skip intro"
-      >
-        <span>Skip</span>
-        <FastForward className="w-3.5 h-3.5 text-[#E10600]" />
-      </button>
 
       {/* Main greeting layout */}
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-center max-w-4xl w-full gap-6 md:gap-10">

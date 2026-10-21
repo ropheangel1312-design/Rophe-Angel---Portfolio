@@ -5,7 +5,7 @@ import { LogoInterstitial } from './LogoInterstitial';
 import { HeadphoneNotice } from './HeadphoneNotice';
 import { MikeyIntro } from './MikeyIntro';
 import { domainAudio } from '../utils/audio';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, FastForward } from 'lucide-react';
 
 interface IntroControllerProps {
   onIntroComplete: (landingX?: number) => void;
@@ -58,6 +58,14 @@ export const IntroController: React.FC<IntroControllerProps> = ({
     setPhase('mikey');
   };
 
+  // Skip button behaviour: immediately skip all pre-Mikey stages directly to Mikey's existing intro
+  const handleSkipToMikey = () => {
+    // Start main BGM cleanly for Mikey's intro
+    domainAudio.startBGM();
+    // Transition directly to Mikey's intro without skipping Mikey
+    setPhase('mikey');
+  };
+
   // Stage 4 -> Homepage: User taps Mikey -> Initiate homepage reveal
   const handleStartReveal = () => {
     setIsRevealingHomepage(true);
@@ -104,10 +112,27 @@ export const IntroController: React.FC<IntroControllerProps> = ({
         </div>
       )}
 
+      {/* Persistent Skip Button across all pre-Mikey stages (chibi, liquid transition, headphone notice, logo interstitial):
+          Immediately skips directly to Mikey's intro without skipping Mikey.
+          Preserves the existing Skip button appearance and top-right position. */}
+      {phase !== 'mikey' && !isRevealingHomepage && (
+        <div className="absolute top-6 right-6 z-[60] flex items-center">
+          <button
+            onClick={handleSkipToMikey}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-neutral-900/80 border border-neutral-700 hover:border-[#E10600] text-xs font-tech text-neutral-300 hover:text-[#FFFFFF] transition-all cursor-pointer backdrop-blur-sm active:scale-95 shadow-lg"
+            aria-label="Skip intro"
+          >
+            <span>Skip</span>
+            <FastForward className="w-3.5 h-3.5 text-[#E10600]" />
+          </button>
+        </div>
+      )}
+
       {/* 1. The Original Chibi Greeting Talking Intro (Stage 1) */}
       {phase === 'chibi' && (
         <ChibiGreeting 
           onComplete={handleGreetingFinished}
+          onSkip={handleSkipToMikey}
           isReducedMotion={isReducedMotion}
         />
       )}

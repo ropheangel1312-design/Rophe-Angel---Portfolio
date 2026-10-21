@@ -654,8 +654,6 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             <span className="text-[#E10600] font-bold">ROPHE ANGEL</span>
             <span className="text-neutral-700">/</span>
             <span>ENGINEERING PORTFOLIO</span>
-            <span className="text-neutral-700">/</span>
-            <span className="text-neutral-500">LIQUID MOTION · CREATIVE ENGINEERING</span>
           </div>
 
           <div className="flex items-center gap-6">
