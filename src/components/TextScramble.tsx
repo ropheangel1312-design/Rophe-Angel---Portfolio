@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useId } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface TextScrambleProps {
   text: string;
@@ -41,7 +41,6 @@ export const TextScramble: React.FC<TextScrambleProps> = ({
   const animatingRef = useRef(false);
   const rafIdRef = useRef<number>(0);
   const prevExternalTriggerRef = useRef(false);
-  const hasTriggeredOnViewRef = useRef(false);
 
   const chars = Array.from(text);
 
@@ -53,14 +52,43 @@ export const TextScramble: React.FC<TextScrambleProps> = ({
     return false;
   };
 
+  const stopAndSettle = () => {
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = 0;
+    }
+    animatingRef.current = false;
+
+    for (let i = 0; i < chars.length; i++) {
+      const span = spanRefs.current[i];
+      if (span) {
+        span.textContent = chars[i] === ' ' ? '\u00A0' : chars[i];
+        span.style.color = ''; // Restore original element text color
+      }
+      charStates.current[i] = {
+        startTime: 0,
+        duration: 0,
+        settled: chars[i],
+        lastSwap: 0,
+        active: false,
+      };
+    }
+  };
+
   const run = (fromIndex = 0) => {
     if (checkReducedMotion()) return;
+
+    // Cancel any running animation to prevent conflicting RAF loops and flickering
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = 0;
+    }
 
     const now = performance.now();
     const stagger = 32; // ms per character stagger
     const charDuration = 520; // ms duration per character
 
-    for (let i = fromIndex; i < chars.length; i++) {
+    for (let i = 0; i < chars.length; i++) {
       const settled = chars[i];
       if (settled === ' ') {
         charStates.current[i] = {
@@ -70,27 +98,45 @@ export const TextScramble: React.FC<TextScrambleProps> = ({
           lastSwap: 0,
           active: false,
         };
+        const span = spanRefs.current[i];
+        if (span) {
+          span.textContent = '\u00A0';
+          span.style.color = '';
+        }
         continue;
       }
 
-      charStates.current[i] = {
-        startTime: now + (i - fromIndex) * stagger,
-        duration: charDuration,
-        settled,
-        lastSwap: 0,
-        active: true,
-      };
+      if (i < fromIndex) {
+        charStates.current[i] = {
+          startTime: 0,
+          duration: 0,
+          settled,
+          lastSwap: 0,
+          active: false,
+        };
+        const span = spanRefs.current[i];
+        if (span) {
+          span.textContent = settled;
+          span.style.color = '';
+        }
+      } else {
+        charStates.current[i] = {
+          startTime: now + (i - fromIndex) * stagger,
+          duration: charDuration,
+          settled,
+          lastSwap: 0,
+          active: true,
+        };
 
-      const span = spanRefs.current[i];
-      if (span) {
-        span.style.color = SCRAMBLE_COLORS[i % SCRAMBLE_COLORS.length];
+        const span = spanRefs.current[i];
+        if (span) {
+          span.style.color = SCRAMBLE_COLORS[i % SCRAMBLE_COLORS.length];
+        }
       }
     }
 
-    if (!animatingRef.current) {
-      animatingRef.current = true;
-      rafIdRef.current = requestAnimationFrame(tick);
-    }
+    animatingRef.current = true;
+    rafIdRef.current = requestAnimationFrame(tick);
   };
 
   const tick = (now: number) => {
@@ -136,7 +182,7 @@ export const TextScramble: React.FC<TextScrambleProps> = ({
     }
   };
 
-  // External trigger (e.g. card hover or keyboard focus)
+  // External trigger (for project card hover or keyboard focus, triggers on every new interaction)
   useEffect(() => {
     if (externalTrigger && !prevExternalTriggerRef.current) {
       run(0);
@@ -144,24 +190,36 @@ export const TextScramble: React.FC<TextScrambleProps> = ({
     prevExternalTriggerRef.current = externalTrigger;
   }, [externalTrigger]);
 
-  // Viewport intersection trigger (for primary section headings)
+  // Viewport intersection trigger (repeatedly triggers every time heading enters viewport)
   useEffect(() => {
-    if (!triggerOnView || hasTriggeredOnViewRef.current) return;
+    if (!triggerOnView) return;
     const el = containerRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    let isCurrentlyInView = false;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry && entry.isIntersecting && !hasTriggeredOnViewRef.current) {
-          hasTriggeredOnViewRef.current = true;
-          run(0);
-          observer.disconnect();
+        if (!entry) return;
+
+        if (entry.isIntersecting) {
+          // Entering viewport: trigger scramble if it was previously outside viewport
+          if (!isCurrentlyInView) {
+            isCurrentlyInView = true;
+            run(0);
+          }
+        } else {
+          // Leaving viewport: clean up & settle characters so next entrance is fresh and clean
+          if (isCurrentlyInView) {
+            isCurrentlyInView = false;
+            stopAndSettle();
+          }
         }
       },
       {
         threshold: 0.15,
-        rootMargin: '0px 0px -40px 0px',
+        rootMargin: '0px 0px -30px 0px',
       }
     );
 
