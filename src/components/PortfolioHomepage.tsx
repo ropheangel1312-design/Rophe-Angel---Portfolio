@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { portfolioData } from '../data/portfolioData';
 import { ProjectCard } from './ProjectCard';
 import { VelocityMarquee } from './VelocityMarquee';
+import { TextScramble } from './TextScramble';
 import { 
   ArrowDown,
   ArrowUpRight,
@@ -146,9 +147,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             01 // PROFILE & BACKGROUND
           </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
-            ABOUT ME
-          </h2>
+          <TextScramble
+            as="h2"
+            text="ABOUT ME"
+            triggerOnView={true}
+            isReducedMotion={isReducedMotion}
+            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -220,9 +225,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             02 // STACK & CAPABILITIES
           </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
-            TECHNICAL EXPERTISE
-          </h2>
+          <TextScramble
+            as="h2"
+            text="TECHNICAL EXPERTISE"
+            triggerOnView={true}
+            isReducedMotion={isReducedMotion}
+            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
+          />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
             Practical development toolsets and production languages used in building systems.
           </p>
@@ -281,9 +290,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             03 // TECHNICAL WORK
           </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
-            FEATURED CASE STUDIES
-          </h2>
+          <TextScramble
+            as="h2"
+            text="FEATURED CASE STUDIES"
+            triggerOnView={true}
+            isReducedMotion={isReducedMotion}
+            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
+          />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
             Detailed engineering breakdowns highlighting architectural decisions, technical problem-solving, and implementation details.
           </p>
@@ -313,9 +326,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             04 // VENTURE & ENTREPRENEURSHIP
           </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
-            FOUNDER OF GRADEARN
-          </h2>
+          <TextScramble
+            as="h2"
+            text="FOUNDER OF GRADEARN"
+            triggerOnView={true}
+            isReducedMotion={isReducedMotion}
+            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
+          />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
             A student freelancing initiative designed to connect early-career talent with real client projects.
           </p>
@@ -398,9 +415,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             05 // WORKPLACE & OPERATIONS
           </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
-            PRACTICAL EXPERIENCE
-          </h2>
+          <TextScramble
+            as="h2"
+            text="PRACTICAL EXPERIENCE"
+            triggerOnView={true}
+            isReducedMotion={isReducedMotion}
+            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
+          />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
             Practical retail workflow management, customer checkout systems, and inventory operations.
           </p>
@@ -475,9 +496,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             06 // CHANNELS
           </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight">
-            GET IN TOUCH
-          </h2>
+          <TextScramble
+            as="h2"
+            text="GET IN TOUCH"
+            triggerOnView={true}
+            isReducedMotion={isReducedMotion}
+            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
+          />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
             {portfolioData.contact.description}
           </p>

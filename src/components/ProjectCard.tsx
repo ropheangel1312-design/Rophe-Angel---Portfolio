@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ProjectItem } from '../types';
+import { TextScramble } from './TextScramble';
 import { 
   ExternalLink, 
   Github, 
@@ -33,6 +34,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const modalCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lightboxCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -155,6 +157,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -228,10 +232,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             <span className="font-mono text-neutral-500">0{index + 1}</span>
           </div>
 
-          {/* Project Title */}
-          <h3 className="font-display text-xl sm:text-2xl font-bold text-[#FFFFFF] group-hover:text-[#E10600] transition-colors tracking-tight mb-2">
-            {project.title}
-          </h3>
+          {/* Project Title with Hipuku Text Scramble */}
+          <TextScramble
+            as="h3"
+            text={project.title}
+            triggerOnHover={true}
+            externalTrigger={isHovered || isFocused}
+            className="font-display text-xl sm:text-2xl font-bold text-[#FFFFFF] group-hover:text-[#E10600] transition-colors tracking-tight mb-2 block"
+          />
 
           {/* Concise Overview */}
           <p className="font-body text-xs sm:text-sm text-neutral-300 leading-relaxed line-clamp-2 mb-4">
