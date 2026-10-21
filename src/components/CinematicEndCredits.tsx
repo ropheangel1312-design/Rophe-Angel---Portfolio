@@ -11,6 +11,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { domainAudio } from '../utils/audio';
+import { LogoInterstitial } from './LogoInterstitial';
 
 interface CinematicEndCreditsProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ interface CinematicEndCreditsProps {
   onToggleSound: () => void;
 }
 
-type CreditsPhase = 'rolling' | 'final_screen';
+type CreditsPhase = 'rolling' | 'fading_out' | 'logo_interstitial';
 
 export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
   isOpen,
@@ -122,9 +123,9 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
       setScrollProgress(progress);
 
       if (currentScrollYRef.current >= maxScroll) {
-        // Hold at bottom for 1.2s before fading into the final logo screen
+        // Hold at bottom for 1.2s before smoothly fading out into the logo interstitial
         setTimeout(() => {
-          setPhase('final_screen');
+          triggerTransitionToLogo();
         }, 1200);
         return;
       }
@@ -132,6 +133,13 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
     animFrameIdRef.current = requestAnimationFrame(step);
   }, [isOpen, phase, isPlaying, speedMultiplier, isReducedMotion]);
+
+  const triggerTransitionToLogo = useCallback(() => {
+    setPhase('fading_out');
+    setTimeout(() => {
+      setPhase('logo_interstitial');
+    }, 600);
+  }, []);
 
   useEffect(() => {
     if (isOpen && phase === 'rolling') {
@@ -146,17 +154,17 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
   }, [isOpen, phase, step]);
 
   const handleReplay = () => {
-    setPhase('rolling');
-    setIsPlaying(true);
-    setSpeedMultiplier(1);
-    setScrollProgress(0);
     currentScrollYRef.current = 0;
     lastTimeRef.current = null;
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
     }
+    setScrollProgress(0);
+    setIsPlaying(true);
+    setSpeedMultiplier(1);
     // Restart dedicated end-credit audio cleanly from the beginning
     domainAudio.replayCreditsBGM();
+    setPhase('rolling');
   };
 
   const handleToggleSpeed = () => {
@@ -168,7 +176,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
   };
 
   const handleSkipToEnd = () => {
-    setPhase('final_screen');
+    triggerTransitionToLogo();
   };
 
   if (!isOpen) return null;
@@ -196,111 +204,115 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
       />
 
       {/* ===================== TOP CINEMATIC CONTROLS BAR ===================== */}
-      <header className="relative z-40 w-full px-4 sm:px-8 py-4 flex items-center justify-between text-xs font-tech tracking-wider uppercase bg-[#0A0A0A]/60 backdrop-blur-md border-b border-white/[0.08]">
-        {/* Left: Branding & Play/Pause */}
-        <div className="flex items-center gap-3">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#E10600] inline-block shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
-          <span className="font-bold text-white tracking-widest hidden sm:inline">
-            ROPHE ANGEL // END CREDITS
-          </span>
-          <span className="text-neutral-500 hidden sm:inline">/</span>
-          <span className="text-neutral-400 font-mono text-[11px]">
-            {phase === 'rolling' ? (isPlaying ? 'ROLLING' : 'PAUSED') : 'FIN'}
-          </span>
-        </div>
-
-        {/* Center: Progress Bar */}
-        {phase === 'rolling' && (
-          <div className="hidden md:flex items-center gap-3 w-48">
-            <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-[#E10600] transition-all duration-150"
-                style={{ width: `${Math.round(scrollProgress * 100)}%` }}
-              />
-            </div>
-            <span className="font-mono text-[10px] text-neutral-400 w-8">
-              {Math.round(scrollProgress * 100)}%
+      {phase !== 'logo_interstitial' && (
+        <header className={`relative z-40 w-full px-4 sm:px-8 py-4 flex items-center justify-between text-xs font-tech tracking-wider uppercase bg-[#0A0A0A]/60 backdrop-blur-md border-b border-white/[0.08] transition-opacity duration-500 ${phase === 'fading_out' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          {/* Left: Branding & Play/Pause */}
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#E10600] inline-block shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
+            <span className="font-bold text-white tracking-widest hidden sm:inline">
+              ROPHE ANGEL // END CREDITS
+            </span>
+            <span className="text-neutral-500 hidden sm:inline">/</span>
+            <span className="text-neutral-400 font-mono text-[11px]">
+              {phase === 'rolling' ? (isPlaying ? 'ROLLING' : 'PAUSED') : 'FIN'}
             </span>
           </div>
-        )}
 
-        {/* Right: Interactive Player Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Center: Progress Bar */}
           {phase === 'rolling' && (
-            <>
-              {/* Play / Pause */}
-              <button
-                onClick={() => setIsPlaying(prev => !prev)}
-                className="p-1.5 sm:px-2.5 sm:py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-neutral-200 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                title={isPlaying ? "Pause credits (Space)" : "Resume credits (Space)"}
-                aria-label={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? <Pause className="w-3.5 h-3.5 text-[#E10600]" /> : <Play className="w-3.5 h-3.5 fill-[#E10600] text-[#E10600]" />}
-                <span className="hidden sm:inline text-[11px] font-bold">{isPlaying ? 'PAUSE' : 'PLAY'}</span>
-              </button>
-
-              {/* Speed multiplier toggle */}
-              <button
-                onClick={handleToggleSpeed}
-                className={`px-2 py-1 rounded border text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-1 ${
-                  speedMultiplier > 1 
-                    ? 'border-[#E10600] text-[#E10600] bg-[#E10600]/10' 
-                    : 'border-white/15 text-neutral-300 hover:text-white bg-white/[0.06]'
-                }`}
-                title="Toggle scroll speed (1x / 2x / 3x)"
-              >
-                <FastForward className="w-3 h-3" />
-                <span>{speedMultiplier}x</span>
-              </button>
-
-              {/* Skip to end */}
-              <button
-                onClick={handleSkipToEnd}
-                className="px-2.5 py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-neutral-300 hover:text-white text-[11px] font-bold transition-all cursor-pointer active:scale-95 hidden sm:inline"
-              >
-                SKIP »
-              </button>
-            </>
+            <div className="hidden md:flex items-center gap-3 w-48">
+              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-[#E10600] transition-all duration-150"
+                  style={{ width: `${Math.round(scrollProgress * 100)}%` }}
+                />
+              </div>
+              <span className="font-mono text-[10px] text-neutral-400 w-8">
+                {Math.round(scrollProgress * 100)}%
+              </span>
+            </div>
           )}
 
-          {/* Sound Mute Toggle */}
-          <button
-            onClick={onToggleSound}
-            className="p-1.5 sm:px-2.5 sm:py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-neutral-200 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-            aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-            title={isMuted ? "Unmute audio" : "Mute audio"}
-          >
-            {isMuted ? (
-              <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
-            ) : (
-              <Volume2 className="w-3.5 h-3.5 text-[#E10600]" />
-            )}
-            <span className="hidden sm:inline text-[11px] font-bold">
-              {isMuted ? 'MUTED' : 'AUDIO ON'}
-            </span>
-          </button>
+          {/* Right: Interactive Player Controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {phase === 'rolling' && (
+              <>
+                {/* Play / Pause */}
+                <button
+                  onClick={() => setIsPlaying(prev => !prev)}
+                  className="p-1.5 sm:px-2.5 sm:py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-neutral-200 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  title={isPlaying ? "Pause credits (Space)" : "Resume credits (Space)"}
+                  aria-label={isPlaying ? "Pause" : "Play"}
+                >
+                  {isPlaying ? <Pause className="w-3.5 h-3.5 text-[#E10600]" /> : <Play className="w-3.5 h-3.5 fill-[#E10600] text-[#E10600]" />}
+                  <span className="hidden sm:inline text-[11px] font-bold">{isPlaying ? 'PAUSE' : 'PLAY'}</span>
+                </button>
 
-          {/* Exit / Return to Portfolio */}
-          <button
-            onClick={onClose}
-            className="p-1.5 sm:px-2.5 sm:py-1 rounded bg-[#E10600]/20 hover:bg-[#E10600] border border-[#E10600]/50 hover:border-[#E10600] text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-            title="Return to portfolio (Esc)"
-            aria-label="Return to portfolio"
-          >
-            <X className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline text-[11px] font-bold">EXIT</span>
-          </button>
-        </div>
-      </header>
+                {/* Speed multiplier toggle */}
+                <button
+                  onClick={handleToggleSpeed}
+                  className={`px-2 py-1 rounded border text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-1 ${
+                    speedMultiplier > 1 
+                      ? 'border-[#E10600] text-[#E10600] bg-[#E10600]/10' 
+                      : 'border-white/15 text-neutral-300 hover:text-white bg-white/[0.06]'
+                  }`}
+                  title="Toggle scroll speed (1x / 2x / 3x)"
+                >
+                  <FastForward className="w-3 h-3" />
+                  <span>{speedMultiplier}x</span>
+                </button>
+
+                {/* Skip to end */}
+                <button
+                  onClick={handleSkipToEnd}
+                  className="px-2.5 py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-neutral-300 hover:text-white text-[11px] font-bold transition-all cursor-pointer active:scale-95 hidden sm:inline"
+                >
+                  SKIP »
+                </button>
+              </>
+            )}
+
+            {/* Sound Mute Toggle */}
+            <button
+              onClick={onToggleSound}
+              className="p-1.5 sm:px-2.5 sm:py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-neutral-200 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+              title={isMuted ? "Unmute audio" : "Mute audio"}
+            >
+              {isMuted ? (
+                <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
+              ) : (
+                <Volume2 className="w-3.5 h-3.5 text-[#E10600]" />
+              )}
+              <span className="hidden sm:inline text-[11px] font-bold">
+                {isMuted ? 'MUTED' : 'AUDIO ON'}
+              </span>
+            </button>
+
+            {/* Exit / Return to Portfolio */}
+            <button
+              onClick={onClose}
+              className="p-1.5 sm:px-2.5 sm:py-1 rounded bg-[#E10600]/20 hover:bg-[#E10600] border border-[#E10600]/50 hover:border-[#E10600] text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              title="Return to portfolio (Esc)"
+              aria-label="Return to portfolio"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline text-[11px] font-bold">EXIT</span>
+            </button>
+          </div>
+        </header>
+      )}
 
       {/* ===================== MAIN CREDITS THEATER ===================== */}
       <div className="relative z-10 w-full flex-1 overflow-hidden flex items-center justify-center">
         
         {/* PHASE 1: SCROLLING CREDITS */}
-        {phase === 'rolling' && (
+        {(phase === 'rolling' || phase === 'fading_out') && (
           <div 
             ref={containerRef}
-            className="w-full h-full overflow-y-auto overflow-x-hidden scrollbar-none flex justify-center cursor-default select-text"
+            className={`w-full h-full overflow-y-auto overflow-x-hidden scrollbar-none flex justify-center cursor-default select-text transition-opacity duration-600 ease-out ${
+              phase === 'fading_out' ? 'opacity-0' : 'opacity-100'
+            }`}
             style={{ scrollBehavior: 'auto' }}
             onWheel={(e) => {
               // Allow manual mouse wheel scrolling without breaking the loop
@@ -502,72 +514,29 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
           </div>
         )}
 
-        {/* PHASE 2: MINIMALIST FINAL SCREEN */}
-        {phase === 'final_screen' && (
-          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center animate-fadeIn select-none">
-            
-            {/* Ambient Red Luminescence Behind Logo */}
-            <div 
-              className="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#E10600]/10 blur-3xl pointer-events-none" 
-              aria-hidden="true" 
-            />
-
-            {/* Existing Authentic Portfolio Logo */}
-            <div className="relative z-10 mb-6">
-              <img 
-                src="/logo.png" 
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = 'https://plain-apac-prod-public.komododecks.com/202610/20/YZgT7SnpXc2zs3CnoXeZ/image.png';
-                }}
-                alt="Rophe Angel Racing Logo" 
-                className="w-auto h-auto max-w-[200px] sm:max-w-[280px] md:max-w-[340px] max-h-[140px] sm:max-h-[180px] object-contain drop-shadow-[0_0_40px_rgba(225,6,0,0.28)]"
-              />
-            </div>
-
-            {/* Typography */}
-            <h2 className="relative z-10 font-display font-black text-2xl sm:text-4xl text-white tracking-widest uppercase mb-2">
-              ROPHE ANGEL
-            </h2>
-            <div className="relative z-10 text-xs sm:text-sm font-tech text-neutral-400 tracking-[0.3em] uppercase mb-8">
-              ENGINEERING PORTFOLIO // 2026
-            </div>
-
-            {/* Action Buttons: Replay Credits + Return to Portfolio */}
-            <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-              <button
-                onClick={handleReplay}
-                className="f1-btn-secondary px-5 py-2.5 rounded-lg inline-flex items-center gap-2 text-xs font-tech font-bold tracking-wider uppercase cursor-pointer"
-              >
-                <RotateCcw className="w-4 h-4 text-[#E10600]" />
-                <span>REPLAY CREDITS</span>
-              </button>
-
-              <button
-                onClick={onClose}
-                className="f1-btn-primary px-6 py-2.5 rounded-lg inline-flex items-center gap-2 text-xs font-tech font-bold tracking-wider uppercase cursor-pointer"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>RETURN TO PORTFOLIO</span>
-              </button>
-            </div>
-
-            <div className="relative z-10 mt-12 text-[11px] font-mono text-neutral-600 tracking-widest uppercase">
-              SECTOR 03 CLEARED · ALL SYSTEMS NOMINAL
-            </div>
-          </div>
+        {/* PHASE 2: CINEMATIC LOGO INTERSTITIAL WITH REPLAY & RETURN BUTTONS */}
+        {phase === 'logo_interstitial' && (
+          <LogoInterstitial
+            mode="credits_ending"
+            isReducedMotion={isReducedMotion}
+            onReplayCredits={handleReplay}
+            onReturnToPortfolio={onClose}
+          />
         )}
 
       </div>
 
       {/* Subtle Bottom Status Bar */}
-      <footer className="relative z-40 w-full px-6 py-2.5 flex items-center justify-between text-[10px] font-mono text-neutral-500 bg-[#0A0A0A]/80 border-t border-white/[0.06]">
-        <div>CONSOLE ID: RR-2026-F1 // CH: 446.006 MHz</div>
-        <div className="flex items-center gap-2">
-          <span>PRESS ESC TO EXIT</span>
-          <span>·</span>
-          <span>SPACE TO PAUSE</span>
-        </div>
-      </footer>
+      {phase !== 'logo_interstitial' && (
+        <footer className={`relative z-40 w-full px-6 py-2.5 flex items-center justify-between text-[10px] font-mono text-neutral-500 bg-[#0A0A0A]/80 border-t border-white/[0.06] transition-opacity duration-500 ${phase === 'fading_out' ? 'opacity-0' : 'opacity-100'}`}>
+          <div>CONSOLE ID: RR-2026-F1 // CH: 446.006 MHz</div>
+          <div className="flex items-center gap-2">
+            <span>PRESS ESC TO EXIT</span>
+            <span>·</span>
+            <span>SPACE TO PAUSE</span>
+          </div>
+        </footer>
+      )}
     </div>
   );
 };
