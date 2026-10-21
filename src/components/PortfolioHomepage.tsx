@@ -53,31 +53,59 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
   const [isChannelOpen, setIsChannelOpen] = useState(false);
   const [isContactInView, setIsContactInView] = useState(false);
   const [showCredits, setShowCredits] = useState<boolean>(false);
-  const [autoCreditsNotice, setAutoCreditsNotice] = useState<boolean>(false);
-  const [countdownSeconds, setCountdownSeconds] = useState<number>(3);
   const contactSectionRef = useRef<HTMLElement | null>(null);
+  const bottomTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasTriggeredCreditsRef = useRef<boolean>(false);
 
-  // When radio communication check is completed, automatically trigger the cinematic end credits sequence
+  // Automatically trigger end credits 3 seconds after visitor reaches the actual page bottom
   useEffect(() => {
-    if (isChannelOpen) {
-      setAutoCreditsNotice(true);
-      setCountdownSeconds(3);
-    }
-  }, [isChannelOpen]);
+    const clearTimer = () => {
+      if (bottomTimerRef.current) {
+        clearTimeout(bottomTimerRef.current);
+        bottomTimerRef.current = null;
+      }
+    };
 
-  // Auto-launch countdown effect
-  useEffect(() => {
-    if (!autoCreditsNotice) return;
-    if (countdownSeconds <= 0) {
-      setAutoCreditsNotice(false);
-      setShowCredits(true);
-      return;
-    }
-    const timer = setTimeout(() => {
-      setCountdownSeconds(prev => prev - 1);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [autoCreditsNotice, countdownSeconds]);
+    const handleScrollOrResize = () => {
+      // Trigger only once per visit; do nothing if credits are currently active
+      if (hasTriggeredCreditsRef.current || showCredits) {
+        clearTimer();
+        return;
+      }
+
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      // True bottom detection: within 24px of bottom to handle fractional/retina scaling
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+      const isAtActualBottom = scrollHeight > clientHeight && distanceFromBottom <= 24;
+
+      if (isAtActualBottom) {
+        if (!bottomTimerRef.current) {
+          bottomTimerRef.current = setTimeout(() => {
+            if (!hasTriggeredCreditsRef.current) {
+              hasTriggeredCreditsRef.current = true;
+              clearTimer();
+              setShowCredits(true);
+            }
+          }, 3000);
+        }
+      } else {
+        // Visitor scrolled away from the bottom before 3s completed -> cancel countdown
+        clearTimer();
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
+    window.addEventListener('resize', handleScrollOrResize, { passive: true });
+
+    return () => {
+      clearTimer();
+      window.removeEventListener('scroll', handleScrollOrResize);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [showCredits]);
 
   // Contact section viewport intersection observer:
   // Smoothly lowers BGM to 10% (0.03) when in view, and restores to base volume (0.30) when leaving
@@ -122,9 +150,9 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== HERO SECTION ===================== */}
       <section 
         id="hero" 
-        className="relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 overflow-hidden"
+        className="relative min-h-[82vh] sm:min-h-[85vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 overflow-hidden"
       >
-        <div className="max-w-5xl mx-auto w-full py-20 sm:py-28 relative z-10 flex flex-col justify-center">
+        <div className="max-w-5xl mx-auto w-full pt-14 pb-8 sm:pt-18 sm:pb-12 relative z-10 flex flex-col justify-center">
           
           <motion.div 
             className="w-full max-w-4xl"
@@ -133,7 +161,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             transition={{ duration: 0.85, ease: cinematicEase }}
           >
             {/* Top Editorial Kicker (Zero-Pill Compliance) */}
-            <div className="flex flex-wrap items-center gap-3 text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-6">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-4 sm:mb-5">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-[#E10600] rounded-xs" />
                 <span className="fx-lens" data-text="ENGINEERING PORTFOLIO">ENGINEERING PORTFOLIO</span>
@@ -149,7 +177,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
 
             {/* Concise Persona Statement */}
             <motion.div 
-              className="max-w-2xl mb-10"
+              className="max-w-2xl mb-7 sm:mb-8"
               initial={!isReducedMotion ? { opacity: 0 } : false}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.3, ease: cinematicEase }}
@@ -187,7 +215,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             </motion.div>
 
             {/* Bottom Status Strip */}
-            <div className="mt-16 pt-6 flex flex-wrap items-center justify-between gap-4 text-xs font-tech text-neutral-400">
+            <div className="mt-10 sm:mt-12 pt-5 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-4 text-xs font-tech text-neutral-400">
               <div className="flex items-center gap-3">
                 <span className="text-[#E10600] font-bold">STATUS //</span>
                 <span className="text-[#FFFFFF]">Active Developer & Venture Founder</span>
@@ -206,13 +234,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 1: MINIMAL ABOUT ME ===================== */}
       <motion.section 
         id="about" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             01 // PROFILE & BACKGROUND
           </div>
@@ -284,13 +312,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 2: TECHNICAL SKILLS ===================== */}
       <motion.section 
         id="skills" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-12">
+        <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             02 // STACK & CAPABILITIES
           </div>
@@ -349,13 +377,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 3: PROJECT CASE STUDIES ===================== */}
       <motion.section 
         id="projects" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-12">
+        <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             03 // TECHNICAL WORK
           </div>
@@ -385,13 +413,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 4: FOUNDER & VENTURE (GRADEARN) ===================== */}
       <motion.section 
         id="venture" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             04 // VENTURE & ENTREPRENEURSHIP
           </div>
@@ -474,13 +502,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 5: PRACTICAL EXPERIENCE (NPTEL & V-Vortex REMOVED) ===================== */}
       <motion.section 
         id="experience" 
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             05 // WORKPLACE & OPERATIONS
           </div>
@@ -556,13 +584,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       <motion.section 
         id="contact" 
         ref={contactSectionRef as any}
-        className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        className="pt-8 pb-12 sm:pt-10 sm:pb-14 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             06 // CHANNELS
           </div>
@@ -588,40 +616,6 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             isInView={isContactInView}
           />
 
-          {/* Automatic Transmission Complete -> End Credits Transition Toast */}
-          {autoCreditsNotice && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              className="mt-4 p-4 rounded-xl border border-[#E10600]/40 bg-[#160b0c]/90 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 text-xs font-tech shadow-[0_0_24px_rgba(225,6,0,0.18)]"
-            >
-              <div className="flex items-center gap-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#E10600] animate-ping" />
-                <span className="font-bold text-white tracking-wider uppercase text-xs sm:text-sm">
-                  RADIO CHECK COMPLETE // INITIATING END CREDITS IN {countdownSeconds}S
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    setAutoCreditsNotice(false);
-                    setShowCredits(true);
-                  }}
-                  className="px-4 py-1.5 rounded bg-[#E10600] hover:bg-[#ff1a14] text-white font-bold tracking-wider uppercase text-xs cursor-pointer active:scale-95 transition-all shadow-md"
-                >
-                  WATCH NOW ⏵
-                </button>
-                <button
-                  onClick={() => setAutoCreditsNotice(false)}
-                  className="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-neutral-300 font-bold uppercase text-xs cursor-pointer transition-all"
-                >
-                  STAY ON PIT WALL
-                </button>
-              </div>
-            </motion.div>
-          )}
-
           {/* Subtle dedicated launch button right below the console */}
           <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
             <button
@@ -640,7 +634,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       </motion.section>
 
       {/* ===================== FOOTER ===================== */}
-      <footer className="mt-auto py-8 px-4 sm:px-6 lg:px-12 bg-transparent text-xs font-tech text-neutral-400">
+      <footer className="mt-auto py-6 sm:py-7 px-4 sm:px-6 lg:px-12 bg-transparent text-xs font-tech text-neutral-400">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img 
