@@ -16,7 +16,7 @@ const SPEED = 0.32; // px per ms
 const WIDTH = 26; // the ring's half-width, as the Gaussian's sigma
 const LIFE = 3400; // ms, by which a ring is at 2% and dropping it is invisible
 const PUSH = 11; // px, the furthest a dot is shoved
-const HUE = '#73bde7'; // --orbit cyan-blue from CodePen
+const HUE = '#5C0A0A'; // Deep, dark crimson red (Ferrari-inspired ambient tone)
 
 /** How hard a dot at `distance` is pushed by a ring of `age` ms */
 function ringStrength(distance: number, age: number): number {
