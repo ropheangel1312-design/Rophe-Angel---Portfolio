@@ -81,9 +81,10 @@ export const Navigation: React.FC<NavigationProps> = ({
           {onToggleSound && (
             <button
               onClick={onToggleSound}
-              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg font-tech text-xs uppercase tracking-wider bg-white/[0.04] backdrop-blur-md text-neutral-300 border border-white/[0.08] hover:border-[#E10600]/60 hover:text-[#FFFFFF] hover:bg-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all cursor-pointer flex items-center gap-1.5"
-              aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg font-tech text-xs uppercase tracking-wider bg-white/[0.04] backdrop-blur-md text-neutral-300 border border-white/[0.08] hover:border-[#E10600]/60 hover:text-[#FFFFFF] hover:bg-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all cursor-pointer flex items-center gap-1.5 focus:outline-hidden focus:ring-1 focus:ring-[#E10600]"
+              aria-label={isMuted ? "Unmute audio and enable pit wall radio" : "Mute audio"}
               title={isMuted ? "Unmute audio" : "Mute audio"}
+              aria-pressed={!isMuted}
             >
               {isMuted ? (
                 <>

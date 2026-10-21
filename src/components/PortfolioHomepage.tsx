@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { portfolioData } from '../data/portfolioData';
 import { ProjectCard } from './ProjectCard';
 import { VelocityMarquee } from './VelocityMarquee';
 import { TextScramble } from './TextScramble';
+import { PitWallRadio } from './PitWallRadio';
+import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
   ArrowUpRight,
@@ -37,11 +39,47 @@ const getCategoryIcon = (category: string) => {
 
 interface PortfolioHomepageProps {
   isReducedMotion: boolean;
+  isMuted?: boolean;
+  onToggleSound?: () => void;
 }
 
 export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
-  isReducedMotion
+  isReducedMotion,
+  isMuted = true,
+  onToggleSound
 }) => {
+  const [isChannelOpen, setIsChannelOpen] = useState(false);
+  const [isContactInView, setIsContactInView] = useState(false);
+  const contactSectionRef = useRef<HTMLElement | null>(null);
+
+  // Contact section viewport intersection observer:
+  // Smoothly lowers BGM to 10% (0.03) when in view, and restores to base volume (0.30) when leaving
+  useEffect(() => {
+    const el = contactSectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (!entry) return;
+        const visible = entry.isIntersecting;
+        setIsContactInView(visible);
+        domainAudio.setContactSectionActive(visible);
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -30px 0px',
+      }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      domainAudio.setContactSectionActive(false);
+    };
+  }, []);
+
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -486,13 +524,14 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 6: CONTACT ===================== */}
       <motion.section 
         id="contact" 
+        ref={contactSectionRef as any}
         className="py-16 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
         initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
-        <div className="mb-10">
+        <div className="mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
             06 // CHANNELS
           </div>
@@ -507,6 +546,15 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             {portfolioData.contact.description}
           </p>
         </div>
+
+        {/* Ferrari Pit Wall Radio Audio Telemetry & Live Waveform */}
+        <PitWallRadio 
+          isReducedMotion={isReducedMotion}
+          isMuted={isMuted}
+          onToggleMute={onToggleSound}
+          onChannelOpened={setIsChannelOpen}
+          isInView={isContactInView}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           

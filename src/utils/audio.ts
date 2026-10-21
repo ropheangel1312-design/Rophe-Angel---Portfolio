@@ -8,6 +8,9 @@
  * - Muted by default, safe against autoplay blocking, graceful cleanup.
  */
 
+export const BGM_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792573550904-dc5c4c13-e25b-4f85-b17f-f48569ce3e26.mp3';
+export const RADIO_CHECK_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792573478807-3a0c394a-1cb4-49f6-9bab-cbe17f779a60.m4a';
+
 class DomainAudioEngine {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = true;
@@ -15,6 +18,20 @@ class DomainAudioEngine {
   private activeNodes: (AudioNode | OscillatorNode | AudioBufferSourceNode)[] = [];
   private waterWaveNodes: (AudioNode | OscillatorNode | AudioBufferSourceNode)[] = [];
   private waterWaveGain: GainNode | null = null;
+
+  // Background Music (BGM) Persistent Audio Instance
+  private bgmAudio: HTMLAudioElement | null = null;
+  private bgmBaseVolume: number = 0.30; // Configurable base volume ~30%
+  private bgmContactVolume: number = 0.03; // ~10% of base volume (3%)
+  private bgmFadeAnimId: number | null = null;
+  private hasStartedBGM: boolean = false;
+  private isInContactSection: boolean = false;
+
+  // Pit Wall Radio Check Persistent Audio Instance
+  private radioAudio: HTMLAudioElement | null = null;
+  private isRadioPlaying: boolean = false;
+  private radioSessionId: number = 0; // Incremented on cancel/restart to ignore stale events
+  private gestureListenerAttached: boolean = false;
 
   constructor() {
     this.isMuted = true;
@@ -42,14 +59,279 @@ class DomainAudioEngine {
     this.isMuted = muted;
     if (!muted) {
       this.initContext();
+      // Unmuting: update BGM & Radio mute properties
+      if (this.bgmAudio) {
+        this.bgmAudio.muted = false;
+        // Resume playing BGM only if it was previously started
+        if (this.hasStartedBGM) {
+          this.bgmAudio.play().catch(() => {});
+        }
+      }
+      if (this.radioAudio) {
+        this.radioAudio.muted = false;
+      }
     } else {
       this.stopAll();
+      // Muting: immediately silence BGM and any active radio check
+      if (this.bgmAudio) {
+        this.bgmAudio.muted = true;
+      }
+      if (this.radioAudio) {
+        this.radioAudio.muted = true;
+        if (this.isRadioPlaying) {
+          this.stopRadioCheck(true);
+        }
+      }
     }
   }
 
   public toggleMute(): boolean {
     this.setMuted(!this.isMuted);
     return this.isMuted;
+  }
+
+  /**
+   * Initialize or retrieve the persistent BGM audio element.
+   */
+  private getBGMAudio(): HTMLAudioElement | null {
+    if (typeof window === 'undefined') return null;
+    if (!this.bgmAudio) {
+      try {
+        const audio = new Audio(BGM_AUDIO_URL);
+        audio.loop = true;
+        audio.preload = 'auto';
+        audio.volume = this.isInContactSection ? this.bgmContactVolume : this.bgmBaseVolume;
+        audio.muted = this.isMuted;
+        audio.addEventListener('error', (e) => {
+          console.warn('[PitWallAudio] Background music load warning:', e);
+        });
+        this.bgmAudio = audio;
+      } catch (err) {
+        console.warn('[PitWallAudio] Failed to instantiate BGM audio:', err);
+      }
+    }
+    return this.bgmAudio;
+  }
+
+  /**
+   * Start BGM following a user gesture or when audio is unmuted.
+   */
+  public startBGM(userInitiated: boolean = false): void {
+    if (typeof window === 'undefined') return;
+    const audio = this.getBGMAudio();
+    if (!audio) return;
+
+    this.hasStartedBGM = true;
+    audio.muted = this.isMuted;
+    audio.volume = this.isInContactSection ? this.bgmContactVolume : this.bgmBaseVolume;
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        // If autoplay blocked, attach one-time user gesture listener
+        if (!this.gestureListenerAttached && !this.isMuted) {
+          this.gestureListenerAttached = true;
+          const unlock = () => {
+            this.gestureListenerAttached = false;
+            window.removeEventListener('pointerdown', unlock);
+            window.removeEventListener('keydown', unlock);
+            if (!this.isMuted && this.bgmAudio) {
+              this.bgmAudio.play().catch(() => {});
+            }
+          };
+          window.addEventListener('pointerdown', unlock, { once: true, passive: true });
+          window.addEventListener('keydown', unlock, { once: true, passive: true });
+        }
+      });
+    }
+  }
+
+  /**
+   * Smoothly fade BGM volume to target over specified duration (default 800ms).
+   * Cancels any in-flight fade so rapid transitions never conflict or leak.
+   */
+  public fadeBGMTo(targetVolume: number, durationMs: number = 800): void {
+    if (typeof window === 'undefined') return;
+    if (this.bgmFadeAnimId !== null) {
+      cancelAnimationFrame(this.bgmFadeAnimId);
+      this.bgmFadeAnimId = null;
+    }
+
+    const audio = this.getBGMAudio();
+    if (!audio) return;
+
+    if (this.isMuted) {
+      audio.volume = Math.max(0, Math.min(1, targetVolume));
+      return;
+    }
+
+    const startVolume = audio.volume;
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / durationMs);
+      // Smooth cubic volume interpolation
+      const currentVol = startVolume + (targetVolume - startVolume) * progress;
+      audio.volume = Math.max(0, Math.min(1, currentVol));
+
+      if (progress < 1) {
+        this.bgmFadeAnimId = requestAnimationFrame(step);
+      } else {
+        this.bgmFadeAnimId = null;
+        audio.volume = Math.max(0, Math.min(1, targetVolume));
+      }
+    };
+
+    this.bgmFadeAnimId = requestAnimationFrame(step);
+  }
+
+  /**
+   * Contact-section volume control:
+   * Smoothly lowers BGM to 10% of base volume (0.03) when entering contact over 800ms.
+   * Smoothly restores BGM to base volume (0.30) when leaving contact over 800ms.
+   */
+  public setContactSectionActive(isActive: boolean): void {
+    if (this.isInContactSection === isActive) return;
+    this.isInContactSection = isActive;
+
+    const targetVolume = isActive ? this.bgmContactVolume : this.bgmBaseVolume;
+    this.fadeBGMTo(targetVolume, 800);
+
+    // If visitor leaves Contact while radio check is playing, immediately stop it
+    if (!isActive && this.isRadioPlaying) {
+      this.stopRadioCheck(true);
+    }
+  }
+
+  /**
+   * Initialize or retrieve the persistent Radio Check audio element.
+   */
+  private getRadioAudio(): HTMLAudioElement | null {
+    if (typeof window === 'undefined') return null;
+    if (!this.radioAudio) {
+      try {
+        const audio = new Audio(RADIO_CHECK_AUDIO_URL);
+        audio.preload = 'auto';
+        audio.volume = 0.95;
+        audio.muted = this.isMuted;
+        audio.addEventListener('error', (e) => {
+          console.warn('[PitWallAudio] Radio check load warning:', e);
+        });
+        this.radioAudio = audio;
+      } catch (err) {
+        console.warn('[PitWallAudio] Failed to instantiate Radio audio:', err);
+      }
+    }
+    return this.radioAudio;
+  }
+
+  /**
+   * Play the combined radio-check recording once.
+   * Synchronizes interface strictly with native audio events ('playing', 'ended', 'error').
+   */
+  public playRadioCheck(callbacks?: {
+    onStart?: () => void;
+    onPlaying?: () => void;
+    onEnded?: () => void;
+    onError?: (err: string) => void;
+    onCancel?: () => void;
+  }): void {
+    if (typeof window === 'undefined') return;
+
+    if (this.isMuted) {
+      callbacks?.onError?.('muted');
+      return;
+    }
+
+    if (this.isRadioPlaying) {
+      return; // Prevent overlapping transmissions
+    }
+
+    // Ensure BGM is ducked during transmission
+    this.fadeBGMTo(this.bgmContactVolume, 400);
+
+    const sessionId = ++this.radioSessionId;
+    this.isRadioPlaying = true;
+    callbacks?.onStart?.();
+
+    const radio = this.getRadioAudio();
+    if (!radio) {
+      this.isRadioPlaying = false;
+      callbacks?.onError?.('Radio audio unavailable');
+      return;
+    }
+
+    radio.currentTime = 0;
+    radio.muted = this.isMuted;
+    radio.volume = 0.95;
+
+    const cleanup = () => {
+      radio.removeEventListener('playing', handlePlaying);
+      radio.removeEventListener('ended', handleEnded);
+      radio.removeEventListener('error', handleError);
+    };
+
+    const handlePlaying = () => {
+      if (this.radioSessionId !== sessionId) {
+        cleanup();
+        return;
+      }
+      callbacks?.onPlaying?.();
+    };
+
+    const handleEnded = () => {
+      cleanup();
+      if (this.radioSessionId !== sessionId) return;
+      this.isRadioPlaying = false;
+      callbacks?.onEnded?.();
+    };
+
+    const handleError = (e: Event) => {
+      cleanup();
+      if (this.radioSessionId !== sessionId) return;
+      this.isRadioPlaying = false;
+      console.warn('[PitWallAudio] Radio check playback error:', e);
+      callbacks?.onError?.('Transmission failed');
+    };
+
+    radio.addEventListener('playing', handlePlaying, { once: true });
+    radio.addEventListener('ended', handleEnded, { once: true });
+    radio.addEventListener('error', handleError, { once: true });
+
+    const playPromise = radio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        cleanup();
+        if (this.radioSessionId !== sessionId) return;
+        this.isRadioPlaying = false;
+        console.warn('[PitWallAudio] Radio check play rejected:', err);
+        callbacks?.onError?.(err?.message || 'Transmission blocked');
+      });
+    }
+  }
+
+  /**
+   * Stop active radio check transmission and invalidate pending callbacks.
+   */
+  public stopRadioCheck(wasCancelled: boolean = true): void {
+    this.radioSessionId++;
+    this.isRadioPlaying = false;
+    if (this.radioAudio) {
+      try {
+        this.radioAudio.pause();
+        this.radioAudio.currentTime = 0;
+      } catch {
+        // ignore
+      }
+    }
+    // Restore BGM smoothly back if not in contact, or keep ducked if still in contact
+    const targetVolume = this.isInContactSection ? this.bgmContactVolume : this.bgmBaseVolume;
+    this.fadeBGMTo(targetVolume, 600);
+  }
+
+  public getIsRadioPlaying(): boolean {
+    return this.isRadioPlaying;
   }
 
   public stopAll(): void {

@@ -50,7 +50,25 @@ export default function App() {
   const handleToggleSound = () => {
     const nextMuted = domainAudio.toggleMute();
     setIsMuted(nextMuted);
+    if (!nextMuted) {
+      domainAudio.startBGM(true);
+    }
   };
+
+  // Start BGM on first user interaction if audio is already active
+  useEffect(() => {
+    const handleFirstGesture = () => {
+      if (!domainAudio.getMuted()) {
+        domainAudio.startBGM(true);
+      }
+    };
+    window.addEventListener('pointerdown', handleFirstGesture, { once: true, passive: true });
+    window.addEventListener('keydown', handleFirstGesture, { once: true, passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', handleFirstGesture);
+      window.removeEventListener('keydown', handleFirstGesture);
+    };
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-transparent text-[#FFFFFF] overflow-x-clip selection:bg-[#E10600]/35 selection:text-[#FFFFFF]">
@@ -80,6 +98,8 @@ export default function App() {
       <main className="relative z-10">
         <PortfolioHomepage 
           isReducedMotion={isReducedMotion} 
+          isMuted={isMuted}
+          onToggleSound={handleToggleSound}
         />
       </main>
 
