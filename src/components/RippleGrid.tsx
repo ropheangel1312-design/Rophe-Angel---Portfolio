@@ -16,7 +16,7 @@ const SPEED = 0.32; // px per ms
 const WIDTH = 26; // the ring's half-width, as the Gaussian's sigma
 const LIFE = 3400; // ms, by which a ring is at 2% and dropping it is invisible
 const PUSH = 11; // px, the furthest a dot is shoved
-const HUE = '#5C0A0A'; // Deep, dark crimson red (Ferrari-inspired ambient tone)
+const HUE = '#941414'; // Crimson red, one shade brighter for clear visibility without overpowering background
 
 /** How hard a dot at `distance` is pushed by a ring of `age` ms */
 function ringStrength(distance: number, age: number): number {
@@ -92,7 +92,7 @@ export const RippleGrid: React.FC<RippleGridProps> = ({ isReducedMotion = false 
           }
 
           // Pushed dots also brighten and grow
-          ctx.globalAlpha = Math.min(1, 0.28 + lift * 0.9);
+          ctx.globalAlpha = Math.min(1, 0.32 + lift * 0.95);
           ctx.beginPath();
           ctx.arc(x + dx, y + dy, 1.4 + Math.min(lift, 1.5) * 2.2, 0, Math.PI * 2);
           ctx.fill();
