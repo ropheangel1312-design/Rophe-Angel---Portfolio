@@ -14,6 +14,7 @@ import { domainAudio } from './utils/audio';
 
 export default function App() {
   const [hasSeenIntro, setHasSeenIntro] = useState<boolean>(false);
+  const [isIntroRevealing, setIsIntroRevealing] = useState<boolean>(false);
 
   const [isMuted, setIsMuted] = useState<boolean>(() => domainAudio.getMuted());
 
@@ -41,10 +42,12 @@ export default function App() {
       setMikeyLandingX(landingX);
     }
     setHasSeenIntro(true);
+    setIsIntroRevealing(false);
   };
 
   const handleReplayIntro = () => {
     domainAudio.pauseBGM(true);
+    setIsIntroRevealing(false);
     setHasSeenIntro(false);
   };
 
@@ -56,19 +59,26 @@ export default function App() {
     }
   };
 
+  // Suspend heavy background WebGL and Canvas2D processing while the opaque intro overlay is active.
+  // This eliminates GPU contention so the Liquid Transition renders at a full 60fps without hitching.
+  const isBackgroundPaused = !hasSeenIntro && !isIntroRevealing;
+
   return (
     <div className="relative min-h-screen bg-transparent text-[#FFFFFF] overflow-x-clip selection:bg-[#E10600]/35 selection:text-[#FFFFFF]">
       {/* Premium Liquid Motion Background System (Organic ripple propagation, continuous liquid distortion, Ferrari Red highlights) */}
-      <LiquidMotionBackground isReducedMotion={isReducedMotion} />
+      <LiquidMotionBackground isReducedMotion={isReducedMotion} isPaused={isBackgroundPaused} />
 
       {/* Ripple Grid Interactive Overlay (Transparent, non-blocking dots that ripple on click) */}
-      <RippleGrid isReducedMotion={isReducedMotion} />
+      <RippleGrid isReducedMotion={isReducedMotion} isPaused={isBackgroundPaused} />
 
       {/* Signature Chibi Character Talking Intro Sequence */}
       {!hasSeenIntro && (
         <IntroController
           onIntroComplete={handleIntroComplete}
+          onStartReveal={() => setIsIntroRevealing(true)}
           isReducedMotion={isReducedMotion}
+          isMuted={isMuted}
+          onToggleSound={handleToggleSound}
         />
       )}
 

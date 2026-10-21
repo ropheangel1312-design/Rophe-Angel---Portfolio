@@ -3,6 +3,7 @@ import { pageVisibility } from '../utils/performance';
 
 interface RippleGridProps {
   isReducedMotion?: boolean;
+  isPaused?: boolean;
 }
 
 interface Ripple {
@@ -39,10 +40,22 @@ function ringStrength(distance: number, age: number): number {
  *   within active ripple wave-front zones.
  * - Render Scheduling / Sleep State: Automatically suspends the requestAnimationFrame loop
  *   when all ripples have completed, waking up instantly upon user interaction or ambient trigger.
- * - Resource Management: Suspends animation loop when page tab is hidden.
+ * - Resource Management: Suspends animation loop when page tab is hidden or isPaused is true.
  */
-export const RippleGrid: React.FC<RippleGridProps> = ({ isReducedMotion = false }) => {
+export const RippleGrid: React.FC<RippleGridProps> = ({ isReducedMotion = false, isPaused = false }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+  const startLoopRef = useRef<(() => void) | null>(null);
+  const stopLoopRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    if (isPaused) {
+      stopLoopRef.current?.();
+    } else {
+      startLoopRef.current?.();
+    }
+  }, [isPaused]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -194,9 +207,13 @@ export const RippleGrid: React.FC<RippleGridProps> = ({ isReducedMotion = false 
     }
 
     const startLoopIfNeeded = () => {
-      if (isLoopRunning || !isVisible) return;
+      if (isLoopRunning || !isVisible || isPausedRef.current) return;
       isLoopRunning = true;
       const loop = (now: number) => {
+        if (isPausedRef.current) {
+          isLoopRunning = false;
+          return;
+        }
         draw(now);
         // Sleep if no active ripples remain
         if (ripples.length === 0) {
@@ -208,10 +225,28 @@ export const RippleGrid: React.FC<RippleGridProps> = ({ isReducedMotion = false 
       animId = requestAnimationFrame(loop);
     };
 
+    const stopLoop = () => {
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+      isLoopRunning = false;
+    };
+
     const drop = (x: number, y: number) => {
+      if (isPausedRef.current) return;
       ripples.push({ x, y, born: performance.now() });
       startLoopIfNeeded();
     };
+
+    startLoopRef.current = () => {
+      if (ripples.length === 0 && w > 0 && h > 0) {
+        drop(w / 2, h / 2);
+      } else {
+        startLoopIfNeeded();
+      }
+    };
+    stopLoopRef.current = stopLoop;
 
     resize();
 
@@ -276,6 +311,8 @@ export const RippleGrid: React.FC<RippleGridProps> = ({ isReducedMotion = false 
     });
 
     return () => {
+      startLoopRef.current = null;
+      stopLoopRef.current = null;
       cancelAnimationFrame(animId);
       clearInterval(intervalId);
       unsubscribeVisibility();

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 interface LiquidMotionBackgroundProps {
   isReducedMotion: boolean;
+  isPaused?: boolean;
 }
 
 /**
@@ -16,9 +17,22 @@ interface LiquidMotionBackgroundProps {
  * - Full prefers-reduced-motion support.
  */
 export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
-  isReducedMotion
+  isReducedMotion,
+  isPaused = false
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+  const startLoopRef = useRef<(() => void) | null>(null);
+  const stopLoopRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    if (isPaused) {
+      stopLoopRef.current?.();
+    } else {
+      startLoopRef.current?.();
+    }
+  }, [isPaused]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -310,7 +324,7 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
         let isTabVisible = !document.hidden;
 
         const renderWebGL = () => {
-          if (!gl || !program || !isTabVisible) {
+          if (!gl || !program || !isTabVisible || isPausedRef.current) {
             isRunning = false;
             return;
           }
@@ -325,7 +339,7 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
         };
 
         const startLoop = () => {
-          if (isRunning || !isTabVisible) return;
+          if (isRunning || !isTabVisible || isPausedRef.current) return;
           isRunning = true;
           animId = requestAnimationFrame(renderWebGL);
         };
@@ -338,11 +352,16 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
           isRunning = false;
         };
 
-        startLoop();
+        startLoopRef.current = startLoop;
+        stopLoopRef.current = stopLoop;
+
+        if (!isPausedRef.current) {
+          startLoop();
+        }
 
         const handleVisibilityChange = () => {
           isTabVisible = !document.hidden;
-          if (isTabVisible) {
+          if (isTabVisible && !isPausedRef.current) {
             startLoop();
           } else {
             stopLoop();
@@ -351,6 +370,8 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
         document.addEventListener('visibilitychange', handleVisibilityChange, { passive: true });
 
         return () => {
+          startLoopRef.current = null;
+          stopLoopRef.current = null;
           stopLoop();
           window.removeEventListener('resize', updateSize);
           document.removeEventListener('visibilitychange', handleVisibilityChange);

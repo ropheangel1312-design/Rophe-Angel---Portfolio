@@ -12,6 +12,7 @@ interface IntroControllerProps {
   isReducedMotion: boolean;
   isMuted?: boolean;
   onToggleSound?: () => void;
+  onStartReveal?: () => void;
 }
 
 export type IntroPhase = 'chibi' | 'liquid_transition' | 'headphone_notice' | 'logo_interstitial' | 'mikey';
@@ -20,7 +21,8 @@ export const IntroController: React.FC<IntroControllerProps> = ({
   onIntroComplete,
   isReducedMotion,
   isMuted: propIsMuted,
-  onToggleSound: propOnToggleSound
+  onToggleSound: propOnToggleSound,
+  onStartReveal
 }) => {
   const [phase, setPhase] = useState<IntroPhase>('chibi');
   const [localMuted, setLocalMuted] = useState<boolean>(() => domainAudio.getMuted());
@@ -69,6 +71,7 @@ export const IntroController: React.FC<IntroControllerProps> = ({
   // Stage 4 -> Homepage: User taps Mikey -> Initiate homepage reveal
   const handleStartReveal = () => {
     setIsRevealingHomepage(true);
+    onStartReveal?.();
   };
 
   return (
