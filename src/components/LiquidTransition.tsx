@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { domainAudio } from '../utils/audio';
 
 interface LiquidTransitionProps {
   onComplete: () => void;
@@ -9,11 +10,12 @@ interface LiquidTransitionProps {
 /**
  * LiquidTransition
  * 
- * Elegant, subtle liquid wave wipe connecting the Chibi intro to the main portfolio.
+ * Elegant, subtle liquid wave wipe connecting the Chibi intro to Mikey's reveal.
  * - Fluid organic ripple propagation with custom GLSL fragment shader
  * - Palette: deep black #0A0A0A, Ferrari red #E10600 crest, and subtle specular white #FFFFFF glint
+ * - Soft, natural water-wave sound synced with the beginning of the liquid transition
  * - Smooth natural easing (smoothstep cubic) without abrupt cuts or full-screen explosions
- * - Seamlessly reveals the underlying portfolio and its ambient WebGL liquid background
+ * - Strictly calls onComplete once when visual animation completes
  * - Respects prefers-reduced-motion with a clean, subtle opacity fade
  */
 export const LiquidTransition: React.FC<LiquidTransitionProps> = ({
@@ -25,27 +27,42 @@ export const LiquidTransition: React.FC<LiquidTransitionProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const hasCompletedRef = useRef(false);
+
+  const safeComplete = () => {
+    if (hasCompletedRef.current) return;
+    hasCompletedRef.current = true;
+    domainAudio.stopWaterWave();
+    onCompleteRef.current();
+  };
 
   useEffect(() => {
+    hasCompletedRef.current = false;
+    // Trigger soft, natural water-wave sound effect in sync with the transition start
+    domainAudio.playWaterWaveTransition(durationMs / 1000);
+
     // 1. Reduced Motion Mode: Simple, subtle fade-out
     if (isReducedMotion) {
       const container = containerRef.current;
       if (container) {
         container.style.opacity = '1';
-        container.style.transition = 'opacity 400ms cubic-bezier(0.4, 0, 0.2, 1)';
+        container.style.transition = 'opacity 380ms cubic-bezier(0.4, 0, 0.2, 1)';
         requestAnimationFrame(() => {
           container.style.opacity = '0';
         });
       }
       const timer = setTimeout(() => {
-        onCompleteRef.current();
-      }, 420);
-      return () => clearTimeout(timer);
+        safeComplete();
+      }, 400);
+      return () => {
+        clearTimeout(timer);
+        domainAudio.stopWaterWave();
+      };
     }
 
     const canvas = canvasRef.current;
     if (!canvas) {
-      onCompleteRef.current();
+      safeComplete();
       return;
     }
 
@@ -253,7 +270,7 @@ export const LiquidTransition: React.FC<LiquidTransitionProps> = ({
                 animId = requestAnimationFrame(render);
               } else {
                 // Wave fully exited viewport -> complete transition
-                onCompleteRef.current();
+                safeComplete();
               }
             };
 
@@ -262,6 +279,7 @@ export const LiquidTransition: React.FC<LiquidTransitionProps> = ({
             return () => {
               window.removeEventListener('resize', updateDimensions);
               cancelAnimationFrame(animId);
+              domainAudio.stopWaterWave();
               if (buffer) gl?.deleteBuffer(buffer);
               if (program) gl?.deleteProgram(program);
               if (vs) gl?.deleteShader(vs);
@@ -310,7 +328,7 @@ export const LiquidTransition: React.FC<LiquidTransitionProps> = ({
         if (rawProgress < 1.0) {
           animId = requestAnimationFrame(render2DFallback);
         } else {
-          onCompleteRef.current();
+          safeComplete();
         }
       };
 
@@ -318,17 +336,19 @@ export const LiquidTransition: React.FC<LiquidTransitionProps> = ({
       return () => {
         window.removeEventListener('resize', updateDimensions);
         cancelAnimationFrame(animId);
+        domainAudio.stopWaterWave();
       };
     }
 
     // Default immediate fallback
     const fallbackTimer = setTimeout(() => {
-      onCompleteRef.current();
+      safeComplete();
     }, durationMs);
 
     return () => {
       window.removeEventListener('resize', updateDimensions);
       clearTimeout(fallbackTimer);
+      domainAudio.stopWaterWave();
     };
   }, [durationMs, isReducedMotion]);
 

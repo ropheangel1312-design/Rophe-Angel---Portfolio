@@ -13,6 +13,8 @@ class DomainAudioEngine {
   private isMuted: boolean = true;
   private lastBlipTime: number = 0;
   private activeNodes: (AudioNode | OscillatorNode | AudioBufferSourceNode)[] = [];
+  private waterWaveNodes: (AudioNode | OscillatorNode | AudioBufferSourceNode)[] = [];
+  private waterWaveGain: GainNode | null = null;
 
   constructor() {
     this.isMuted = true;
@@ -51,6 +53,7 @@ class DomainAudioEngine {
   }
 
   public stopAll(): void {
+    this.stopWaterWave();
     if (!this.ctx) return;
     this.activeNodes.forEach(node => {
       try {
@@ -357,7 +360,7 @@ class DomainAudioEngine {
   }
 
   public playRevealWhoosh(): void {
-    this.playRacingTransitionSpeedPass();
+    this.playWaterWaveTransition();
   }
 
   public playEnergyCharge(): void {
@@ -365,7 +368,130 @@ class DomainAudioEngine {
   }
 
   public playRacingSpeedPass(): void {
-    this.playRacingTransitionSpeedPass();
+    this.playWaterWaveTransition();
+  }
+
+  /**
+   * Soft, natural water-wave sound effect for the liquid transition.
+   * - Resembles a gentle wave washing in and receding with subtle watery ripples.
+   * - Volume-restrained, elegant, atmospheric, zero abrupt clicks.
+   * - Perfectly timed to transition duration (~1.25s).
+   */
+  public playWaterWaveTransition(durationSec: number = 1.25): void {
+    if (this.isMuted) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    // Stop previous instance to prevent overlapping copies
+    this.stopWaterWave();
+
+    try {
+      const now = ctx.currentTime;
+      const sampleRate = ctx.sampleRate;
+      const bufferSize = Math.floor(sampleRate * durationSec);
+
+      // 1. Generate brownian/pink shaped noise buffer for gentle fluid wave body
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        // Leaky integrator produces warm Brownian noise
+        lastOut = (lastOut + 0.03 * white) / 1.03;
+        output[i] = lastOut * 3.0;
+      }
+
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+
+      // 2. Dual BiquadFilters to simulate wave washing in and receding
+      const lowpass = ctx.createBiquadFilter();
+      lowpass.type = 'lowpass';
+      lowpass.Q.setValueAtTime(1.6, now);
+      lowpass.frequency.setValueAtTime(160, now);
+      lowpass.frequency.exponentialRampToValueAtTime(540, now + durationSec * 0.45);
+      lowpass.frequency.exponentialRampToValueAtTime(130, now + durationSec);
+
+      const crestBand = ctx.createBiquadFilter();
+      crestBand.type = 'bandpass';
+      crestBand.Q.setValueAtTime(1.1, now);
+      crestBand.frequency.setValueAtTime(300, now);
+      crestBand.frequency.linearRampToValueAtTime(620, now + durationSec * 0.48);
+      crestBand.frequency.exponentialRampToValueAtTime(180, now + durationSec);
+
+      // 3. Restrained gain envelope: smooth swell, no harsh peaks, clean fade-out
+      const masterGain = ctx.createGain();
+      this.waterWaveGain = masterGain;
+      masterGain.gain.setValueAtTime(0.0001, now);
+      masterGain.gain.linearRampToValueAtTime(0.075, now + durationSec * 0.38);
+      masterGain.gain.setValueAtTime(0.075, now + durationSec * 0.52);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
+
+      noiseSource.connect(lowpass);
+      lowpass.connect(crestBand);
+      crestBand.connect(masterGain);
+      masterGain.connect(ctx.destination);
+
+      noiseSource.start(now);
+      noiseSource.stop(now + durationSec + 0.05);
+      this.waterWaveNodes.push(noiseSource, lowpass, crestBand, masterGain);
+
+      // 4. Subtle, delicate secondary liquid ripple droplets around peak crest
+      const rippleOffsets = [0.36, 0.52, 0.68];
+      const rippleFreqs = [820, 1080, 720];
+
+      rippleOffsets.forEach((relTime, idx) => {
+        const rippleTime = now + durationSec * relTime;
+        const osc = ctx.createOscillator();
+        const rGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(rippleFreqs[idx], rippleTime);
+        osc.frequency.exponentialRampToValueAtTime(rippleFreqs[idx] * 0.72, rippleTime + 0.07);
+
+        rGain.gain.setValueAtTime(0.0001, rippleTime);
+        rGain.gain.linearRampToValueAtTime(0.01, rippleTime + 0.012);
+        rGain.gain.exponentialRampToValueAtTime(0.0001, rippleTime + 0.08);
+
+        osc.connect(rGain);
+        rGain.connect(ctx.destination);
+        osc.start(rippleTime);
+        osc.stop(rippleTime + 0.09);
+        this.waterWaveNodes.push(osc, rGain);
+      });
+    } catch {
+      // Safe fallback if audio is blocked or context suspended
+    }
+  }
+
+  /**
+   * Immediately fades out and cleans up the water-wave sound so it never bleeds into other scenes.
+   */
+  public stopWaterWave(): void {
+    if (this.waterWaveGain && this.ctx) {
+      try {
+        const now = this.ctx.currentTime;
+        this.waterWaveGain.gain.cancelScheduledValues(now);
+        this.waterWaveGain.gain.linearRampToValueAtTime(0.0001, now + 0.05);
+      } catch {
+        // ignore
+      }
+    }
+    const nodesToClean = [...this.waterWaveNodes];
+    this.waterWaveNodes = [];
+    this.waterWaveGain = null;
+
+    setTimeout(() => {
+      nodesToClean.forEach(node => {
+        try {
+          if ('stop' in node && typeof (node as OscillatorNode).stop === 'function') {
+            (node as OscillatorNode).stop();
+          }
+          node.disconnect();
+        } catch {
+          // ignore
+        }
+      });
+    }, 60);
   }
 
   /**

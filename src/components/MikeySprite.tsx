@@ -41,23 +41,28 @@ export const MikeySprite: React.FC<MikeySpriteProps> = ({
     <div
       style={{
         transform: `scaleX(${facingLeft ? -1 : 1})`,
+        transformOrigin: 'center center',
         transition: catState === 'dragging' || catState === 'falling' ? 'none' : 'transform 0.22s ease-out',
         ...style
       }}
-      className={`relative select-none ${
-        catState === 'walking' ? 'animate-cat-stride' : ''
-      } ${catState === 'purring' ? 'animate-cat-purr' : ''} ${
-        catState === 'dragging' ? 'animate-cat-carried' : ''
-      } ${catState === 'falling' ? 'animate-cat-falling' : ''} ${
-        catState === 'landing' ? 'animate-cat-landing' : ''
-      } ${className}`}
+      className={`relative select-none ${className}`}
     >
-      <svg
-        viewBox="0 0 64 48"
-        className="w-full h-full drop-shadow-[0_8px_20px_rgba(0,0,0,0.85)]"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+      <div
+        className={`w-full h-full relative ${
+          catState === 'walking' ? 'animate-cat-stride' : ''
+        } ${catState === 'purring' ? 'animate-cat-purr' : ''} ${
+          catState === 'dragging' ? 'animate-cat-carried' : ''
+        } ${catState === 'falling' ? 'animate-cat-falling' : ''} ${
+          catState === 'landing' ? 'animate-cat-landing' : ''
+        }`}
+        style={{ transformOrigin: 'center bottom' }}
       >
+        <svg
+          viewBox="0 0 64 48"
+          className="w-full h-full drop-shadow-[0_8px_20px_rgba(0,0,0,0.85)]"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
         <defs>
           {/* Primary Silver-to-Slate Grey Body Gradient */}
           <linearGradient id={bodyGradId} x1="0" y1="0" x2="0" y2="1">
@@ -251,6 +256,7 @@ export const MikeySprite: React.FC<MikeySpriteProps> = ({
           </g>
         </g>
       </svg>
+      </div>
     </div>
   );
 };

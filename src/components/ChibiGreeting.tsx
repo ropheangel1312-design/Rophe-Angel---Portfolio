@@ -27,6 +27,19 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
   // Exact iconic greeting dialogue
   const greetingText = "Hi and welcome! Feel free to explore my domain!";
 
+  const hasFinishedRef = useRef(false);
+  const activeTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const safeComplete = () => {
+    if (hasFinishedRef.current) return;
+    hasFinishedRef.current = true;
+    if (activeTimerRef.current) {
+      clearTimeout(activeTimerRef.current);
+      activeTimerRef.current = null;
+    }
+    onCompleteRef.current();
+  };
+
   useEffect(() => {
     if (hasInitiatedRef.current) return;
     hasInitiatedRef.current = true;
@@ -35,18 +48,19 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
       setDisplayedText(greetingText);
       setIsTyping(false);
       onTypingCompleteRef.current?.();
-      const quickTimer = setTimeout(() => {
+      activeTimerRef.current = setTimeout(() => {
         setStage('dissolve');
-        const completeTimer = setTimeout(() => onCompleteRef.current(), 180);
-        return () => clearTimeout(completeTimer);
+        activeTimerRef.current = setTimeout(() => safeComplete(), 180);
       }, 1000);
-      return () => clearTimeout(quickTimer);
+      return () => {
+        if (activeTimerRef.current) clearTimeout(activeTimerRef.current);
+      };
     }
 
     let index = 0;
-    let timerId: NodeJS.Timeout | null = null;
 
     const typeNextChar = () => {
+      if (hasFinishedRef.current) return;
       index++;
       setDisplayedText(greetingText.slice(0, index));
 
@@ -63,37 +77,35 @@ export const ChibiGreeting: React.FC<ChibiGreetingProps> = ({
         } else if (currentChar === ',') {
           delay = 120;
         }
-        timerId = setTimeout(typeNextChar, delay);
+        activeTimerRef.current = setTimeout(typeNextChar, delay);
       } else {
         setIsTyping(false);
         onTypingCompleteRef.current?.();
 
-        const holdTimer = setTimeout(() => {
+        activeTimerRef.current = setTimeout(() => {
           setStage('dissolve');
-          const completeTimer = setTimeout(() => {
-            onCompleteRef.current();
+          activeTimerRef.current = setTimeout(() => {
+            safeComplete();
           }, 300);
-          return () => clearTimeout(completeTimer);
         }, 1400);
-
-        timerId = holdTimer;
       }
     };
 
-    const initialTimer = setTimeout(() => {
+    activeTimerRef.current = setTimeout(() => {
       typeNextChar();
     }, 200);
 
     return () => {
-      clearTimeout(initialTimer);
-      if (timerId) clearTimeout(timerId);
+      if (activeTimerRef.current) clearTimeout(activeTimerRef.current);
     };
   }, [isReducedMotion]);
 
   const handleSkip = () => {
+    if (hasFinishedRef.current) return;
+    if (activeTimerRef.current) clearTimeout(activeTimerRef.current);
     setStage('dissolve');
-    setTimeout(() => {
-      onCompleteRef.current();
+    activeTimerRef.current = setTimeout(() => {
+      safeComplete();
     }, 150);
   };
 

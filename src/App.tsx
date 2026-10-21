@@ -12,10 +12,7 @@ import { IntroController } from './components/IntroController';
 import { domainAudio } from './utils/audio';
 
 export default function App() {
-  const [hasSeenIntro, setHasSeenIntro] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return sessionStorage.getItem('hasSeenDomainIntro') === 'true';
-  });
+  const [hasSeenIntro, setHasSeenIntro] = useState<boolean>(false);
 
   const [isMuted, setIsMuted] = useState<boolean>(() => domainAudio.getMuted());
 
@@ -43,9 +40,6 @@ export default function App() {
       setMikeyLandingX(landingX);
     }
     setHasSeenIntro(true);
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('hasSeenDomainIntro', 'true');
-    }
   };
 
   const handleReplayIntro = () => {

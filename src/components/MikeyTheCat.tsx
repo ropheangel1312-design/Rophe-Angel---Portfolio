@@ -454,10 +454,12 @@ export const MikeyTheCat: React.FC<MikeyTheCatProps> = ({ isReducedMotion = fals
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
         onKeyDown={handleKeyDown}
-        className={`absolute pointer-events-auto select-none group touch-none outline-hidden ${
+        className={`absolute pointer-events-auto select-none group touch-none outline-hidden w-[76px] h-[58px] ${
           catState === 'dragging' ? 'cursor-grabbing' : 'cursor-grab'
         }`}
         style={{
+          left: 0,
+          top: 0,
           transform: `translate3d(${currentRenderX}px, ${currentRenderY}px, 0)`,
           transition:
             catState !== 'dragging' && catState !== 'falling' && transitionDuration > 0
