@@ -11,6 +11,8 @@ import { PapersSection } from './PapersSection';
 import { WipSection } from './WipSection';
 import { SkillsGallery3D } from './SkillsGallery3D';
 import { Card3D } from './Card3D';
+import { AboutSection } from './AboutSection';
+import { ExplodedProjectCenterpiece } from './ExplodedProjectCenterpiece';
 import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
@@ -198,7 +200,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               transition={{ duration: 0.8, delay: 0.3, ease: cinematicEase }}
             >
               <p className="font-body text-base sm:text-lg text-neutral-300 leading-relaxed">
-                Computer Science & Engineering student exploring artificial intelligence, modern web architecture, and production software. Driven by problem-solving, rapid iteration, and turning technical concepts into real working projects.
+                Computer Science & Engineering student who likes taking ideas apart, figuring out how they work under the hood, and building software I can actually test on my screen. Most of my work revolves around web systems, AI workflows, and practical experiments.
               </p>
             </motion.div>
 
@@ -246,92 +248,8 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         </div>
       </section>
 
-      {/* ===================== SECTION 1: MINIMAL ABOUT ME ===================== */}
-      <motion.section 
-        id="about" 
-        className="pt-8 pb-12 sm:pt-10 sm:pb-16 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
-        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.8, ease: cinematicEase }}
-      >
-        <div className="mb-6 sm:mb-8">
-          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            01 // PROFILE & BACKGROUND
-          </div>
-          <TextScramble
-            as="h2"
-            text="ABOUT ME"
-            triggerOnView={true}
-            isReducedMotion={isReducedMotion}
-            className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Authentic Portrait Framing */}
-          <div className="lg:col-span-5 relative group">
-            <Card3D 
-              index={0} 
-              isReducedMotion={isReducedMotion} 
-              maxTilt={4.5}
-              className="relative rounded-xl overflow-hidden f1-card shadow-2xl"
-            >
-              {/* Corner tech accents */}
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-tech text-[#FFFFFF] border border-white/[0.1] shadow-md">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
-                <span>ROPHE ANGEL</span>
-              </div>
-
-              <div className="aspect-4/5 w-full overflow-hidden bg-[#0A0A0A]">
-                <img
-                  src={portfolioData.about.photoUrl}
-                  alt="Rophe Angel portrait"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover object-center filter contrast-105 brightness-95 group-hover:scale-103 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                />
-              </div>
-
-              <div className="p-4 bg-white/[0.03] backdrop-blur-md flex items-center justify-between text-xs font-tech text-neutral-400">
-                <span>DEGREE: B.TECH CSE</span>
-                <span className="text-[#E10600] font-semibold">EST. 2026</span>
-              </div>
-            </Card3D>
-          </div>
-
-          {/* Concise 2-3 sentence introduction */}
-          <div className="lg:col-span-7 space-y-6">
-            <Card3D 
-              index={1} 
-              isReducedMotion={isReducedMotion} 
-              maxTilt={4}
-              className="f1-card rounded-xl p-6 sm:p-8 space-y-4"
-            >
-              <span className="text-xs font-tech font-bold uppercase text-[#E10600] tracking-widest fx-lens" data-text="ENGINEERING PROFILE">
-                ENGINEERING PROFILE
-              </span>
-              <p className="font-body text-base sm:text-lg text-neutral-200 leading-relaxed font-normal">
-                {portfolioData.about.bio}
-              </p>
-            </Card3D>
-
-            {/* Focus areas */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {portfolioData.identity.focusAreas.map((area, i) => (
-                <div 
-                  key={i} 
-                  className="p-3 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.08] flex items-center gap-2 hover:border-[#E10600]/50 hover:bg-white/[0.07] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
-                  <span className="text-xs font-tech font-semibold tracking-wider text-[#FFFFFF] uppercase">
-                    {area}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </motion.section>
+      {/* ===================== SECTION 1: ABOUT ME (CINEMATIC FRACTURE) ===================== */}
+      <AboutSection isReducedMotion={isReducedMotion} />
 
       {/* ===================== SECTION 2: TECHNICAL SKILLS & 3D GALLERY ===================== */}
       <motion.section 
@@ -456,8 +374,18 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
           />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-            Detailed engineering breakdowns highlighting architectural decisions, technical problem-solving, and implementation details.
+            Real projects I've built or collaborated on—exploring audio streaming, signal analysis, and public fund monitoring.
           </p>
+        </div>
+
+        {/* Cinematic 3D Exploded Reality Centerpiece */}
+        <ExplodedProjectCenterpiece isReducedMotion={isReducedMotion} />
+
+        <div className="flex items-center gap-2 mt-10 mb-6">
+          <span className="text-xs font-tech font-bold uppercase tracking-wider text-neutral-400">
+            ALL CASE STUDIES & DOSSIERS
+          </span>
+          <span className="flex-1 h-px bg-white/[0.08]" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -499,7 +427,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
           />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-            A student freelancing initiative designed to connect early-career talent with real client projects.
+            An initiative I started to help students move past classroom theory and build real proof-of-work, client projects, and hackathon prototypes.
           </p>
         </div>
 
@@ -594,7 +522,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
           />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-            Practical retail workflow management, customer checkout systems, and inventory operations.
+            Hands-on experience handling retail workflows, inventory auditing, and point-of-sale systems.
           </p>
         </div>
 

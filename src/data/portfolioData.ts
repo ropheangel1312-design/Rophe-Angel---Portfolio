@@ -4,14 +4,14 @@ export const portfolioData: PortfolioData = {
   identity: {
     name: 'Rophe Angel',
     tagline: 'Computer Science & Engineering Student',
-    shortIntro: 'Exploring modern software development, artificial intelligence, and interactive engineering through experimentation and real-world projects.',
+    shortIntro: 'Computer Science student building software, testing AI workflows, and figuring things out by actually writing the code.',
     discipline: 'B.E. Computer Science & Engineering',
     focusAreas: ['Software Development', 'Artificial Intelligence', 'Web Architecture', 'API Integration']
   },
   about: {
     heading: 'About Me',
     photoUrl: 'https://cdn.phototourl.com/member/2026-10-20-376efeb6-5a53-4297-bb6b-0e252403f924.jpg',
-    bio: "I'm a Computer Science and Engineering student at St. Joseph’s Institute of Technology exploring software development, AI, and modern web systems by actively building things. I learn best through hands-on experimentation, debugging real challenges, and turning ideas into usable software. Beyond engineering, I founded GradEarn to help fellow students bridge academia and practical proof-of-work.",
+    bio: "I'm a Computer Science and Engineering student at St. Joseph’s Institute of Technology. I learn fastest when I take an idea, break it into pieces, and build something I can run on my screen. Most of my work sits around web development, AI APIs, and interactive systems. Outside of coursework, I started GradEarn to help other students turn what they study into actual projects and client work.",
     highlights: [
       { label: 'Degree', value: 'B.E. Computer Science & Engineering' },
       { label: 'Institution', value: 'St. Joseph’s Institute of Technology' },
@@ -30,22 +30,22 @@ export const portfolioData: PortfolioData = {
   skills: [
     {
       category: 'Programming Languages',
-      description: 'Core languages used for systems, scripting, and problem-solving.',
+      description: 'Languages I reach for to build tools, write scripts, or work through coursework.',
       skills: ['Python', 'Java', 'JavaScript']
     },
     {
       category: 'Web Development',
-      description: 'Building clean, responsive, and accessible user interfaces.',
+      description: 'Building frontends that feel responsive, look intentional, and hold up under real interaction.',
       skills: ['HTML5', 'CSS3', 'Modern JavaScript (ES6+)', 'Responsive UI Design']
     },
     {
       category: 'AI & API Integration',
-      description: 'Exploring intelligent reasoning workflows and third-party APIs.',
+      description: 'Hooking models and third-party APIs into apps where they actually solve something practical.',
       skills: ['Artificial Intelligence (AI)', 'Prompt Engineering', 'API Integration', 'Spotify Web API']
     },
     {
       category: 'Developer Tools & Workflows',
-      description: 'Version control, software lifecycle, and data inspection.',
+      description: 'Git, debugging, and terminal workflows that keep projects organized and reproducible.',
       skills: ['Git and GitHub', 'Software Development', 'Debugging Workflows', 'Data Analysis']
     }
   ],
@@ -54,19 +54,19 @@ export const portfolioData: PortfolioData = {
       id: 'hush',
       title: 'HUSH',
       category: 'Personal Project · Web Development · Music',
-      overview: 'A personal music web application inspired by Spotify, built to give my music streaming its own custom space with focused UI and interactive player controls.',
-      problem: 'Mainstream desktop streaming clients can feel cluttered with heavy algorithmic recommendations and social feeds. I wanted a personal web interface dedicated specifically to my top artists, liked tracks, and focused playback testing.',
+      overview: 'A personal music web app inspired by Spotify. I wanted a cleaner, distraction-free space for my favorite artists and a playground to test the Spotify Web Playback SDK.',
+      problem: "Desktop streaming apps often feel cluttered with endless recommendation carousels and social feeds. I wanted a stripped-down interface focused purely on the music I actually play, while giving me a chance to see how Spotify's playback SDK behaves in the browser.",
       approach: [
-        'Designed and implemented a responsive web interface from scratch using HTML5, modern CSS3, and JavaScript.',
-        'Integrated the Spotify Web API to authenticate user accounts, fetch top artist catalogs, and retrieve liked tracks.',
-        'Implemented the Spotify Web Playback SDK to enable in-browser track streaming directly inside the web client.',
-        'Built client-side player controls including responsive track seek bars, playback toggles, and artist cards.'
+        'Built a custom frontend from scratch using HTML5, modern CSS3, and JavaScript.',
+        'Integrated Spotify Web API to handle account auth, fetch top artist catalogs, and pull liked tracks.',
+        'Used the Spotify Web Playback SDK to stream tracks directly in the browser.',
+        'Wired up client-side player controls including seek bars, playback toggles, and artist cards.'
       ],
-      myContribution: 'Sole developer responsible for UI development, Spotify API and Web Playback SDK integration, browser-based playback debugging, and website testing.',
+      myContribution: 'Sole developer on this project. Handled the UI, Spotify API and Web Playback SDK integration, debugging audio playback in the browser, and local testing.',
       technologies: ['HTML5', 'CSS3', 'JavaScript', 'Spotify Web API', 'Spotify Web Playback SDK', 'Git', 'GitHub'],
       toolsExplored: ['Spotify Developer Dashboard', 'Browser Web Audio API', 'OAuth 2.0 Web Flows'],
-      challenges: 'Overcoming browser autoplay policies requiring initial user interaction, handling Spotify token refresh cycles, and synchronizing player state between browser and mobile devices.',
-      outcome: 'A fully functional personal music streaming interface and testing ground for modern JavaScript audio and third-party REST API integrations.',
+      challenges: 'Browser autoplay policies were tricky—browsers block audio until the user clicks something. Handling token refreshes and keeping player state synced between my phone and browser took quite a bit of trial and error.',
+      outcome: 'A working local music player and a solid hands-on lesson in OAuth web flows, browser audio APIs, and handling live playback state.',
       isLocalOnly: true,
       screenshots: [
         {
@@ -86,19 +86,19 @@ export const portfolioData: PortfolioData = {
       id: 'ichnova',
       title: 'ICHNOVA',
       category: 'Hackathon Team Project · Signal Processing · Automation',
-      overview: 'An automated signal analysis platform that accelerates spectral parameter extraction from raw .IQ quadrature and audio .wav recordings.',
-      problem: 'Manual identification and parameter extraction from high-bandwidth radio frequency captures is slow, labour-intensive, and prone to human error when handling complex modulations.',
+      overview: 'A hackathon project exploring how to pull signal parameters from raw .IQ quadrature and .wav recordings without having to manually calculate them by hand every time.',
+      problem: 'Manually extracting frequencies, noise ratios, and modulations from radio signal captures is slow, tedious, and easy to mess up. We wanted an automated pipeline that could process recordings and flag anomalies quickly.',
       approach: [
-        'Researched automated signal processing workflows for extracting frequency shifts, SNR, and modulation patterns from raw recordings.',
-        'Assisted in integrating AI-guided reasoning workflows (Claude / Agentforce) to classify signal types and detect anomalies.',
-        'Built the responsive frontend dashboard visualizing spectral activity, real-time telemetry, and signal properties.',
-        'Structured the project documentation, system diagrams, and team presentation delivered to the hackathon judges.'
+        'Researched signal processing workflows for extracting frequency shifts, SNR, and modulation patterns from raw recordings.',
+        'Worked with teammates to integrate Claude and Agentforce reasoning workflows for signal classification.',
+        'Built the responsive web dashboard visualizing spectral activity, real-time telemetry, and signal properties.',
+        'Structured system diagrams, documentation, and the presentation deck delivered to hackathon judges.'
       ],
-      myContribution: 'Research on signal parameters, presentation development, and frontend web dashboard implementation as part of the multidisciplinary team.',
+      myContribution: 'Researched signal parameters, built the frontend dashboard that visualizes spectral activity, and co-created the pitch presentation as part of our multidisciplinary team.',
       technologies: ['Python', 'Signal Analysis (.IQ / .wav)', 'Claude', 'Salesforce Agentforce', 'Web Dashboard'],
       toolsExplored: ['Python DSP Tools', 'Claude API', 'Salesforce Agentforce Studio'],
-      challenges: 'Translating dense mathematical radio frequency characteristics into clear, readable frontend dashboard visualisations while maintaining low-latency updates.',
-      outcome: 'Successfully presented and demonstrated prototype with live signal inspection and automated parameter summary generation.',
+      challenges: 'Taking dense DSP numbers and turning them into charts that people could understand in seconds during a live judge demo, all without lagging the UI.',
+      outcome: 'We demoed the prototype live at the hackathon, showing real-time signal inspection and automated parameter summaries.',
       isLocalOnly: false,
       screenshots: [
         {
@@ -129,19 +129,19 @@ export const portfolioData: PortfolioData = {
       id: 'thadam',
       title: 'Thadam',
       category: 'Hackathon Team Project · AI · Public Fund Monitoring',
-      overview: 'An AI-assisted public fund monitoring platform designed for the MPLAD Scheme to flag potential spending anomalies, duplicate proposals, and project delays.',
-      problem: 'Large-scale public development expenditures often lack accessible, real-time tracking, making it difficult for citizens and administrators to pinpoint overlapping projects or delayed timelines.',
+      overview: 'An AI-assisted tracking portal for MPLAD public fund expenditures, built to highlight potential spending anomalies, overlapping proposals, and stalled projects.',
+      problem: 'Public development spending records are notoriously fragmented. Citizens and administrators usually have to dig through complex records to spot duplicate work or delayed expenditures across districts.',
       approach: [
         'Researched fund allocation structures and data schemas used in the MPLAD Scheme.',
-        'Explored AI-assisted pattern recognition to highlight unusual budget allocations, repeated proposals in adjacent areas, and unexpected schedule deviations.',
-        'Developed an interactive public transparency web portal with district-level filtering, expenditure breakdowns, and project milestones.',
-        'Authored research briefs and led pitch preparation for the hackathon evaluation rounds.'
+        'Explored AI-assisted pattern checks to highlight unusual budget allocations, repeated proposals in adjacent areas, and delayed timelines.',
+        'Built an interactive public transparency web portal with district-level filtering, expenditure breakdowns, and project milestones.',
+        'Authored research briefs and led pitch preparation for the evaluation rounds.'
       ],
-      myContribution: 'Research into public fund patterns, presentation development, and frontend UI implementation as part of the team.',
+      myContribution: 'Researched public fund schemas, created the evaluation presentation, and built the frontend portal where users filter by district and inspect flagged anomalies.',
       technologies: ['Python', 'AI Anomaly Detection', 'Claude', 'Salesforce Agentforce', 'Interactive Web Portal'],
       toolsExplored: ['Python Analytics', 'Claude API', 'Hugging Face Spaces'],
-      challenges: 'Normalising varied municipal expenditure records into a coherent schema suitable for automated anomaly detection while designing an interface accessible to both citizens and analysts.',
-      outcome: 'Deployed live prototype on Hugging Face Spaces demonstrating transparent regional fund tracking and automated issue flagging.',
+      challenges: "Normalizing messy municipal fund records into a single schema that could feed our anomaly checks, while keeping the interface clear enough for someone who isn't a data analyst.",
+      outcome: 'Deployed an interactive prototype on Hugging Face Spaces demonstrating regional expenditure filtering and automated anomaly flags.',
       isLocalOnly: false,
       screenshots: [
         {
@@ -174,20 +174,20 @@ export const portfolioData: PortfolioData = {
     title: 'Building GradEarn',
     founderRole: 'Founder',
     dates: 'October 2026 – Present',
-    tagline: 'Empowering students through freelancing guidance, portfolio craftsmanship, and hackathon coaching.',
-    mission: 'GradEarn is a student-focused venture created to bridge the divide between theoretical coursework and practical earning. We guide university students to turn technical curiosity into verifiable proof-of-work, client engagements, and competitive hackathon entries.',
+    tagline: 'Helping college students build real proof-of-work, tackle hackathons, and land freelance gigs.',
+    mission: 'College coursework teaches fundamentals, but it rarely shows you how to land a real client or ship a project people actually use. I started GradEarn to help peers take what they learn in class, turn it into tangible work, and compete in hackathons with confidence.',
     pillars: [
       {
-        title: 'Freelancing Guidance & Scoping',
-        description: 'Mentoring students on client discovery, project scoping, contract negotiation, and delivering production-ready freelance work.'
+        title: 'Freelancing & Client Work',
+        description: 'How to talk to clients, define project scope, set fair pricing, and deliver work that actually gets paid.'
       },
       {
-        title: 'Portfolio & Communication Craft',
-        description: 'Guiding students to construct compelling, evidence-backed engineering portfolios and articulate technical contributions confidently.'
+        title: 'Portfolios & Technical Proof',
+        description: 'Building evidence-backed portfolios that show what you actually coded instead of generic resume buzzwords.'
       },
       {
-        title: 'Innovation & Hackathon Coaching',
-        description: 'Providing structured frameworks for rapid prototyping, problem selection, and pitch deck refinement in competitive tech hackathons.'
+        title: 'Hackathons & Rapid Prototyping',
+        description: 'Frameworks for picking a viable problem, building a functional MVP within 24–36 hours, and pitching clearly to judges.'
       }
     ],
     links: [
@@ -210,7 +210,7 @@ export const portfolioData: PortfolioData = {
       organization: 'Nissi Fresh Supermarket',
       dates: 'June – July 2026',
       typeOrDuration: '30-day internship',
-      description: 'Gained practical operational experience in retail workflow management, handling customer checkout systems, barcode tracking, and inventory spreadsheets.',
+      description: 'Worked on the retail floor managing POS checkouts, scanning incoming stock, and reconciling physical inventory against spreadsheets.',
       toolsAndWorkflows: [
         'GoFrugal Retail POS',
         'Microsoft Excel',
@@ -224,7 +224,7 @@ export const portfolioData: PortfolioData = {
   certifications: [],
   contact: {
     heading: 'Get in Touch',
-    description: 'Interested in collaborating, discussing a project, or exploring technical ideas? Reach out directly through any of the channels below.',
+    description: 'Have an idea, want to collaborate on a hackathon project, or just talk tech? Drop me a message or find me on GitHub and LinkedIn.',
     email: 'ropheangel1312@gmail.com',
     linkedin: 'https://www.linkedin.com/in/rophe-angel-b8a051370/',
     github: 'https://github.com/ropheangel1312-design',

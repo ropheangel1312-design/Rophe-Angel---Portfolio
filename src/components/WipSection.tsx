@@ -105,7 +105,7 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
           className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
         />
         <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-2xl leading-relaxed">
-          Cinematic teasers for upcoming concepts and exploratory platforms currently undergoing product definition and MVP planning.
+          Concepts and tools I'm actively thinking through or planning out. Neither is built yet, but the problem definitions and mechanics are in progress.
         </p>
       </div>
 
