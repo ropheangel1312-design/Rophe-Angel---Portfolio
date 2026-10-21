@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChibiGreeting } from './ChibiGreeting';
 import { LiquidTransition } from './LiquidTransition';
 import { LogoInterstitial } from './LogoInterstitial';
+import { HeadphoneNotice } from './HeadphoneNotice';
 import { MikeyIntro } from './MikeyIntro';
 import { domainAudio } from '../utils/audio';
 import { Volume2, VolumeX } from 'lucide-react';
@@ -13,7 +14,7 @@ interface IntroControllerProps {
   onToggleSound?: () => void;
 }
 
-export type IntroPhase = 'chibi' | 'liquid_transition' | 'logo_interstitial' | 'mikey';
+export type IntroPhase = 'chibi' | 'liquid_transition' | 'headphone_notice' | 'logo_interstitial' | 'mikey';
 
 export const IntroController: React.FC<IntroControllerProps> = ({
   onIntroComplete,
@@ -42,8 +43,13 @@ export const IntroController: React.FC<IntroControllerProps> = ({
     setPhase('liquid_transition');
   };
 
-  // Stage 2 -> Stage 3: Liquid transition completed -> Present Cinematic Logo Interstitial
+  // Stage 2 -> Stage 2.5: Liquid transition completed -> Present Cinematic Headphone Notice
   const handleLiquidTransitionFinished = () => {
+    setPhase('headphone_notice');
+  };
+
+  // Stage 2.5 -> Stage 3: Headphone Notice completed (faded out completely) -> Present Cinematic Logo Interstitial
+  const handleHeadphoneNoticeFinished = () => {
     setPhase('logo_interstitial');
   };
 
@@ -110,6 +116,14 @@ export const IntroController: React.FC<IntroControllerProps> = ({
       {phase === 'liquid_transition' && (
         <LiquidTransition
           onComplete={handleLiquidTransitionFinished}
+          isReducedMotion={isReducedMotion}
+        />
+      )}
+
+      {/* 2.5 Cinematic Headphone Notice (Stage 2.5) */}
+      {phase === 'headphone_notice' && (
+        <HeadphoneNotice
+          onComplete={handleHeadphoneNoticeFinished}
           isReducedMotion={isReducedMotion}
         />
       )}
