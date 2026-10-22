@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Instagram } from 'lucide-react';
 import { TextScramble } from './TextScramble';
 
@@ -50,14 +50,15 @@ interface PoetryCircularGalleryProps {
 export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ isReducedMotion }) => {
   const [rotationDeg, setRotationDeg] = useState<number>(0);
   const [activePoemIndex, setActivePoemIndex] = useState<number>(0);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
 
   const isDraggingRef = useRef<boolean>(false);
   const dragStartXRef = useRef<number>(0);
+  const dragStartYRef = useRef<number>(0);
   const dragStartRotRef = useRef<number>(0);
+  const hasDraggedRef = useRef<boolean>(false);
   const targetRotationRef = useRef<number>(0);
   const currentRotationRef = useRef<number>(0);
   const animFrameRef = useRef<number | null>(null);
@@ -84,8 +85,9 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
     };
   }, [isReducedMotion]);
 
-  // Scroll-driven circular rotation within the pinned section:
-  // While inside the 250vh track, page scrolling rotates through poem cards without pushing the page downward!
+  // Scroll-driven circular rotation within natural viewport progression:
+  // Rotates through all 5 poem cards as the user scrolls through the section,
+  // flowing naturally into Section 09 without empty gaps or sticky delays.
   useEffect(() => {
     let scrollRaf: number | null = null;
 
@@ -98,19 +100,15 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
 
         const rect = el.getBoundingClientRect();
         const vh = window.innerHeight;
-        const totalScrollable = rect.height - vh;
 
-        if (totalScrollable > 0) {
-          // Progress from 0 when sticky starts to 1 when sticky unpins
-          const scrolled = -rect.top;
-          const rawProgress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+        // When section enters upper-middle viewport to when it leaves
+        const startY = vh * 0.85;
+        const endY = -rect.height * 0.25;
+        const totalDist = startY - endY;
 
-          // 6% lead-in and lead-out buffers to let first and last cards be appreciated
-          const leadBuffer = 0.06;
-          const effectiveProgress = Math.max(0, Math.min(1, (rawProgress - leadBuffer) / (1 - 2 * leadBuffer)));
-
-          // Map effective progress across all 5 cards
-          const targetCardFloat = effectiveProgress * (totalCards - 1); // 0 to 4
+        if (totalDist > 0) {
+          const rawProgress = Math.max(0, Math.min(1, (startY - rect.top) / totalDist));
+          const targetCardFloat = rawProgress * (totalCards - 1);
           const scrollDrivenAngle = -targetCardFloat * stepDeg;
 
           if (!isDraggingRef.current) {
@@ -144,20 +142,33 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
     setActivePoemIndex(bestIdx);
   }, [rotationDeg, stepDeg, totalCards]);
 
-  // Drag interaction to freely rotate the wheel
+  // Drag interaction to freely rotate the wheel with threshold detection
   const handlePointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     isDraggingRef.current = true;
+    hasDraggedRef.current = false;
     dragStartXRef.current = e.clientX;
+    dragStartYRef.current = e.clientY;
     dragStartRotRef.current = targetRotationRef.current;
-    try {
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    } catch {}
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
     const dx = e.clientX - dragStartXRef.current;
+    const dy = e.clientY - dragStartYRef.current;
+
+    // Only engage drag if pointer moved more than 6px
+    if (!hasDraggedRef.current) {
+      if (Math.hypot(dx, dy) > 6) {
+        hasDraggedRef.current = true;
+        try {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        } catch {}
+      } else {
+        return;
+      }
+    }
+
     const angleDelta = (dx / 160) * stepDeg;
     targetRotationRef.current = dragStartRotRef.current + angleDelta;
   };
@@ -165,12 +176,14 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
   const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
     isDraggingRef.current = false;
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {}
-    // Snap to nearest card
-    const snapped = Math.round(targetRotationRef.current / stepDeg) * stepDeg;
-    targetRotationRef.current = snapped;
+    if (hasDraggedRef.current) {
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {}
+      // Snap to nearest card
+      const snapped = Math.round(targetRotationRef.current / stepDeg) * stepDeg;
+      targetRotationRef.current = snapped;
+    }
   };
 
   const rotateToCard = (index: number) => {
@@ -189,24 +202,21 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
   };
 
   return (
-    /* Pinning container: 240vh virtual scroll height provides dedicated scroll room for all 5 cards */
     <section 
       ref={sectionRef} 
       id="poetry" 
-      className="relative w-full"
-      style={{ height: '240vh' }}
+      className="relative w-full pt-8 pb-10 sm:pt-10 sm:pb-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 overflow-visible"
     >
-      {/* Sticky Theater Stage: locks in viewport while scrolling through the 240vh container */}
-      <div className="sticky top-12 sm:top-16 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4.5rem)] max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-12 flex flex-col justify-between py-6 overflow-hidden">
+      <div className="w-full flex flex-col justify-between overflow-visible">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 z-20">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 z-20 mb-4 sm:mb-6">
           <div>
             <div className="flex items-center gap-2 text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
               <span>08 // CREATIVE WRITING & POETRY</span>
               <span className="text-neutral-600">·</span>
-              <span className="text-neutral-400 font-mono text-[11px]">SCROLL-DRIVEN CIRCULAR GALLERY</span>
+              <span className="text-neutral-400 font-mono text-[11px]">CIRCULAR 3D ROTATION</span>
             </div>
 
             <TextScramble
@@ -253,20 +263,18 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
           </div>
         </div>
 
-        {/* ===================== SCROLL-DRIVEN CIRCULAR STAGE ===================== */}
+        {/* ===================== CIRCULAR 3D STAGE ===================== */}
         <div 
           ref={stageRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          className="relative w-full flex-1 flex items-center justify-center cursor-grab active:cursor-grabbing select-none touch-none my-auto"
+          className="relative w-full h-[450px] sm:h-[490px] md:h-[510px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none touch-none my-2 sm:my-4"
           style={{ perspective: '1400px' }}
         >
           {/* Subtle Red Center Ambient Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[radial-gradient(circle,_rgba(225,6,0,0.14)_0%,_transparent_70%)] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-80 h-72 sm:h-80 rounded-full bg-[radial-gradient(circle,_rgba(225,6,0,0.14)_0%,_transparent_70%)] pointer-events-none" />
 
           {/* Circular 3D Carousel Cards */}
           <div 
@@ -282,18 +290,18 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
               const rad = (relAngle * Math.PI) / 180;
 
               // Responsive radius matching circle geometry
-              const R = typeof window !== 'undefined' && window.innerWidth < 640 ? 240 : 360;
+              const R = typeof window !== 'undefined' && window.innerWidth < 640 ? 210 : 330;
               const x = Math.sin(rad) * R;
-              const y = (1 - Math.cos(rad)) * (R * 0.36);
-              const z = isReducedMotion ? 0 : -Math.abs(Math.sin(rad)) * 170;
-              const rotZ = isReducedMotion ? 0 : relAngle * 0.26;
-              const rotY = isReducedMotion ? 0 : -Math.sin(rad) * 20;
+              const y = (1 - Math.cos(rad)) * (R * 0.28);
+              const z = isReducedMotion ? 0 : -Math.abs(Math.sin(rad)) * 150;
+              const rotZ = isReducedMotion ? 0 : relAngle * 0.22;
+              const rotY = isReducedMotion ? 0 : -Math.sin(rad) * 18;
 
               // Focus, depth, and progressive blur mapping
               const blur = isReducedMotion ? 0 : Math.min(8, Math.max(0, (normDist - 0.05) * 16));
               const grayscale = isReducedMotion ? 0 : Math.min(0.85, Math.max(0, (normDist - 0.04) * 1.5));
               const opacity = Math.max(0.25, 1 - (normDist * 1.3));
-              const scale = Math.max(0.72, 1.06 - (normDist * 0.40));
+              const scale = Math.max(0.74, 1.05 - (normDist * 0.38));
               const zIndex = Math.round(50 - normDist * 40);
               const isTop = normDist < 0.12;
 
@@ -305,8 +313,14 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
                   rel="noopener noreferrer"
                   title="View poem on Instagram"
                   aria-label={`View Poem ${i + 1} on Instagram`}
+                  onClick={(e) => {
+                    if (hasDraggedRef.current) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }
+                  }}
                   /* Portrait 4:5 aspect ratio (1080 x 1350) */
-                  className="absolute w-[190px] sm:w-[230px] md:w-[270px] aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer transition-[border-color,box-shadow] duration-300 block group"
+                  className="absolute w-[180px] sm:w-[220px] md:w-[250px] aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer transition-[border-color,box-shadow] duration-300 block group pointer-events-auto"
                   style={{
                     transform: `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateZ(${rotZ.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg) scale(${scale.toFixed(2)})`,
                     filter: blur > 0 ? `blur(${blur.toFixed(1)}px) grayscale(${grayscale.toFixed(2)})` : `grayscale(${grayscale.toFixed(2)})`,
@@ -318,19 +332,17 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
                       : '0 12px 35px rgba(0,0,0,0.6)'
                   }}
                 >
-                  {/* STRICT REQUIREMENT: Only the poem cover image. Zero titles, captions, overlays, or popups */}
                   <img
                     src={poem.cdnImageUrl}
                     onError={(e) => {
-                      // Fallback resolver if needed
                       const target = e.currentTarget as HTMLImageElement;
                       if (!target.src.includes('plain-apac-prod-public.komododecks.com')) {
                         target.src = poem.cdnImageUrl;
                       }
                     }}
-                    alt=""
+                    alt={`Poem cover ${i + 1}`}
                     loading="lazy"
-                    className={`w-full h-full object-cover rounded-2xl border-2 transition-all duration-300 ${
+                    className={`w-full h-full object-cover rounded-2xl border-2 pointer-events-none transition-all duration-300 ${
                       isTop 
                         ? 'border-[#E10600] group-hover:brightness-105' 
                         : 'border-white/15 group-hover:border-white/40'
@@ -343,7 +355,7 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
         </div>
 
         {/* Bottom Pagination & Scroll Hint */}
-        <div className="flex flex-col items-center gap-2 z-20 pointer-events-auto">
+        <div className="flex flex-col items-center gap-2 z-20 pointer-events-auto mt-2">
           <div className="flex justify-center items-center gap-2">
             {POEMS.map((_, i) => (
               <button
@@ -359,7 +371,7 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
             ))}
           </div>
           <span className="text-[11px] font-mono text-neutral-500 uppercase tracking-widest hidden sm:inline">
-            Scroll page or drag cards to advance
+            Scroll page or drag cards to advance · Click cover to view post
           </span>
         </div>
 

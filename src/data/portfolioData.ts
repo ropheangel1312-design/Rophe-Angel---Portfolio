@@ -205,6 +205,21 @@ export const portfolioData: PortfolioData = {
   },
   operationalExperience: [
     {
+      id: 'gradearn-experience',
+      role: 'Founder',
+      organization: 'GradEarn',
+      dates: 'October 2026 – Present',
+      typeOrDuration: 'Present',
+      description: 'Founded and lead a venture helping college peers translate coursework into tangible proof-of-work, client freelancing contracts, and rapid hackathon prototypes.',
+      toolsAndWorkflows: [
+        'Venture Strategy',
+        'Client Scoping & Pricing',
+        'Proof-of-Work Portfolios',
+        'Hackathon Prototyping',
+        'Peer Mentorship'
+      ]
+    },
+    {
       id: 'nissi-fresh',
       role: 'Intern',
       organization: 'Nissi Fresh Supermarket',

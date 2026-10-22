@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { portfolioData } from '../data/portfolioData';
-import { ProjectCard } from './ProjectCard';
 import { VelocityMarquee } from './VelocityMarquee';
 import { TextScramble } from './TextScramble';
 import { PitWallRadio } from './PitWallRadio';
@@ -13,7 +12,6 @@ import { SkillsGallery3D } from './SkillsGallery3D';
 import { Card3D } from './Card3D';
 import { AboutSection } from './AboutSection';
 import { ExplodedProjectCenterpiece } from './ExplodedProjectCenterpiece';
-import { Carousel3D } from './Carousel3D';
 import { PoetryCircularGallery } from './PoetryCircularGallery';
 import { domainAudio } from '../utils/audio';
 import { 
@@ -365,8 +363,11 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         transition={{ duration: 0.8, ease: cinematicEase }}
       >
         <div className="mb-6 sm:mb-8">
-          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            03 // TECHNICAL WORK
+          <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
+            <span>03 // TECHNICAL WORK</span>
+            <span className="text-neutral-600">/</span>
+            <span className="text-neutral-400">EXPLODED REALITY CENTERPIECE</span>
           </div>
           <TextScramble
             as="h2"
@@ -375,42 +376,13 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             isReducedMotion={isReducedMotion}
             className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
           />
-          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-            Real projects, research papers, and active work-in-progress concepts—browse with 3D perspective, swipe, and inspect full dossiers.
+          <p className="font-body text-xs sm:text-sm text-neutral-400 mt-2 max-w-xl leading-relaxed">
+            Interactive multi-layer architectural dossiers. Toggle exploded layers, inspect real system telemetry, and launch live prototypes.
           </p>
         </div>
 
-        {/* ===================== 3D CAROUSEL: PROJECTS, RESEARCH PAPERS & WIPS ===================== */}
-        <Carousel3D isReducedMotion={isReducedMotion} />
-
-        {/* Cinematic 3D Exploded Reality Centerpiece */}
-        <div className="mt-12 sm:mt-14 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-tech font-bold uppercase tracking-wider text-neutral-400">
-              EXPLODED REALITY CENTERPIECE
-            </span>
-            <span className="flex-1 h-px bg-white/[0.08]" />
-          </div>
-          <ExplodedProjectCenterpiece isReducedMotion={isReducedMotion} />
-        </div>
-
-        <div className="flex items-center gap-2 mt-10 mb-6">
-          <span className="text-xs font-tech font-bold uppercase tracking-wider text-neutral-400">
-            ALL CASE STUDIES & DOSSIERS
-          </span>
-          <span className="flex-1 h-px bg-white/[0.08]" />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {portfolioData.projects.map((project, idx) => (
-            <ProjectCard 
-              key={project.id} 
-              project={project} 
-              index={idx} 
-              isReducedMotion={isReducedMotion}
-            />
-          ))}
-        </div>
+        {/* Cinematic 3D Exploded Reality Centerpiece — Sole Featured Project Showcase */}
+        <ExplodedProjectCenterpiece isReducedMotion={isReducedMotion} />
       </motion.section>
 
       {/* ===================== SECTION 4: RESEARCH PAPERS ARCHIVE ===================== */}
@@ -539,7 +511,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           </p>
         </div>
 
-        <div className="max-w-3xl">
+        <div className="max-w-3xl space-y-6">
           {portfolioData.operationalExperience.map((exp, expIdx) => (
             <Card3D 
               key={exp.id}
@@ -605,11 +577,11 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       <motion.section 
         id="contact" 
         ref={contactSectionRef as any}
-        className="pt-8 pb-12 sm:pt-10 sm:pb-14 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
-        initial={!isReducedMotion ? { opacity: 0, y: 24 } : false}
+        className="pt-6 pb-12 sm:pt-8 sm:pb-14 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full"
+        initial={!isReducedMotion ? { opacity: 0, y: 16 } : false}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.8, ease: cinematicEase }}
+        viewport={{ once: true, margin: '0px' }}
+        transition={{ duration: 0.6, ease: cinematicEase }}
       >
         <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
