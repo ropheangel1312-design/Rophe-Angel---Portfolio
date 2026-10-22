@@ -11,11 +11,13 @@ import { RippleGrid } from './components/RippleGrid';
 import { MikeyTheCat } from './components/MikeyTheCat';
 import { IntroController } from './components/IntroController';
 import { LiteralCookieConsent } from './components/LiteralCookieConsent';
+import { ResumeViewerModal } from './components/ResumeViewerModal';
 import { domainAudio } from './utils/audio';
 
 export default function App() {
   const [hasSeenIntro, setHasSeenIntro] = useState<boolean>(false);
   const [isIntroRevealing, setIsIntroRevealing] = useState<boolean>(false);
+  const [isResumeOpen, setIsResumeOpen] = useState<boolean>(false);
 
   const [isMuted, setIsMuted] = useState<boolean>(() => domainAudio.getMuted());
 
@@ -89,6 +91,7 @@ export default function App() {
         isMuted={isMuted}
         onToggleSound={handleToggleSound}
         onReplayIntro={handleReplayIntro}
+        onOpenResume={() => setIsResumeOpen(true)}
       />
 
       {/* Main Portfolio Surface */}
@@ -97,6 +100,7 @@ export default function App() {
           isReducedMotion={isReducedMotion} 
           isMuted={isMuted}
           onToggleSound={handleToggleSound}
+          onOpenResume={() => setIsResumeOpen(true)}
         />
       </main>
 
@@ -112,6 +116,13 @@ export default function App() {
       {hasSeenIntro && (
         <LiteralCookieConsent isReducedMotion={isReducedMotion} />
       )}
+
+      {/* Dedicated Responsive Resume Viewer Modal */}
+      <ResumeViewerModal
+        isOpen={isResumeOpen}
+        onClose={() => setIsResumeOpen(false)}
+        isReducedMotion={isReducedMotion}
+      />
     </div>
   );
 }

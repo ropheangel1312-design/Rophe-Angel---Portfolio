@@ -28,7 +28,9 @@ import {
   Globe,
   Brain,
   Layers,
-  Code2
+  Code2,
+  FileText,
+  Download
 } from 'lucide-react';
 
 const getCategoryIcon = (category: string) => {
@@ -50,12 +52,14 @@ interface PortfolioHomepageProps {
   isReducedMotion: boolean;
   isMuted?: boolean;
   onToggleSound?: () => void;
+  onOpenResume?: () => void;
 }
 
 export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
   isReducedMotion,
   isMuted = true,
-  onToggleSound
+  onToggleSound,
+  onOpenResume
 }) => {
   const [isChannelOpen, setIsChannelOpen] = useState(false);
   const [isContactInView, setIsContactInView] = useState(false);
@@ -205,9 +209,9 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               </p>
             </motion.div>
 
-            {/* Primary & Secondary CTAs with Magnetic Spring Pull */}
+            {/* Primary & Secondary CTAs with Magnetic Spring Pull + Resume Actions */}
             <motion.div 
-              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
+              className="flex flex-wrap items-center gap-3 sm:gap-4"
               initial={!isReducedMotion ? { opacity: 0, y: 16 } : false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: cinematicEase }}
@@ -215,7 +219,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               <Magnetic magneticDistance={140} strength={0.35}>
                 <button
                   onClick={() => scrollTo('projects')}
-                  className="f1-btn-primary px-8 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-3 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#E10600] group"
+                  className="f1-btn-primary px-7 py-3.5 sm:px-8 sm:py-4 rounded font-tech text-xs sm:text-sm font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2.5 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#E10600] group shadow-[0_4px_20px_rgba(225,6,0,0.35)]"
                 >
                   <span>EXPLORE PROJECTS</span>
                   <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" />
@@ -225,11 +229,39 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               <Magnetic magneticDistance={140} strength={0.35}>
                 <button
                   onClick={() => scrollTo('about')}
-                  className="f1-btn-secondary px-7 py-4 rounded font-tech text-sm sm:text-base font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
+                  className="f1-btn-secondary px-6 py-3.5 sm:px-7 sm:py-4 rounded font-tech text-xs sm:text-sm font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2 cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
                 >
                   <span>READ ABOUT ME</span>
                 </button>
               </Magnetic>
+
+              {/* Dedicated Resume Actions (View Resume & Download PDF) */}
+              <div className="flex items-center gap-2.5">
+                <Magnetic magneticDistance={120} strength={0.3}>
+                  <button
+                    onClick={onOpenResume}
+                    className="f1-btn-secondary px-5 py-3.5 sm:px-6 sm:py-4 rounded font-tech text-xs sm:text-sm font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2 cursor-pointer border border-[#E10600]/40 hover:border-[#E10600] text-white hover:text-white bg-[#E10600]/10 hover:bg-[#E10600]/20 shadow-[0_2px_12px_rgba(225,6,0,0.15)] transition-all focus:outline-hidden focus:ring-2 focus:ring-[#E10600]"
+                    title="Open dedicated responsive resume viewer"
+                    aria-label="View Resume"
+                  >
+                    <FileText className="w-4 h-4 text-[#E10600]" />
+                    <span>VIEW RESUME</span>
+                  </button>
+                </Magnetic>
+
+                <Magnetic magneticDistance={120} strength={0.3}>
+                  <a
+                    href="/Rophe_Angel_Resume.pdf"
+                    download="Rophe_Angel_Resume.pdf"
+                    className="f1-btn-secondary px-4 py-3.5 sm:px-5 sm:py-4 rounded font-tech text-xs sm:text-sm font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2 cursor-pointer hover:border-white/50 text-neutral-300 hover:text-white transition-all focus:outline-hidden focus:ring-2 focus:ring-white"
+                    title="Download original PDF directly (Rophe_Angel_Resume.pdf)"
+                    aria-label="Download Resume PDF directly"
+                  >
+                    <Download className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                    <span className="hidden sm:inline">DOWNLOAD PDF</span>
+                  </a>
+                </Magnetic>
+              </div>
             </motion.div>
 
             {/* Bottom Status Strip */}

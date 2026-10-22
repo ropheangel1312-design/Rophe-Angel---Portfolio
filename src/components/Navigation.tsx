@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
-import { Menu, X, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { Menu, X, RotateCcw, Volume2, VolumeX, FileText, Download } from 'lucide-react';
 
 interface NavigationProps {
   isReducedMotion: boolean;
   isMuted?: boolean;
   onToggleSound?: () => void;
   onReplayIntro?: () => void;
+  onOpenResume?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   isReducedMotion,
   isMuted = true,
   onToggleSound,
-  onReplayIntro
+  onReplayIntro,
+  onOpenResume
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -346,9 +348,32 @@ export const Navigation: React.FC<NavigationProps> = ({
           })}
         </nav>
 
-        {/* Zone 3: Audio & Replay Intro Controls */}
+        {/* Zone 3: Resume Actions, Audio & Replay Intro Controls */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           
+          {/* Resume Actions (View Resume & Download PDF) */}
+          <div className="hidden sm:flex items-center gap-1.5">
+            <button
+              onClick={onOpenResume}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-tech text-xs uppercase tracking-wider bg-white/[0.04] backdrop-blur-md text-white border border-[#E10600]/40 hover:border-[#E10600] hover:bg-[#E10600]/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_0_10px_rgba(225,6,0,0.15)] transition-all cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-[#E10600]"
+              title="Open interactive resume viewer"
+              aria-label="View Resume"
+            >
+              <FileText className="w-3.5 h-3.5 text-[#E10600]" />
+              <span className="text-[11px] font-bold">Resume</span>
+            </button>
+
+            <a
+              href="/Rophe_Angel_Resume.pdf"
+              download="Rophe_Angel_Resume.pdf"
+              className="inline-flex items-center justify-center p-1.5 rounded-lg font-tech text-xs uppercase bg-white/[0.04] backdrop-blur-md text-neutral-300 border border-white/[0.08] hover:border-white/40 hover:text-white hover:bg-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-white"
+              title="Download PDF directly (Rophe_Angel_Resume.pdf)"
+              aria-label="Download PDF directly"
+            >
+              <Download className="w-3.5 h-3.5 text-neutral-400 hover:text-white" />
+            </a>
+          </div>
+
           {/* Sound Toggle */}
           {onToggleSound && (
             <button
@@ -397,7 +422,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#121214]/94 backdrop-blur-2xl px-4 py-4 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08)]">
+        <div className="md:hidden bg-[#121214]/94 backdrop-blur-2xl px-4 py-4 space-y-3 shadow-[0_16px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08)]">
           <div className="flex flex-col gap-1 py-1">
             {navLinks.map((item) => {
               const isActive = activeHref === item.href;
@@ -418,7 +443,36 @@ export const Navigation: React.FC<NavigationProps> = ({
             })}
           </div>
 
-          <div className="pt-3 mt-2 flex items-center justify-between gap-2 border-t border-white/[0.06]">
+          {/* Mobile Resume Quick Actions */}
+          <div className="pt-2 border-t border-white/[0.08] flex flex-col gap-2">
+            <div className="text-[10px] font-tech uppercase tracking-widest text-[#E10600] px-1 font-bold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E10600]" />
+              <span>OFFICIAL RESUME DOSSIER</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenResume?.();
+                }}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#E10600]/15 border border-[#E10600]/50 text-white text-xs font-tech font-bold uppercase tracking-wider cursor-pointer"
+              >
+                <FileText className="w-3.5 h-3.5 text-[#E10600]" />
+                <span>View Resume</span>
+              </button>
+
+              <a
+                href="/Rophe_Angel_Resume.pdf"
+                download="Rophe_Angel_Resume.pdf"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.05] border border-white/10 text-neutral-200 hover:text-white text-xs font-tech font-bold uppercase tracking-wider cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download PDF</span>
+              </a>
+            </div>
+          </div>
+
+          <div className="pt-2.5 mt-1 flex items-center justify-between gap-2 border-t border-white/[0.06]">
             {onReplayIntro && (
               <button
                 onClick={() => {
