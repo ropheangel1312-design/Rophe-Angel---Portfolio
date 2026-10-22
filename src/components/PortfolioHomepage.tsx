@@ -13,6 +13,8 @@ import { SkillsGallery3D } from './SkillsGallery3D';
 import { Card3D } from './Card3D';
 import { AboutSection } from './AboutSection';
 import { ExplodedProjectCenterpiece } from './ExplodedProjectCenterpiece';
+import { Carousel3D } from './Carousel3D';
+import { PoetryCircularGallery } from './PoetryCircularGallery';
 import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
@@ -84,9 +86,9 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const clientHeight = window.innerHeight || document.documentElement.clientHeight;
 
-      // True bottom detection: within 24px of bottom to handle fractional/retina scaling
+      // True bottom detection: within 36px of bottom to handle fractional/retina scaling and mobile bars
       const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-      const isAtActualBottom = scrollHeight > clientHeight && distanceFromBottom <= 24;
+      const isAtActualBottom = scrollHeight > clientHeight && distanceFromBottom <= 36;
 
       if (isAtActualBottom) {
         if (!bottomTimerRef.current) {
@@ -96,10 +98,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
               clearTimer();
               setShowCredits(true);
             }
-          }, 3000);
+          }, 5000);
         }
       } else {
-        // Visitor scrolled away from the bottom before 3s completed -> cancel countdown
+        // Visitor scrolled away from the bottom before 5s completed -> cancel countdown
         clearTimer();
       }
     };
@@ -374,12 +376,23 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
           />
           <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
-            Real projects I've built or collaborated on—exploring audio streaming, signal analysis, and public fund monitoring.
+            Real projects, research papers, and active work-in-progress concepts—browse with 3D perspective, swipe, and inspect full dossiers.
           </p>
         </div>
 
+        {/* ===================== 3D CAROUSEL: PROJECTS, RESEARCH PAPERS & WIPS ===================== */}
+        <Carousel3D isReducedMotion={isReducedMotion} />
+
         {/* Cinematic 3D Exploded Reality Centerpiece */}
-        <ExplodedProjectCenterpiece isReducedMotion={isReducedMotion} />
+        <div className="mt-12 sm:mt-14 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs font-tech font-bold uppercase tracking-wider text-neutral-400">
+              EXPLODED REALITY CENTERPIECE
+            </span>
+            <span className="flex-1 h-px bg-white/[0.08]" />
+          </div>
+          <ExplodedProjectCenterpiece isReducedMotion={isReducedMotion} />
+        </div>
 
         <div className="flex items-center gap-2 mt-10 mb-6">
           <span className="text-xs font-tech font-bold uppercase tracking-wider text-neutral-400">
@@ -585,7 +598,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
         </div>
       </motion.section>
 
-      {/* ===================== SECTION 6: CONTACT ===================== */}
+      {/* ===================== SECTION 8: CREATIVE WRITING & POETRY ===================== */}
+      <PoetryCircularGallery isReducedMotion={isReducedMotion} />
+
+      {/* ===================== SECTION 9: CONTACT & CHANNELS ===================== */}
       <motion.section 
         id="contact" 
         ref={contactSectionRef as any}
@@ -597,7 +613,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       >
         <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            08 // CHANNELS
+            09 // CHANNELS
           </div>
           <TextScramble
             as="h2"
@@ -611,8 +627,8 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
           </p>
         </div>
 
-        {/* Unified ROPHE RADIO Console matching exact reference layout */}
-        <div className="max-w-4xl w-full">
+        {/* Unified ROPHE RADIO Console & Floating 3D Uplinks */}
+        <div className="max-w-5xl w-full">
           <PitWallRadio 
             isReducedMotion={isReducedMotion}
             isMuted={isMuted}
@@ -621,8 +637,8 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
             isInView={isContactInView}
           />
 
-          {/* Subtle dedicated launch button right below the console */}
-          <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
+          {/* Dedicated launch button right below the contact experience */}
+          <div className="mt-6 flex items-center justify-between flex-wrap gap-3">
             <button
               onClick={() => setShowCredits(true)}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-[#E10600]/15 border border-white/10 hover:border-[#E10600]/50 text-neutral-300 hover:text-white text-xs font-tech font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 group shadow-sm"
@@ -675,7 +691,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== CINEMATIC FULL-SCREEN END CREDITS ===================== */}
       <CinematicEndCredits 
         isOpen={showCredits}
-        onClose={() => setShowCredits(false)}
+        onClose={() => {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          setShowCredits(false);
+        }}
         isReducedMotion={isReducedMotion}
         isMuted={isMuted}
         onToggleSound={onToggleSound || (() => {})}

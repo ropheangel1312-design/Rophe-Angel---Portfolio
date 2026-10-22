@@ -34,6 +34,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
   const [scrollProgress, setScrollProgress] = useState<number>(0);
+  const [isExiting, setIsExiting] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -49,6 +50,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
       setIsPlaying(true);
       setSpeedMultiplier(1);
       setScrollProgress(0);
+      setIsExiting(false);
       currentScrollYRef.current = 0;
       lastTimeRef.current = null;
       if (containerRef.current) {
@@ -74,13 +76,25 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
     };
   }, [isOpen]);
 
+  // Coordinated cinematic return to portfolio (smooth fade-out + instantaneous scroll to top 0)
+  const handleReturnToPortfolio = useCallback(() => {
+    if (isExiting) return;
+    setIsExiting(true);
+    // Instantaneous jump to homepage top so user returns to hero section without jarring jump
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => {
+      setIsExiting(false);
+      onClose();
+    }, 500);
+  }, [isExiting, onClose]);
+
   // Handle keyboard shortcuts (Space: pause/play, Esc: close, Up/Down: manual scroll)
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        handleReturnToPortfolio();
       } else if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
         setIsPlaying(prev => !prev);
@@ -95,7 +109,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, handleReturnToPortfolio]);
 
   // Credit roll smooth upward animation loop
   const step = useCallback((time: number) => {
@@ -183,29 +197,17 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-[100] bg-[#0A0A0A] text-white flex flex-col items-center justify-between overflow-hidden select-none animate-fadeIn"
+      className={`fixed inset-0 z-[100] bg-transparent backdrop-blur-md sm:backdrop-blur-lg text-white flex flex-col items-center justify-between overflow-hidden select-none transition-opacity duration-500 ease-out ${
+        isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100 animate-fadeIn'
+      }`}
       style={{ animationDuration: '600ms' }}
       role="dialog"
       aria-modal="true"
       aria-label="Cinematic End Credits"
     >
-      {/* Cinematic Vignette & Anamorphic Letterbox Bars */}
-      <div 
-        className="pointer-events-none absolute inset-0 z-30 shadow-[inset_0_0_120px_rgba(0,0,0,0.95)]" 
-        aria-hidden="true"
-      />
-      <div 
-        className="pointer-events-none absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent z-20" 
-        aria-hidden="true"
-      />
-      <div 
-        className="pointer-events-none absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent z-20" 
-        aria-hidden="true"
-      />
-
       {/* ===================== TOP CINEMATIC CONTROLS BAR ===================== */}
       {phase !== 'logo_interstitial' && (
-        <header className={`relative z-40 w-full px-4 sm:px-8 py-4 flex items-center justify-between text-xs font-tech tracking-wider uppercase bg-[#0A0A0A]/60 backdrop-blur-md border-b border-white/[0.08] transition-opacity duration-500 ${phase === 'fading_out' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <header className={`relative z-40 w-full px-4 sm:px-8 py-3.5 flex items-center justify-between text-xs font-tech tracking-wider uppercase bg-black/25 backdrop-blur-md border-b border-white/[0.08] transition-opacity duration-500 ${phase === 'fading_out' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           {/* Left: Branding & Play/Pause */}
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-[#E10600] inline-block shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
@@ -291,7 +293,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
             {/* Exit / Return to Portfolio */}
             <button
-              onClick={onClose}
+              onClick={handleReturnToPortfolio}
               className="p-1.5 sm:px-2.5 sm:py-1 rounded bg-[#E10600]/20 hover:bg-[#E10600] border border-[#E10600]/50 hover:border-[#E10600] text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
               title="Return to portfolio (Esc)"
               aria-label="Return to portfolio"
@@ -306,7 +308,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
       {/* ===================== MAIN CREDITS THEATER ===================== */}
       <div className="relative z-10 w-full flex-1 overflow-hidden flex items-center justify-center">
         
-        {/* PHASE 1: SCROLLING CREDITS */}
+        {/* PHASE 1: SCROLLING CREDITS DIRECTLY OVER BLURRED WEBSITE BACKDROP */}
         {(phase === 'rolling' || phase === 'fading_out') && (
           <div 
             ref={containerRef}
@@ -324,90 +326,86 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
               className="max-w-2xl w-full px-6 py-[45vh] text-center font-body flex flex-col items-center gap-16 sm:gap-20"
             >
               
-              {/* Opener / Title Header */}
-              <div className="space-y-4">
-                <div className="text-xs sm:text-sm font-tech font-bold uppercase tracking-[0.3em] text-[#E10600]">
-                  SCUDERIA ROPHE ANGEL
-                </div>
-                <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-wider uppercase leading-tight drop-shadow-[0_0_24px_rgba(255,255,255,0.2)]">
+              {/* Opener / Title Header with Luminous Liquid Sheen */}
+              <div className="space-y-3">
+                <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-wider uppercase leading-tight drop-shadow-[0_0_28px_rgba(255,255,255,0.45)] drop-shadow-[0_0_50px_rgba(225,6,0,0.25)] [text-shadow:0_0_35px_rgba(255,255,255,0.35),0_1px_4px_rgba(0,0,0,0.95)]">
                   ROPHE ANGEL
                 </h1>
-                <div className="text-xs sm:text-sm font-tech text-neutral-400 tracking-[0.2em] uppercase">
+                <div className="text-xs sm:text-sm font-tech text-neutral-300 tracking-[0.2em] uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
                   ENGINEERING PORTFOLIO // 2026
                 </div>
-                <div className="w-16 h-0.5 bg-[#E10600] mx-auto mt-4" />
               </div>
 
               {/* Creator & Discipline */}
               <div className="space-y-3">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   CREATED, DESIGNED & DEVELOPED BY
                 </div>
-                <div className="font-display font-bold text-2xl sm:text-3xl text-white tracking-wide">
+                <div className="font-display font-bold text-2xl sm:text-3xl text-white tracking-wide drop-shadow-[0_0_16px_rgba(255,255,255,0.4)] [text-shadow:0_0_20px_rgba(255,255,255,0.25),0_1px_3px_rgba(0,0,0,0.95)]">
                   Rophe Angel
                 </div>
-                <div className="text-sm font-tech text-neutral-300 tracking-wider">
+                <div className="text-sm font-tech text-neutral-200 tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   B.E. Computer Science & Engineering
                 </div>
-                <div className="text-xs font-mono text-neutral-500">
+                <div className="text-xs font-mono text-neutral-400">
                   Chennai, India
                 </div>
               </div>
 
               {/* Founder / Venture */}
               <div className="space-y-3">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   FOUNDER & VENTURE LEAD
                 </div>
-                <div className="font-display font-bold text-xl sm:text-2xl text-white tracking-wide">
+                <div className="font-display font-bold text-xl sm:text-2xl text-white tracking-wide drop-shadow-[0_0_16px_rgba(255,255,255,0.4)] [text-shadow:0_0_20px_rgba(255,255,255,0.25),0_1px_3px_rgba(0,0,0,0.95)]">
                   GradEarn
                 </div>
-                <div className="text-xs sm:text-sm font-body text-neutral-300 max-w-md mx-auto leading-relaxed">
+                <div className="text-xs sm:text-sm font-body text-neutral-200 max-w-md mx-auto leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   Empowering student builders to turn curiosity into verified proof-of-work, client engagements, and competitive hackathon wins.
                 </div>
               </div>
 
               {/* Featured Engineering Projects */}
               <div className="space-y-8 w-full max-w-lg">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   FEATURED ENGINEERING ARCHITECTURE
                 </div>
 
                 {/* HUSH */}
                 <div className="space-y-1.5 border-t border-white/[0.08] pt-4">
-                  <div className="font-display font-bold text-lg sm:text-xl text-white tracking-wider">
+                  <div className="font-display font-bold text-lg sm:text-xl text-white tracking-wider drop-shadow-[0_0_14px_rgba(255,255,255,0.35)] [text-shadow:0_0_18px_rgba(255,255,255,0.25),0_1px_2px_rgba(0,0,0,0.9)]">
                     HUSH
                   </div>
-                  <div className="text-xs font-tech uppercase text-[#E10600] tracking-wider">
+                  <div className="text-xs font-tech uppercase text-[#FF2800] tracking-wider drop-shadow-[0_0_10px_rgba(225,6,0,0.5)]">
                     Personal Music Streaming Client
                   </div>
-                  <div className="text-xs font-mono text-neutral-400">
+                  <div className="text-xs font-mono text-neutral-300">
                     Spotify Web API · Web Playback SDK · Pure JavaScript Engine
                   </div>
                 </div>
 
                 {/* ICHNOVA */}
                 <div className="space-y-1.5 border-t border-white/[0.08] pt-4">
-                  <div className="font-display font-bold text-lg sm:text-xl text-white tracking-wider">
+                  <div className="font-display font-bold text-lg sm:text-xl text-white tracking-wider drop-shadow-[0_0_14px_rgba(255,255,255,0.35)] [text-shadow:0_0_18px_rgba(255,255,255,0.25),0_1px_2px_rgba(0,0,0,0.9)]">
                     ICHNOVA
                   </div>
-                  <div className="text-xs font-tech uppercase text-[#E10600] tracking-wider">
+                  <div className="text-xs font-tech uppercase text-[#FF2800] tracking-wider drop-shadow-[0_0_10px_rgba(225,6,0,0.5)]">
                     Automated RF Spectral Parameter Platform
                   </div>
-                  <div className="text-xs font-mono text-neutral-400">
+                  <div className="text-xs font-mono text-neutral-300">
                     Signal Processing (.IQ / .wav) · Claude · Salesforce Agentforce
                   </div>
                 </div>
 
                 {/* THADAM */}
                 <div className="space-y-1.5 border-t border-white/[0.08] pt-4">
-                  <div className="font-display font-bold text-lg sm:text-xl text-white tracking-wider">
+                  <div className="font-display font-bold text-lg sm:text-xl text-white tracking-wider drop-shadow-[0_0_14px_rgba(255,255,255,0.35)] [text-shadow:0_0_18px_rgba(255,255,255,0.25),0_1px_2px_rgba(0,0,0,0.9)]">
                     THADAM
                   </div>
-                  <div className="text-xs font-tech uppercase text-[#E10600] tracking-wider">
+                  <div className="text-xs font-tech uppercase text-[#FF2800] tracking-wider drop-shadow-[0_0_10px_rgba(225,6,0,0.5)]">
                     AI-Assisted Public Fund Transparency Portal
                   </div>
-                  <div className="text-xs font-mono text-neutral-400">
+                  <div className="text-xs font-mono text-neutral-300">
                     MPLAD Scheme Anomaly Detection · Regional Expenditure Analytics
                   </div>
                 </div>
@@ -415,24 +413,24 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
               {/* Special Characters & Companions */}
               <div className="space-y-6 w-full max-w-md">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   CHARACTERS & DIGITAL CO-PILOTS
                 </div>
 
                 <div className="space-y-1">
-                  <div className="font-display font-bold text-base sm:text-lg text-white">
+                  <div className="font-display font-bold text-base sm:text-lg text-white drop-shadow-[0_0_14px_rgba(255,255,255,0.3)]">
                     Mikey the Tabby Cat
                   </div>
-                  <div className="text-xs font-tech uppercase text-neutral-400 tracking-wider">
+                  <div className="text-xs font-tech uppercase text-neutral-300 tracking-wider">
                     Chief Companion & Autonomous Roaming Sprite
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <div className="font-display font-bold text-base sm:text-lg text-white">
+                <div className="space-y-1 pt-2 border-t border-white/[0.06]">
+                  <div className="font-display font-bold text-base sm:text-lg text-white drop-shadow-[0_0_14px_rgba(255,255,255,0.3)]">
                     Chibi Rophe
                   </div>
-                  <div className="text-xs font-tech uppercase text-neutral-400 tracking-wider">
+                  <div className="text-xs font-tech uppercase text-neutral-300 tracking-wider">
                     Scuderia Pit Crew & Welcoming Host
                   </div>
                 </div>
@@ -440,72 +438,72 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
               {/* Acoustic & Sound Engineering */}
               <div className="space-y-4 max-w-md">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   ACOUSTIC DIRECTION & AUDIO SYNTHESIS
                 </div>
-                <div className="font-display font-bold text-base sm:text-lg text-white">
+                <div className="font-display font-bold text-base sm:text-lg text-white drop-shadow-[0_0_14px_rgba(255,255,255,0.3)]">
                   Procedural Web Audio Engine
                 </div>
-                <div className="text-xs font-body text-neutral-300 leading-relaxed">
+                <div className="text-xs font-body text-neutral-200 leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   Synthesized harmonic multi-oscillators, Doppler acceleration whooshes, Undertale-inspired dialogue blips, and Ferrari F1 Pit Wall radio tributes.
                 </div>
-                <div className="text-xs font-mono text-neutral-500 italic">
+                <div className="text-xs font-mono text-neutral-400 italic">
                   „My seat is full of water“ — „Must be the water“
                 </div>
               </div>
 
               {/* Visual Physics & Interaction Engineering */}
               <div className="space-y-4 max-w-md">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   VISUAL PHYSICS & MOTION DESIGN
                 </div>
-                <div className="text-xs sm:text-sm font-tech uppercase text-neutral-200 tracking-wider space-y-1.5">
+                <div className="text-xs sm:text-sm font-tech uppercase text-neutral-100 tracking-wider space-y-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   <div>Liquid Motion Background & Organic Ripples</div>
                   <div>Magnetic Vector Physics & Spring Dynamics</div>
                   <div>Liquid Lens Refraction & Chromatic Split</div>
                   <div>Velocity Marquee & Dynamic Text Scramble</div>
                 </div>
                 <div className="flex items-center justify-center gap-2 pt-2">
-                  <span className="w-2 h-2 rounded-full bg-[#E10600]" />
-                  <span className="text-[11px] font-mono text-neutral-400">#E10600 Ferrari Red</span>
-                  <span className="w-2 h-2 rounded-full bg-white ml-2" />
-                  <span className="text-[11px] font-mono text-neutral-400">#FFFFFF Pure White</span>
+                  <span className="w-2 h-2 rounded-full bg-[#E10600] shadow-[0_0_8px_rgba(225,6,0,0.8)]" />
+                  <span className="text-[11px] font-mono text-neutral-300">#E10600 Ferrari Red</span>
+                  <span className="w-2 h-2 rounded-full bg-white ml-2 shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                  <span className="text-[11px] font-mono text-neutral-300">#FFFFFF Pure White</span>
                   <span className="w-2 h-2 rounded-full bg-[#0A0A0A] border border-white/30 ml-2" />
-                  <span className="text-[11px] font-mono text-neutral-400">#0A0A0A Pure Black</span>
+                  <span className="text-[11px] font-mono text-neutral-300">#0A0A0A Pure Black</span>
                 </div>
               </div>
 
               {/* Frameworks & Tech Stack */}
               <div className="space-y-3 max-w-md">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   FRAMEWORKS & TECHNOLOGIES
                 </div>
-                <div className="text-xs font-mono text-neutral-400 leading-relaxed">
+                <div className="text-xs font-mono text-neutral-300 leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   React 19 · TypeScript · Tailwind CSS · Framer Motion · Lucide Icons · Web Audio API · Vite
                 </div>
               </div>
 
               {/* Special Thanks */}
               <div className="space-y-4 max-w-md">
-                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#E10600]">
+                <div className="text-xs font-tech font-bold uppercase tracking-[0.25em] text-[#FF2800] drop-shadow-[0_0_12px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4),0_1px_2px_rgba(0,0,0,0.9)]">
                   SPECIAL THANKS
                 </div>
-                <div className="text-xs sm:text-sm font-body text-neutral-300 leading-relaxed space-y-2">
-                  <p>My Family</p>
-                  <p>My Friends</p>
-                  <p>Mikey</p>
+                <div className="text-xs sm:text-sm font-body text-neutral-200 leading-relaxed space-y-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                  <p className="font-display font-medium text-base text-white tracking-wide drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]">My Family</p>
+                  <p className="font-display font-medium text-base text-white tracking-wide drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]">My Friends</p>
+                  <p className="font-display font-medium text-base text-white tracking-wide drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]">Mikey</p>
                 </div>
               </div>
 
               {/* Closing Sign-off */}
               <div className="space-y-4 pt-10 pb-20 border-t border-white/[0.08] w-full max-w-md">
-                <div className="text-sm font-tech font-bold uppercase tracking-[0.2em] text-[#E10600]">
+                <div className="text-sm font-tech font-bold uppercase tracking-[0.2em] text-[#FF2800] drop-shadow-[0_0_14px_rgba(225,6,0,0.65)] [text-shadow:0_0_16px_rgba(225,6,0,0.4)]">
                   DRIVEN BY CURIOSITY // ENGINEERED FOR VELOCITY
                 </div>
-                <div className="text-xs font-mono text-neutral-500">
+                <div className="text-xs font-mono text-neutral-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   © 2026 ROPHE ANGEL. ALL RIGHTS RESERVED.
                 </div>
-                <div className="text-[11px] font-mono text-neutral-600">
+                <div className="text-[11px] font-mono text-neutral-400">
                   COMMUNICATION LINK // TERMINATED
                 </div>
               </div>
@@ -520,7 +518,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
             mode="credits_ending"
             isReducedMotion={isReducedMotion}
             onReplayCredits={handleReplay}
-            onReturnToPortfolio={onClose}
+            onReturnToPortfolio={handleReturnToPortfolio}
           />
         )}
 
@@ -528,7 +526,7 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
       {/* Subtle Bottom Status Bar */}
       {phase !== 'logo_interstitial' && (
-        <footer className={`relative z-40 w-full px-6 py-2.5 flex items-center justify-between text-[10px] font-mono text-neutral-500 bg-[#0A0A0A]/80 border-t border-white/[0.06] transition-opacity duration-500 ${phase === 'fading_out' ? 'opacity-0' : 'opacity-100'}`}>
+        <footer className={`relative z-40 w-full px-6 py-2.5 flex items-center justify-between text-[10px] font-mono text-neutral-400 bg-black/25 backdrop-blur-md border-t border-white/[0.08] transition-opacity duration-500 ${phase === 'fading_out' ? 'opacity-0' : 'opacity-100'}`}>
           <div>CONSOLE ID: RR-2026-F1 // CH: 446.006 MHz</div>
           <div className="flex items-center gap-2">
             <span>PRESS ESC TO EXIT</span>

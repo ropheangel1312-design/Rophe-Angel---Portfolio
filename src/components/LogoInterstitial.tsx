@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { domainAudio } from '../utils/audio';
 import { RotateCcw, ArrowLeft } from 'lucide-react';
+import { Magnetic } from './Magnetic';
 
 export interface LogoInterstitialProps {
   onComplete?: () => void;
@@ -128,7 +129,7 @@ export const LogoInterstitial: React.FC<LogoInterstitialProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 z-50 bg-[#000000] flex flex-col items-center justify-center p-6 sm:p-10 select-none ${
+      className={`fixed inset-0 z-50 ${isCreditsEnding ? 'bg-transparent backdrop-blur-md sm:backdrop-blur-lg' : 'bg-[#000000]'} flex flex-col items-center justify-center p-6 sm:p-10 select-none ${
         isCreditsEnding ? 'pointer-events-auto' : 'pointer-events-none'
       }`}
       style={{
@@ -159,21 +160,25 @@ export const LogoInterstitial: React.FC<LogoInterstitialProps> = ({
               pointerEvents: buttonsVisible ? 'auto' : 'none'
             }}
           >
-            <button
-              onClick={onReplayCredits}
-              className="f1-btn-secondary px-6 sm:px-7 py-2.5 sm:py-3 rounded-lg inline-flex items-center justify-center gap-2.5 text-xs sm:text-sm font-tech font-bold tracking-wider uppercase cursor-pointer active:scale-95 transition-all w-full sm:w-auto"
-            >
-              <RotateCcw className="w-4 h-4 text-[#E10600]" />
-              <span>REPLAY CREDITS</span>
-            </button>
+            <Magnetic magneticDistance={140} strength={0.35}>
+              <button
+                onClick={onReplayCredits}
+                className="f1-btn-secondary px-6 sm:px-7 py-2.5 sm:py-3 rounded-lg inline-flex items-center justify-center gap-2.5 text-xs sm:text-sm font-tech font-bold tracking-wider uppercase cursor-pointer active:scale-95 transition-all w-full sm:w-auto"
+              >
+                <RotateCcw className="w-4 h-4 text-[#E10600]" />
+                <span>REPLAY CREDITS</span>
+              </button>
+            </Magnetic>
 
-            <button
-              onClick={onReturnToPortfolio}
-              className="f1-btn-primary px-7 sm:px-8 py-2.5 sm:py-3 rounded-lg inline-flex items-center justify-center gap-2.5 text-xs sm:text-sm font-tech font-bold tracking-wider uppercase cursor-pointer active:scale-95 transition-all w-full sm:w-auto"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>RETURN TO PORTFOLIO</span>
-            </button>
+            <Magnetic magneticDistance={140} strength={0.35}>
+              <button
+                onClick={onReturnToPortfolio}
+                className="f1-btn-primary px-7 sm:px-8 py-2.5 sm:py-3 rounded-lg inline-flex items-center justify-center gap-2.5 text-xs sm:text-sm font-tech font-bold tracking-wider uppercase cursor-pointer active:scale-95 transition-all w-full sm:w-auto"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>RETURN TO PORTFOLIO</span>
+              </button>
+            </Magnetic>
           </div>
         )}
       </div>

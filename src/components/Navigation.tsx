@@ -35,6 +35,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     '#wip': '#projects',
     '#venture': '#projects',
     '#experience': '#projects',
+    '#poetry': '#about',
     '#contact': '#contact',
   };
 
@@ -198,6 +199,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       '#wip',
       '#venture',
       '#experience',
+      '#poetry',
       '#contact',
     ];
 
@@ -376,7 +378,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               title="Replay Chibi greeting intro"
             >
               <RotateCcw className="w-3 h-3 text-[#E10600]" />
-              <span className="text-[11px]">Replay Intro</span>
+              <span className="text-[11px] hidden min-[420px]:inline">Replay Intro</span>
             </button>
           )}
 

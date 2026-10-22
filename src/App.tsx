@@ -10,6 +10,7 @@ import { LiquidMotionBackground } from './components/LiquidMotionBackground';
 import { RippleGrid } from './components/RippleGrid';
 import { MikeyTheCat } from './components/MikeyTheCat';
 import { IntroController } from './components/IntroController';
+import { LiteralCookieConsent } from './components/LiteralCookieConsent';
 import { domainAudio } from './utils/audio';
 
 export default function App() {
@@ -105,6 +106,11 @@ export default function App() {
           isReducedMotion={isReducedMotion} 
           initialX={mikeyLandingX}
         />
+      )}
+
+      {/* Playful Literal Cookie Consent Prank Banner */}
+      {hasSeenIntro && (
+        <LiteralCookieConsent isReducedMotion={isReducedMotion} />
       )}
     </div>
   );

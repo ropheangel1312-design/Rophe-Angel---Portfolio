@@ -41,6 +41,51 @@ class DomainAudioEngine {
 
   constructor() {
     this.isMuted = false;
+    this.attachGestureUnlock();
+  }
+
+  /**
+   * Robust multi-event gesture unlock for mobile browsers (iOS Safari, Android Chrome).
+   * Unlocks both Web Audio Context and HTMLAudioElement on first touch/tap/pointer event.
+   */
+  public attachGestureUnlock(): void {
+    if (typeof window === 'undefined' || this.gestureListenerAttached) return;
+    this.gestureListenerAttached = true;
+
+    const events = ['touchstart', 'touchend', 'pointerdown', 'click', 'keydown'];
+
+    const unlock = () => {
+      // 1. Resume Web Audio context if suspended
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+
+      // 2. Play BGM or credits audio if unmuted
+      if (!this.isMuted) {
+        if (this.isCreditsActive && this.creditsAudio && this.creditsAudio.paused) {
+          this.creditsAudio.play().then(() => {
+            detach();
+          }).catch(() => {});
+        } else if (this.hasStartedBGM && this.bgmAudio && this.bgmAudio.paused) {
+          this.bgmAudio.play().then(() => {
+            detach();
+          }).catch(() => {});
+        }
+      }
+    };
+
+    const detach = () => {
+      this.gestureListenerAttached = false;
+      events.forEach(evt => {
+        window.removeEventListener(evt, unlock);
+        document.removeEventListener(evt, unlock);
+      });
+    };
+
+    events.forEach(evt => {
+      window.addEventListener(evt, unlock, { passive: true });
+      document.addEventListener(evt, unlock, { passive: true });
+    });
   }
 
   private initContext(): AudioContext | null {
@@ -152,20 +197,10 @@ class DomainAudioEngine {
 
     const playPromise = audio.play();
     if (playPromise !== undefined) {
-      playPromise.catch((err) => {
-        // If autoplay blocked, attach one-time user gesture listener
-        if (!this.gestureListenerAttached && !this.isMuted) {
-          this.gestureListenerAttached = true;
-          const unlock = () => {
-            this.gestureListenerAttached = false;
-            window.removeEventListener('pointerdown', unlock);
-            window.removeEventListener('keydown', unlock);
-            if (!this.isMuted && this.bgmAudio) {
-              this.bgmAudio.play().catch(() => {});
-            }
-          };
-          window.addEventListener('pointerdown', unlock, { once: true, passive: true });
-          window.addEventListener('keydown', unlock, { once: true, passive: true });
+      playPromise.catch(() => {
+        // Autoplay blocked: re-arm gesture unlock listener across touch, pointer, and key events
+        if (!this.isMuted) {
+          this.attachGestureUnlock();
         }
       });
     }
@@ -175,6 +210,10 @@ class DomainAudioEngine {
    * Pause BGM and optionally reset time to start (used on intro replay)
    */
   public pauseBGM(resetTime: boolean = false): void {
+    if (this.bgmFadeAnimId !== null) {
+      cancelAnimationFrame(this.bgmFadeAnimId);
+      this.bgmFadeAnimId = null;
+    }
     if (this.bgmAudio) {
       try {
         this.bgmAudio.pause();
