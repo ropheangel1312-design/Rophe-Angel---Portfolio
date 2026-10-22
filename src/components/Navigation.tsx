@@ -36,6 +36,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     '#venture': '#projects',
     '#experience': '#projects',
     '#poetry': '#about',
+    '#off-script': '#about',
     '#contact': '#contact',
   };
 
@@ -200,6 +201,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       '#venture',
       '#experience',
       '#poetry',
+      '#off-script',
       '#contact',
     ];
 

@@ -11,6 +11,7 @@
 export const BGM_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792573550904-dc5c4c13-e25b-4f85-b17f-f48569ce3e26.mp3';
 export const RADIO_CHECK_AUDIO_URL = 'https://www.image2url.com/r2/default/audio/1792584125817-dc1386d4-f9eb-4361-80fe-6c4ab5f57721.m4a';
 export const END_CREDITS_BGM_URL = 'https://www.image2url.com/r2/default/audio/1792584101377-87a082c9-563d-47ec-ae14-3ae69462a2fb.m4a';
+export const OFF_SCRIPT_BGM_URL = 'https://www.image2url.com/r2/default/audio/1792668946074-844dd506-6596-4868-b965-fcf48adec352.mp3';
 
 class DomainAudioEngine {
   private ctx: AudioContext | null = null;
@@ -32,6 +33,12 @@ class DomainAudioEngine {
   private creditsAudio: HTMLAudioElement | null = null;
   private isCreditsActive: boolean = false;
   private creditsBaseVolume: number = 0.35;
+
+  // Dedicated Off-Script Archive Background Music Instance
+  private offScriptAudio: HTMLAudioElement | null = null;
+  private isOffScriptActive: boolean = false;
+  private offScriptBaseVolume: number = 0.32;
+  private offScriptCrossfadeAnimId: number | null = null;
 
   // Pit Wall Radio Check Persistent Audio Instance
   private radioAudio: HTMLAudioElement | null = null;
@@ -60,13 +67,17 @@ class DomainAudioEngine {
         this.ctx.resume().catch(() => {});
       }
 
-      // 2. Play BGM or credits audio if unmuted
+      // 2. Play BGM, credits, or off-script audio if unmuted
       if (!this.isMuted) {
         if (this.isCreditsActive && this.creditsAudio && this.creditsAudio.paused) {
           this.creditsAudio.play().then(() => {
             detach();
           }).catch(() => {});
-        } else if (this.hasStartedBGM && this.bgmAudio && this.bgmAudio.paused) {
+        } else if (this.isOffScriptActive && this.offScriptAudio && this.offScriptAudio.paused) {
+          this.offScriptAudio.play().then(() => {
+            detach();
+          }).catch(() => {});
+        } else if (this.hasStartedBGM && this.bgmAudio && this.bgmAudio.paused && !this.isOffScriptActive) {
           this.bgmAudio.play().then(() => {
             detach();
           }).catch(() => {});
@@ -110,11 +121,11 @@ class DomainAudioEngine {
     this.isMuted = muted;
     if (!muted) {
       this.initContext();
-      // Unmuting: update BGM, Credits & Radio mute properties
+      // Unmuting: update BGM, Credits, Off-Script & Radio mute properties
       if (this.bgmAudio) {
         this.bgmAudio.muted = false;
-        // Resume playing BGM only if it was previously started AND not currently in credits
-        if (this.hasStartedBGM && !this.isCreditsActive) {
+        // Resume playing BGM only if it was previously started AND neither credits nor off-script are active
+        if (this.hasStartedBGM && !this.isCreditsActive && !this.isOffScriptActive) {
           this.bgmAudio.play().catch(() => {});
         }
       }
@@ -124,17 +135,26 @@ class DomainAudioEngine {
           this.creditsAudio.play().catch(() => {});
         }
       }
+      if (this.offScriptAudio) {
+        this.offScriptAudio.muted = false;
+        if (this.isOffScriptActive) {
+          this.offScriptAudio.play().catch(() => {});
+        }
+      }
       if (this.radioAudio) {
         this.radioAudio.muted = false;
       }
     } else {
       this.stopAll();
-      // Muting: immediately silence BGM, Credits and any active radio check
+      // Muting: immediately silence BGM, Credits, Off-Script and any active radio check
       if (this.bgmAudio) {
         this.bgmAudio.muted = true;
       }
       if (this.creditsAudio) {
         this.creditsAudio.muted = true;
+      }
+      if (this.offScriptAudio) {
+        this.offScriptAudio.muted = true;
       }
       if (this.radioAudio) {
         this.radioAudio.muted = true;
@@ -181,8 +201,8 @@ class DomainAudioEngine {
     const audio = this.getBGMAudio();
     if (!audio) return;
 
-    // If end credits are currently active, do not play main BGM to avoid overlap
-    if (this.isCreditsActive) {
+    // If end credits or off-script archive are currently active, do not play main BGM to avoid overlap
+    if (this.isCreditsActive || this.isOffScriptActive) {
       return;
     }
 
@@ -316,8 +336,13 @@ class DomainAudioEngine {
     if (typeof window === 'undefined') return;
     this.isCreditsActive = true;
 
-    // 1. Cleanly stop main BGM to prevent overlap
+    // 1. Cleanly stop main BGM and off-script audio to prevent overlap
     this.pauseBGM(false);
+    if (this.offScriptAudio) {
+      try {
+        this.offScriptAudio.pause();
+      } catch {}
+    }
 
     const audio = this.getCreditsAudio();
     if (!audio) return;
@@ -356,7 +381,7 @@ class DomainAudioEngine {
 
   /**
    * Stop and reset the end-credit audio when visitor exits credits.
-   * Restores main BGM cleanly without overlap.
+   * Restores main BGM or off-script audio cleanly without overlap.
    */
   public stopCreditsBGM(): void {
     if (typeof window === 'undefined') return;
@@ -371,8 +396,12 @@ class DomainAudioEngine {
       }
     }
 
-    // Cleanly restore main BGM if unmuted and was previously started
-    if (!this.isMuted && this.hasStartedBGM && this.bgmAudio) {
+    // Cleanly restore either Off-Script audio or main BGM depending on active section
+    if (this.isOffScriptActive && !this.isMuted && this.offScriptAudio) {
+      this.offScriptAudio.muted = false;
+      this.offScriptAudio.volume = this.offScriptBaseVolume;
+      this.offScriptAudio.play().catch(() => {});
+    } else if (!this.isMuted && this.hasStartedBGM && this.bgmAudio) {
       this.bgmAudio.muted = false;
       this.bgmAudio.volume = this.isInContactSection ? this.bgmContactVolume : this.bgmBaseVolume;
       this.bgmAudio.play().catch(() => {});
@@ -391,6 +420,146 @@ class DomainAudioEngine {
    */
   public isCreditsBGMActive(): boolean {
     return this.isCreditsActive;
+  }
+
+  /**
+   * Initialize or retrieve the persistent Off-Script Archive audio element.
+   * Uses URL: https://www.image2url.com/r2/default/audio/1792668946074-844dd506-6596-4868-b965-fcf48adec352.mp3
+   */
+  private getOffScriptAudio(): HTMLAudioElement | null {
+    if (typeof window === 'undefined') return null;
+    if (!this.offScriptAudio) {
+      try {
+        const audio = new Audio(OFF_SCRIPT_BGM_URL);
+        audio.loop = true;
+        audio.preload = 'auto';
+        audio.volume = 0; // Starts at 0, faded in dynamically
+        audio.muted = this.isMuted;
+        audio.addEventListener('error', (e) => {
+          console.warn('[DomainAudio] Off-Script audio load warning:', e);
+        });
+        this.offScriptAudio = audio;
+      } catch (err) {
+        console.warn('[DomainAudio] Failed to instantiate Off-Script audio:', err);
+      }
+    }
+    return this.offScriptAudio;
+  }
+
+  /**
+   * Smoothly crossfade between main portfolio BGM and Off-Script Archive track.
+   * - Entering: Fades out main BGM to 0 (pausing without resetting currentTime so exact playback position is saved),
+   *   and fades in Off-Script track to base volume.
+   * - Exiting: Fades out Off-Script track to 0 (pausing it), and smoothly resumes main BGM from its exact prior position.
+   * - Re-entering: Reverses smoothly from current instantaneous volumes, avoiding abrupt volume jumps or competing callbacks.
+   */
+  public setOffScriptSectionActive(isActive: boolean, durationMs: number = 750): void {
+    if (typeof window === 'undefined') return;
+    if (this.isOffScriptActive === isActive) return;
+    this.isOffScriptActive = isActive;
+
+    // Do not interfere if user is viewing full-screen credits
+    if (this.isCreditsActive) return;
+
+    if (this.offScriptCrossfadeAnimId !== null) {
+      cancelAnimationFrame(this.offScriptCrossfadeAnimId);
+      this.offScriptCrossfadeAnimId = null;
+    }
+
+    const bgm = this.getBGMAudio();
+    const offScript = this.getOffScriptAudio();
+    if (!offScript) return;
+
+    const targetBgmVol = this.isInContactSection ? this.bgmContactVolume : this.bgmBaseVolume;
+    const targetOffScriptVol = this.offScriptBaseVolume;
+
+    const startBgmVol = bgm ? bgm.volume : 0;
+    const startOffScriptVol = offScript.volume;
+    const startTime = performance.now();
+
+    if (isActive) {
+      // Entering Off-Script: start Off-Script track if unmuted
+      offScript.muted = this.isMuted;
+      if (!this.isMuted && offScript.paused) {
+        const p = offScript.play();
+        if (p !== undefined) {
+          p.catch(() => {
+            // Autoplay deferred fallback
+            this.attachGestureUnlock();
+          });
+        }
+      }
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        // Smooth cubic ease-in-out
+        const ease = progress * progress * (3 - 2 * progress);
+
+        // Fade down main BGM
+        if (bgm) {
+          bgm.volume = Math.max(0, startBgmVol * (1 - ease));
+        }
+
+        // Fade up Off-Script
+        offScript.volume = Math.min(1, startOffScriptVol + (targetOffScriptVol - startOffScriptVol) * ease);
+
+        if (progress < 1) {
+          this.offScriptCrossfadeAnimId = requestAnimationFrame(step);
+        } else {
+          this.offScriptCrossfadeAnimId = null;
+          if (bgm) {
+            bgm.volume = 0;
+            bgm.pause(); // Retains exact currentTime
+          }
+          offScript.volume = targetOffScriptVol;
+        }
+      };
+
+      this.offScriptCrossfadeAnimId = requestAnimationFrame(step);
+    } else {
+      // Exiting Off-Script: resume main BGM from its prior playback position
+      if (bgm && !this.isMuted && this.hasStartedBGM) {
+        bgm.muted = false;
+        if (bgm.paused) {
+          bgm.play().catch(() => {});
+        }
+      }
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        const ease = progress * progress * (3 - 2 * progress);
+
+        // Fade down Off-Script
+        offScript.volume = Math.max(0, startOffScriptVol * (1 - ease));
+
+        // Fade up main BGM
+        if (bgm && this.hasStartedBGM) {
+          bgm.volume = Math.min(1, startBgmVol + (targetBgmVol - startBgmVol) * ease);
+        }
+
+        if (progress < 1) {
+          this.offScriptCrossfadeAnimId = requestAnimationFrame(step);
+        } else {
+          this.offScriptCrossfadeAnimId = null;
+          offScript.volume = 0;
+          offScript.pause();
+          if (bgm && this.hasStartedBGM) {
+            bgm.volume = targetBgmVol;
+          }
+        }
+      };
+
+      this.offScriptCrossfadeAnimId = requestAnimationFrame(step);
+    }
+  }
+
+  /**
+   * Check if Off-Script Archive BGM is active.
+   */
+  public isOffScriptBGMActive(): boolean {
+    return this.isOffScriptActive;
   }
 
   /**

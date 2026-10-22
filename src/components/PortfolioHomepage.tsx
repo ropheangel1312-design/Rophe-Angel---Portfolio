@@ -13,6 +13,7 @@ import { Card3D } from './Card3D';
 import { AboutSection } from './AboutSection';
 import { ExplodedProjectCenterpiece } from './ExplodedProjectCenterpiece';
 import { PoetryCircularGallery } from './PoetryCircularGallery';
+import { OffScriptArchive } from './OffScriptArchive';
 import { domainAudio } from '../utils/audio';
 import { 
   ArrowDown,
@@ -573,7 +574,10 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       {/* ===================== SECTION 8: CREATIVE WRITING & POETRY ===================== */}
       <PoetryCircularGallery isReducedMotion={isReducedMotion} />
 
-      {/* ===================== SECTION 9: CONTACT & CHANNELS ===================== */}
+      {/* ===================== SECTION 9: OFF-SCRIPT ARCHIVE ===================== */}
+      <OffScriptArchive isReducedMotion={isReducedMotion} />
+
+      {/* ===================== SECTION 10: CONTACT & CHANNELS ===================== */}
       <motion.section 
         id="contact" 
         ref={contactSectionRef as any}
@@ -585,7 +589,7 @@ export const PortfolioHomepage: React.FC<PortfolioHomepageProps> = ({
       >
         <div className="mb-6 sm:mb-8">
           <div className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2">
-            09 // CHANNELS
+            10 // CHANNELS
           </div>
           <TextScramble
             as="h2"
