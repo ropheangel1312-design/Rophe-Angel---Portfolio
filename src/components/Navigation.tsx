@@ -252,6 +252,9 @@ export const Navigation: React.FC<NavigationProps> = ({
 
     return () => {
       observer.disconnect();
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
     };
   }, []);
 

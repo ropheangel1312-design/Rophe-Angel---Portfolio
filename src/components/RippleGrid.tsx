@@ -293,7 +293,7 @@ export const RippleGrid: React.FC<RippleGridProps> = ({ isReducedMotion = false,
 
     // Periodically drop subtle ambient ripple if user has not clicked recently
     intervalId = window.setInterval(() => {
-      if (!isVisible) return;
+      if (!isVisible || isPausedRef.current) return;
       if (performance.now() - lastClick > 6000) {
         drop(w * (0.2 + Math.random() * 0.6), h * (0.2 + Math.random() * 0.6));
       }

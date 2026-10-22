@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { portfolioData } from '../data/portfolioData';
 import { ProjectItem } from '../types';
+import { observeElementVisibility, pageVisibility } from '../utils/performance';
 
 interface ExplodedProjectCenterpieceProps {
   isReducedMotion?: boolean;
@@ -134,17 +135,24 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
     }
   }, [isManualExploded, activeLayerIndex, isReducedMotion, setExplosionDepth, smoothExplosion]);
 
-  // Ambient oscillation loop (runs only when not dragging, not paused, and reduced-motion is off)
+  // Ambient oscillation loop (runs only when in viewport, not dragging, not paused, and reduced-motion is off)
   useEffect(() => {
     if (isReducedMotion) {
       applyChassisTransform(0, 0);
       return;
     }
 
-    let animId: number;
+    let animId: number = 0;
     let lastTime = performance.now();
+    let isVisible = true;
+    let isTabVisible = !document.hidden;
 
     const renderLoop = (currentTime: number) => {
+      if (!isVisible || !isTabVisible) {
+        animId = 0;
+        return;
+      }
+
       const dt = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
 
@@ -157,9 +165,43 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
       animId = requestAnimationFrame(renderLoop);
     };
 
-    animId = requestAnimationFrame(renderLoop);
+    const startLoopIfNeeded = () => {
+      if (!animId && isVisible && isTabVisible && !isReducedMotion) {
+        lastTime = performance.now();
+        animId = requestAnimationFrame(renderLoop);
+      }
+    };
 
-    return () => cancelAnimationFrame(animId);
+    const unsubVis = pageVisibility.subscribe((vis) => {
+      isTabVisible = vis;
+      if (vis) {
+        startLoopIfNeeded();
+      } else if (animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+    });
+
+    let unsubObserver = () => {};
+    if (containerRef.current) {
+      unsubObserver = observeElementVisibility(containerRef.current, (intersecting) => {
+        isVisible = intersecting;
+        if (intersecting) {
+          startLoopIfNeeded();
+        } else if (animId) {
+          cancelAnimationFrame(animId);
+          animId = 0;
+        }
+      });
+    }
+
+    startLoopIfNeeded();
+
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+      unsubVis();
+      unsubObserver();
+    };
   }, [isReducedMotion, isAutoRotatePaused, applyChassisTransform]);
 
   // -------------------------------------------------------------

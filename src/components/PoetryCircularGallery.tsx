@@ -73,7 +73,7 @@ export const PoetryCircularGallery: React.FC<PoetryCircularGalleryProps> = ({ is
       if (Math.abs(diff) > 0.04) {
         currentRotationRef.current += diff * (isReducedMotion ? 0.35 : 0.12);
         setRotationDeg(currentRotationRef.current);
-      } else {
+      } else if (currentRotationRef.current !== targetRotationRef.current) {
         currentRotationRef.current = targetRotationRef.current;
         setRotationDeg(currentRotationRef.current);
       }

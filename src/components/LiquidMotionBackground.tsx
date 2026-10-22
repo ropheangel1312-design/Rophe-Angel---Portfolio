@@ -402,7 +402,14 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
     window.addEventListener('resize', handleResize2D, { passive: true });
 
     let t = 0;
+    let isRunning2D = false;
+    let isTabVisible2D = !document.hidden;
+
     const render2D = () => {
+      if (!ctx || !isTabVisible2D || isPausedRef.current) {
+        isRunning2D = false;
+        return;
+      }
       t += 0.012;
       ctx.fillStyle = '#0A0A0A';
       ctx.fillRect(0, 0, width, height);
@@ -439,11 +446,43 @@ export const LiquidMotionBackground: React.FC<LiquidMotionBackgroundProps> = ({
       animId = requestAnimationFrame(render2D);
     };
 
-    animId = requestAnimationFrame(render2D);
+    const startLoop2D = () => {
+      if (isRunning2D || !isTabVisible2D || isPausedRef.current) return;
+      isRunning2D = true;
+      animId = requestAnimationFrame(render2D);
+    };
+
+    const stopLoop2D = () => {
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+      isRunning2D = false;
+    };
+
+    startLoopRef.current = startLoop2D;
+    stopLoopRef.current = stopLoop2D;
+
+    if (!isPausedRef.current) {
+      startLoop2D();
+    }
+
+    const handleVisibility2D = () => {
+      isTabVisible2D = !document.hidden;
+      if (isTabVisible2D && !isPausedRef.current) {
+        startLoop2D();
+      } else {
+        stopLoop2D();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility2D, { passive: true });
 
     return () => {
-      cancelAnimationFrame(animId);
+      startLoopRef.current = null;
+      stopLoopRef.current = null;
+      stopLoop2D();
       window.removeEventListener('resize', handleResize2D);
+      document.removeEventListener('visibilitychange', handleVisibility2D);
     };
   }, [isReducedMotion]);
 

@@ -42,10 +42,14 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
   const lastTimeRef = useRef<number | null>(null);
   const currentScrollYRef = useRef<number>(0);
   const isDraggingRef = useRef<boolean>(false);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const phaseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Dedicated end-credit BGM lifecycle: starts dedicated audio, stops main BGM, and cleans up on exit
   useEffect(() => {
     if (isOpen) {
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+      if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
       setPhase('rolling');
       setIsPlaying(true);
       setSpeedMultiplier(1);
@@ -63,6 +67,8 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
         cancelAnimationFrame(animFrameIdRef.current);
         animFrameIdRef.current = null;
       }
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+      if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
       // Stop and reset dedicated end-credit audio, cleanly restoring main BGM
       domainAudio.stopCreditsBGM();
     }
@@ -72,6 +78,8 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
         cancelAnimationFrame(animFrameIdRef.current);
         animFrameIdRef.current = null;
       }
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+      if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
       domainAudio.stopCreditsBGM();
     };
   }, [isOpen]);
@@ -138,7 +146,8 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
       if (currentScrollYRef.current >= maxScroll) {
         // Hold at bottom for 1.2s before smoothly fading out into the logo interstitial
-        setTimeout(() => {
+        if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+        transitionTimeoutRef.current = setTimeout(() => {
           triggerTransitionToLogo();
         }, 1200);
         return;
@@ -150,7 +159,8 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
 
   const triggerTransitionToLogo = useCallback(() => {
     setPhase('fading_out');
-    setTimeout(() => {
+    if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
+    phaseTimerRef.current = setTimeout(() => {
       setPhase('logo_interstitial');
     }, 600);
   }, []);
@@ -168,6 +178,8 @@ export const CinematicEndCredits: React.FC<CinematicEndCreditsProps> = ({
   }, [isOpen, phase, step]);
 
   const handleReplay = () => {
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
     currentScrollYRef.current = 0;
     lastTimeRef.current = null;
     if (containerRef.current) {
