@@ -112,7 +112,7 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
   const isDriverSpeaking = status === 'transmitting' && currentTime < 1.85;
   const isEngineerSpeaking = status === 'transmitting' && currentTime >= 1.85;
 
-  // Four individual floating communications channels
+  // Four individual floating communications channels with F1 telemetry specs
   const contactChannels = [
     {
       id: 'email',
@@ -123,6 +123,11 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
       href: `mailto:${portfolioData.contact.email}`,
       icon: Mail,
       isExternal: false,
+      protocol: 'PROTO: SMTP/TLS',
+      signalRate: '99.8%',
+      latency: '8ms',
+      channelId: 'TX-01',
+      statusText: 'UPLINK ARMED'
     },
     {
       id: 'linkedin',
@@ -133,6 +138,11 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
       href: portfolioData.contact.linkedin,
       icon: Linkedin,
       isExternal: true,
+      protocol: 'PROTO: WSS/HTTPS',
+      signalRate: '98.5%',
+      latency: '14ms',
+      channelId: 'TX-02',
+      statusText: 'NET SYNCHRONIZED'
     },
     {
       id: 'github',
@@ -143,6 +153,11 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
       href: portfolioData.contact.github,
       icon: Github,
       isExternal: true,
+      protocol: 'PROTO: SSH/GIT',
+      signalRate: '100%',
+      latency: '11ms',
+      channelId: 'TX-03',
+      statusText: 'REPO PIPELINE'
     },
     {
       id: 'instagram',
@@ -153,6 +168,11 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
       href: portfolioData.contact.instagramUrl,
       icon: Instagram,
       isExternal: true,
+      protocol: 'PROTO: TLS/FEED',
+      signalRate: '97.9%',
+      latency: '18ms',
+      channelId: 'TX-04',
+      statusText: 'MEDIA CARRIER'
     },
   ];
 
@@ -346,81 +366,212 @@ export const PitWallRadio: React.FC<PitWallRadioProps> = ({
 
       {/* =========================================================================
           PART B: CONTACT LINKS — FOUR INDIVIDUAL FLOATING 3D ELEMENTS
-          Separated cleanly from the radio chassis. Each is an independent Card3D
-          with cursor tilt, elevation, specular glare, and layered inner depth.
+          Upgraded into a high-precision F1 communications interface.
+          Featuring live carrier signal telemetry, cursor-following red reflection,
+          illuminated borders, slow red light sweep, and channel-specific icon physics.
           ========================================================================= */}
       <div className="w-full">
-        {/* Minimalist Section Separator & Uplink Status */}
-        <div className="flex items-center justify-between text-xs font-tech mb-4 px-1">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#E10600] shadow-[0_0_6px_rgba(225,6,0,0.8)]" />
-            <span className="font-bold text-white tracking-widest uppercase text-xs">
+        {/* Refined Header with Understated Live-Signal Indicator */}
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-tech mb-4.5 px-1 pb-3 border-b border-white/[0.08]">
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E10600] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#E10600] shadow-[0_0_8px_rgba(225,6,0,0.9)]" />
+            </span>
+            <span className="font-bold text-white tracking-widest uppercase text-xs sm:text-sm">
               DIRECT COMMUNICATIONS CHANNELS // TELEMETRY UPLINKS
             </span>
           </div>
-          <span className="font-mono text-neutral-400 text-[11px] uppercase tracking-widest hidden sm:inline">
-            4 CHANNELS MONITORED · ENCRYPTED
-          </span>
+
+          {/* Understated Live Telemetry & Carrier Status */}
+          <div className="flex items-center gap-3 text-[11px] font-mono">
+            <div className="flex items-center gap-2 bg-[#0d0d10] px-2.5 py-1 rounded-md border border-white/[0.08] text-neutral-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+              <span className="text-emerald-400 font-bold uppercase tracking-wider text-[10px]">
+                CARRIER LOCKED
+              </span>
+              <span className="text-neutral-600">/</span>
+              <span className="text-neutral-400 text-[10px]">
+                446.006 MHz
+              </span>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-2 text-neutral-400 text-[11px]">
+              <span className="text-neutral-600">|</span>
+              <span className="text-neutral-400 tracking-wider">
+                SNR: 99.4% · 4 CHANNELS ARMED
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Four Independent Floating 3D Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4.5">
           {contactChannels.map((channel, idx) => {
             const Icon = channel.icon;
+
+            // Channel-specific icon physics on hover
+            const getIconAnimationClass = (id: string) => {
+              switch (id) {
+                case 'email':
+                  return 'group-hover:scale-115 group-hover:-translate-y-1 group-hover:-rotate-6';
+                case 'linkedin':
+                  return 'group-hover:scale-120 group-hover:rotate-6';
+                case 'github':
+                  return 'group-hover:scale-120 group-hover:-translate-y-1.5';
+                case 'instagram':
+                  return 'group-hover:scale-120 group-hover:rotate-12';
+                default:
+                  return 'group-hover:scale-115 group-hover:-translate-y-0.5';
+              }
+            };
+
             return (
               <Card3D
                 key={channel.id}
                 index={idx + 1}
                 isReducedMotion={isReducedMotion}
-                maxTilt={5}
+                maxTilt={4.5}
                 depth={12}
-                glareColor="rgba(225, 6, 0, 0.16)"
-                className="f1-card rounded-xl p-4 sm:p-5 flex flex-col justify-between h-full group transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.7),0_0_24px_rgba(225,6,0,0.18)]"
+                glareColor="rgba(225, 6, 0, 0.18)"
+                className="f1-card rounded-xl p-4 sm:p-5 flex flex-col justify-between h-full group transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 border border-white/10 hover:border-[#E10600]/80 shadow-[0_12px_32px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_48px_rgba(0,0,0,0.85),0_0_28px_rgba(225,6,0,0.22),inset_0_1px_2px_rgba(255,255,255,0.22)] relative overflow-hidden"
+                onMouseMove={(e) => {
+                  if (isReducedMotion) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = ((e.clientX - rect.left) / rect.width) * 100;
+                  const y = ((e.clientY - rect.top) / rect.height) * 100;
+                  e.currentTarget.style.setProperty('--card-mouse-x', `${x.toFixed(1)}%`);
+                  e.currentTarget.style.setProperty('--card-mouse-y', `${y.toFixed(1)}%`);
+                }}
               >
+                {/* 1. Cursor-Following Specular Red Reflection */}
+                <div 
+                  className="absolute inset-0 pointer-events-none rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+                  style={{
+                    background: 'radial-gradient(circle 190px at var(--card-mouse-x, 50%) var(--card-mouse-y, 50%), rgba(225, 6, 0, 0.28), rgba(225, 6, 0, 0.08) 42%, transparent 75%)'
+                  }}
+                  aria-hidden="true"
+                />
+
+                {/* 2. Slow Red Light Sweep across liquid glass surface */}
+                {!isReducedMotion && (
+                  <div 
+                    className="absolute inset-y-0 -inset-x-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-red-sweep bg-gradient-to-r from-transparent via-[#E10600]/20 to-transparent z-10"
+                    aria-hidden="true"
+                  />
+                )}
+
+                {/* 3. Subtle background telemetry scanline weave */}
+                <div 
+                  className="absolute inset-0 pointer-events-none opacity-[0.035] group-hover:opacity-[0.06] transition-opacity duration-300 rounded-[inherit] bg-[linear-gradient(to_right,rgba(255,255,255,0.7)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.7)_1px,transparent_1px)] bg-[size:14px_14px]" 
+                  aria-hidden="true"
+                />
+
+                {/* 4. Top Glass Specular Edge Light */}
+                <div 
+                  className="absolute top-0 inset-x-5 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none group-hover:via-[#E10600]/80 transition-colors duration-300 z-10" 
+                  aria-hidden="true"
+                />
+
                 <a
                   href={channel.href}
                   target={channel.isExternal ? '_blank' : undefined}
                   rel={channel.isExternal ? 'noopener noreferrer' : undefined}
-                  className="flex flex-col justify-between h-full w-full rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#E10600] select-none"
+                  className="flex flex-col justify-between h-full w-full rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#E10600] select-none relative z-10"
                   aria-label={`${channel.label}: ${channel.value}`}
                 >
                   <div>
-                    {/* Top row: Elevated Icon Pod + Channel Kicker */}
-                    <div className="flex items-center justify-between gap-3 mb-4">
+                    {/* Top row: Elevated Icon Pod + Ambient Carrier Status Indicator */}
+                    <div className="flex items-center justify-between gap-3 mb-3.5">
                       <div 
-                        style={{ transform: !isReducedMotion ? 'translateZ(14px)' : undefined }}
-                        className="w-10 h-10 rounded-lg bg-white/[0.04] backdrop-blur-xs border border-white/10 flex items-center justify-center text-[#E10600] group-hover:border-[#E10600]/60 group-hover:bg-[#E10600]/10 group-hover:text-white group-hover:shadow-[0_0_16px_rgba(225,6,0,0.35)] transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]"
+                        style={{ transform: !isReducedMotion ? 'translateZ(16px)' : undefined }}
+                        className="relative w-10 h-10 rounded-lg bg-white/[0.04] backdrop-blur-xs border border-white/10 flex items-center justify-center text-[#E10600] group-hover:border-[#E10600]/70 group-hover:bg-[#E10600]/15 group-hover:text-white group-hover:shadow-[0_0_18px_rgba(225,6,0,0.45)] transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]"
                       >
-                        <Icon className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
+                        <Icon className={`w-4 h-4 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${getIconAnimationClass(channel.id)}`} />
+                        
+                        {/* Specific beacon flares for icon types */}
+                        {channel.id === 'email' && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#E10600] opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-ping" />
+                        )}
+                        {channel.id === 'linkedin' && (
+                          <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-sky-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_0_6px_#38bdf8]" />
+                        )}
+                        {channel.id === 'github' && (
+                          <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1.5 h-0.5 bg-[#E10600] opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_0_6px_#E10600]" />
+                        )}
+                        {channel.id === 'instagram' && (
+                          <span className="absolute inset-0 rounded-lg border border-pink-500/0 group-hover:border-pink-500/40 group-hover:scale-120 transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                        )}
                       </div>
-                      <span 
-                        style={{ transform: !isReducedMotion ? 'translateZ(8px)' : undefined }}
-                        className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest"
+
+                      {/* Ambient Live Signal Indicator */}
+                      <div 
+                        style={{ transform: !isReducedMotion ? 'translateZ(10px)' : undefined }}
+                        className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#0e0e11]/90 border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]"
                       >
-                        {channel.kicker}
-                      </span>
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+                        </span>
+                        <span className="font-mono text-[9px] text-emerald-400 font-bold uppercase tracking-wider">
+                          {channel.channelId}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Middle: Title & Target Handle */}
+                    {/* Channel Kicker & Title */}
                     <div 
                       style={{ transform: !isReducedMotion ? 'translateZ(10px)' : undefined }}
-                      className="text-[11px] font-tech font-bold uppercase text-neutral-400 tracking-wider mb-1"
+                      className="flex items-center justify-between text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-1"
+                    >
+                      <span className="text-[#E10600] font-bold">{channel.kicker}</span>
+                      <span className="text-neutral-500 text-[9px]">{channel.statusText}</span>
+                    </div>
+
+                    <div 
+                      style={{ transform: !isReducedMotion ? 'translateZ(12px)' : undefined }}
+                      className="text-[11px] font-tech font-bold uppercase text-neutral-300 tracking-wider mb-1"
                     >
                       {channel.label}
                     </div>
+
+                    {/* Target Handle / Value */}
                     <div 
-                      style={{ transform: !isReducedMotion ? 'translateZ(14px)' : undefined }}
+                      style={{ transform: !isReducedMotion ? 'translateZ(16px)' : undefined }}
                       className="font-tech font-bold text-white text-sm sm:text-base tracking-tight truncate group-hover:text-[#E10600] transition-colors"
                       title={channel.value}
                     >
                       {channel.value}
                     </div>
+
+                    {/* Restrained Telemetry Details */}
+                    <div 
+                      style={{ transform: !isReducedMotion ? 'translateZ(12px)' : undefined }}
+                      className="pt-2.5 mt-3 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-neutral-400"
+                    >
+                      <span className="text-neutral-500 font-medium tracking-tight">
+                        {channel.protocol}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-neutral-500 text-[9px]">{channel.latency}</span>
+                        <span className="text-neutral-700">/</span>
+                        <span className="text-[#E10600] font-bold text-[9px]">{channel.signalRate}</span>
+                        
+                        {/* 4 Micro RF Signal bars */}
+                        <span className="inline-flex items-end gap-[1.5px] h-2.5 ml-0.5" aria-hidden="true">
+                          <span className="w-0.5 h-1 bg-emerald-400/90 rounded-2xs" />
+                          <span className="w-0.5 h-1.5 bg-emerald-400/90 rounded-2xs" />
+                          <span className="w-0.5 h-2 bg-emerald-400/90 rounded-2xs" />
+                          <span className="w-0.5 h-2.5 bg-emerald-400 rounded-2xs animate-pulse" />
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Bottom Action Footer with Arrow Indicator */}
                   <div 
-                    style={{ transform: !isReducedMotion ? 'translateZ(12px)' : undefined }}
-                    className="pt-3.5 mt-4 border-t border-white/[0.08] flex items-center justify-between text-xs font-tech font-bold text-[#E10600] uppercase tracking-wider group-hover:text-white transition-colors"
+                    style={{ transform: !isReducedMotion ? 'translateZ(14px)' : undefined }}
+                    className="pt-3 mt-3 border-t border-white/[0.08] flex items-center justify-between text-xs font-tech font-bold text-[#E10600] uppercase tracking-wider group-hover:text-white transition-colors"
                   >
                     <span>{channel.action}</span>
                     <ArrowUpRight className="w-3.5 h-3.5 text-[#E10600] group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />

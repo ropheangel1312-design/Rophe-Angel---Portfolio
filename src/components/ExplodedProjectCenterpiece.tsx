@@ -221,7 +221,7 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
     applyChassisTransform(8, -12);
   };
 
-  // 4 Documented Spatial Layers
+  // 4 Documented Spatial Layers with calibrated resting depth & exploded coordinates
   const layerDefinitions = [
     {
       id: 'layer-schematic',
@@ -229,8 +229,12 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
       tag: 'SCHEMATIC & PROBLEM',
       title: 'Problem & Motivation',
       icon: Cpu,
-      zDistance: -110,
-      yOffset: -28,
+      zDistance: -125,
+      yOffset: -32,
+      baseZ: -32,
+      explodedZ: -125,
+      baseY: -8,
+      explodedY: -32,
       accentColor: '#E10600'
     },
     {
@@ -239,8 +243,12 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
       tag: 'ARCHITECTURE & APPROACH',
       title: 'How It Was Built',
       icon: Compass,
-      zDistance: -35,
-      yOffset: -10,
+      zDistance: -42,
+      yOffset: -12,
+      baseZ: -10,
+      explodedZ: -42,
+      baseY: -3,
+      explodedY: -12,
       accentColor: '#FF4136'
     },
     {
@@ -249,8 +257,12 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
       tag: 'INTERFACE & TELEMETRY',
       title: 'Working Interface View',
       icon: Terminal,
-      zDistance: 45,
-      yOffset: 12,
+      zDistance: 50,
+      yOffset: 14,
+      baseZ: 14,
+      explodedZ: 50,
+      baseY: 4,
+      explodedY: 14,
       accentColor: '#FFFFFF'
     },
     {
@@ -259,8 +271,12 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
       tag: 'STACK & CONTRIBUTION',
       title: 'Tech Stack & Personal Role',
       icon: Radio,
-      zDistance: 125,
-      yOffset: 30,
+      zDistance: 138,
+      yOffset: 34,
+      baseZ: 38,
+      explodedZ: 138,
+      baseY: 10,
+      explodedY: 34,
       accentColor: '#E10600'
     }
   ];
@@ -441,53 +457,59 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                 const isAnyFocused = activeLayerIndex !== null;
                 const isSubdued = isAnyFocused && !isFocused;
 
+                const layerTransform = isReducedMotion
+                  ? 'none'
+                  : isFocused
+                  ? 'translateZ(160px) translateY(0px) scale(1.02)'
+                  : `translateZ(calc(${layer.baseZ}px + (${layer.explodedZ - layer.baseZ}px * var(--explode, 0)))) translateY(calc(${layer.baseY}px + (${layer.explodedY - layer.baseY}px * var(--explode, 0))))`;
+
                 return (
                   <div
                     key={layer.id}
                     onClick={() => setActiveLayerIndex(isFocused ? null : 0)}
                     className={`absolute inset-0 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden p-5 flex flex-col justify-between ${
                       isFocused
-                        ? 'border-[#E10600] bg-neutral-950/95 ring-2 ring-[#E10600]/50 shadow-[0_0_30px_rgba(225,6,0,0.3)] z-40'
+                        ? 'border-[#E10600] bg-neutral-950/95 ring-2 ring-[#E10600]/60 shadow-[0_0_35px_rgba(225,6,0,0.35)] z-40'
                         : isSubdued
-                        ? 'border-white/[0.05] bg-black/85 opacity-30 shadow-none'
-                        : 'border-white/[0.12] bg-neutral-950/90 hover:border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.7)]'
+                        ? 'border-white/[0.06] bg-black/80 opacity-25 shadow-none z-0'
+                        : 'border-white/15 hover:border-[#E10600]/60 border-l-4 border-l-[#E10600]/70 bg-[linear-gradient(135deg,rgba(16,16,20,0.84)_0%,rgba(10,10,12,0.76)_100%)] shadow-[0_12px_28px_rgba(0,0,0,0.75),inset_0_1px_1px_rgba(255,255,255,0.14)] z-0'
                     }`}
                     style={{
-                      transform: isReducedMotion
-                        ? 'none'
-                        : `translateZ(calc(${layer.zDistance}px * var(--explode, 0))) translateY(calc(${layer.yOffset}px * var(--explode, 0)))`,
+                      transform: layerTransform,
                       transformStyle: 'preserve-3d'
                     }}
                   >
-                    <div className="absolute inset-0 pointer-events-none opacity-10 bg-[radial-gradient(#E10600_1px,transparent_1px)] bg-[size:16px_16px]" />
+                    <div className="absolute inset-0 pointer-events-none opacity-15 bg-[radial-gradient(#E10600_1px,transparent_1px)] bg-[size:16px_16px]" />
                     
                     <div className="relative z-10 flex items-center justify-between border-b border-white/[0.08] pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-[#E10600]/20 text-[#E10600] border border-[#E10600]/40">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-[#E10600]/25 text-[#E10600] border border-[#E10600]/50 shadow-[0_0_6px_rgba(225,6,0,0.3)]">
                           LAYER {layer.number}
                         </span>
-                        <span className="font-tech text-xs tracking-wider text-neutral-300">
+                        <span className="font-tech text-xs tracking-wider text-neutral-200 font-semibold">
                           {layer.tag}
                         </span>
                       </div>
-                      <span className="font-mono text-[10px] text-neutral-500">
+                      <span className="font-mono text-[10px] text-neutral-400">
                         {isFocused ? '● PINNED' : 'CLICK TO INSPECT'}
                       </span>
                     </div>
 
                     <div className="relative z-10 my-2">
-                      <div className="text-[10px] font-tech text-[#E10600] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                        <AlertCircle className="w-3 h-3 text-[#E10600]" />
-                        THE PROBLEM WE SET OUT TO SOLVE
+                      <div className="p-2.5 rounded-lg bg-black/45 border border-white/[0.06]">
+                        <div className="text-[10px] font-tech text-[#E10600] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                          <AlertCircle className="w-3 h-3 text-[#E10600]" />
+                          THE PROBLEM WE SET OUT TO SOLVE
+                        </div>
+                        <p className="font-body text-xs sm:text-sm text-neutral-200 leading-relaxed line-clamp-3 sm:line-clamp-4">
+                          {currentProject.problem}
+                        </p>
                       </div>
-                      <p className="font-body text-xs sm:text-sm text-neutral-300 leading-relaxed line-clamp-3 sm:line-clamp-4">
-                        {currentProject.problem}
-                      </p>
                     </div>
 
                     <div className="relative z-10 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-tech text-neutral-400">
                       <span className="truncate max-w-[280px]">HARD PART: {currentProject.challenges}</span>
-                      <span className="text-[#E10600] shrink-0 font-mono">PART_01</span>
+                      <span className="text-[#E10600] shrink-0 font-mono font-bold">FOUNDATION // L01</span>
                     </div>
                   </div>
                 );
@@ -500,34 +522,38 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                 const isAnyFocused = activeLayerIndex !== null;
                 const isSubdued = isAnyFocused && !isFocused;
 
+                const layerTransform = isReducedMotion
+                  ? 'none'
+                  : isFocused
+                  ? 'translateZ(160px) translateY(0px) scale(1.02)'
+                  : `translateZ(calc(${layer.baseZ}px + (${layer.explodedZ - layer.baseZ}px * var(--explode, 0)))) translateY(calc(${layer.baseY}px + (${layer.explodedY - layer.baseY}px * var(--explode, 0))))`;
+
                 return (
                   <div
                     key={layer.id}
                     onClick={() => setActiveLayerIndex(isFocused ? null : 1)}
                     className={`absolute inset-0 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden p-5 flex flex-col justify-between ${
                       isFocused
-                        ? 'border-[#E10600] bg-neutral-950/95 ring-2 ring-[#E10600]/50 shadow-[0_0_30px_rgba(225,6,0,0.3)] z-40'
+                        ? 'border-[#FF4136] bg-neutral-950/95 ring-2 ring-[#FF4136]/60 shadow-[0_0_35px_rgba(255,65,54,0.35)] z-40'
                         : isSubdued
-                        ? 'border-white/[0.05] bg-black/85 opacity-30 shadow-none'
-                        : 'border-white/[0.12] bg-[#0c0c0c]/90 hover:border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.7)]'
+                        ? 'border-white/[0.06] bg-black/80 opacity-25 shadow-none z-10'
+                        : 'border-white/18 hover:border-[#FF4136]/60 border-l-4 border-l-[#FF4136]/70 bg-[linear-gradient(135deg,rgba(18,18,22,0.68)_0%,rgba(10,10,14,0.58)_100%)] shadow-[0_14px_30px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.16)] z-10'
                     }`}
                     style={{
-                      transform: isReducedMotion
-                        ? 'none'
-                        : `translateZ(calc(${layer.zDistance}px * var(--explode, 0))) translateY(calc(${layer.yOffset}px * var(--explode, 0)))`,
+                      transform: layerTransform,
                       transformStyle: 'preserve-3d'
                     }}
                   >
                     <div className="relative z-10 flex items-center justify-between border-b border-white/[0.08] pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-[#FF4136]/20 text-[#FF4136] border border-[#FF4136]/40">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-[#FF4136]/25 text-[#FF4136] border border-[#FF4136]/50 shadow-[0_0_6px_rgba(255,65,54,0.3)]">
                           LAYER {layer.number}
                         </span>
-                        <span className="font-tech text-xs tracking-wider text-neutral-300">
+                        <span className="font-tech text-xs tracking-wider text-neutral-200 font-semibold">
                           {layer.tag}
                         </span>
                       </div>
-                      <span className="font-mono text-[10px] text-neutral-500">
+                      <span className="font-mono text-[10px] text-neutral-400">
                         {isFocused ? '● PINNED' : 'CLICK TO INSPECT'}
                       </span>
                     </div>
@@ -537,8 +563,8 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                         HOW IT WAS ASSEMBLED ({currentProject.approach.length} PHASES)
                       </div>
                       {currentProject.approach.slice(0, 3).map((step, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs text-neutral-300 font-body">
-                          <span className="font-tech text-[10px] text-[#E10600] font-bold mt-0.5">0{idx + 1}.</span>
+                        <div key={idx} className="flex items-start gap-2 text-xs text-neutral-200 font-body bg-black/35 p-1.5 rounded border border-white/[0.04]">
+                          <span className="font-tech text-[10px] text-[#FF4136] font-bold mt-0.5">0{idx + 1}.</span>
                           <span className="line-clamp-1">{step}</span>
                         </div>
                       ))}
@@ -546,7 +572,7 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
 
                     <div className="relative z-10 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-tech text-neutral-400">
                       <span>PIPELINE VALIDATED</span>
-                      <span className="text-[#E10600] font-mono">FLOW_02</span>
+                      <span className="text-[#FF4136] font-mono font-bold">PIPELINE // L02</span>
                     </div>
                   </div>
                 );
@@ -560,27 +586,31 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                 const isSubdued = isAnyFocused && !isFocused;
                 const currentScreenshot = currentProject.screenshots[activeScreenshotIdx] || currentProject.screenshots[0];
 
+                const layerTransform = isReducedMotion
+                  ? 'none'
+                  : isFocused
+                  ? 'translateZ(160px) translateY(0px) scale(1.02)'
+                  : `translateZ(calc(${layer.baseZ}px + (${layer.explodedZ - layer.baseZ}px * var(--explode, 0)))) translateY(calc(${layer.baseY}px + (${layer.explodedY - layer.baseY}px * var(--explode, 0))))`;
+
                 return (
                   <div
                     key={layer.id}
                     onClick={() => setActiveLayerIndex(isFocused ? null : 2)}
                     className={`absolute inset-0 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden p-4 flex flex-col justify-between ${
                       isFocused
-                        ? 'border-[#E10600] bg-neutral-950/95 ring-2 ring-[#E10600]/50 shadow-[0_0_30px_rgba(225,6,0,0.3)] z-40'
+                        ? 'border-white bg-neutral-950/95 ring-2 ring-white/50 shadow-[0_0_35px_rgba(255,255,255,0.25)] z-40'
                         : isSubdued
-                        ? 'border-white/[0.05] bg-black/85 opacity-30 shadow-none'
-                        : 'border-white/[0.18] bg-neutral-900/95 hover:border-white/40 shadow-[0_20px_45px_rgba(0,0,0,0.85)]'
+                        ? 'border-white/[0.06] bg-black/80 opacity-25 shadow-none z-20'
+                        : 'border-white/20 hover:border-white/50 border-l-4 border-l-white/70 bg-[linear-gradient(135deg,rgba(18,18,22,0.50)_0%,rgba(10,10,14,0.40)_100%)] shadow-[0_16px_36px_rgba(0,0,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.22)] z-20'
                     }`}
                     style={{
-                      transform: isReducedMotion
-                        ? 'none'
-                        : `translateZ(calc(${layer.zDistance}px * var(--explode, 0))) translateY(calc(${layer.yOffset}px * var(--explode, 0)))`,
+                      transform: layerTransform,
                       transformStyle: 'preserve-3d'
                     }}
                   >
                     <div className="relative z-10 flex items-center justify-between border-b border-white/[0.08] pb-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-white/20 text-white border border-white/40">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-white/20 text-white border border-white/40 shadow-[0_0_6px_rgba(255,255,255,0.2)]">
                           LAYER {layer.number}
                         </span>
                         <span className="font-tech text-xs tracking-wider text-white font-bold">
@@ -599,8 +629,8 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                               onClick={() => setActiveScreenshotIdx(sIdx)}
                               className={`px-1.5 py-0.5 rounded text-[9px] font-tech tracking-wider transition-colors cursor-pointer ${
                                 activeScreenshotIdx === sIdx
-                                  ? 'bg-[#E10600] text-white'
-                                  : 'bg-white/[0.05] text-neutral-400 hover:text-white'
+                                  ? 'bg-[#E10600] text-white shadow-[0_0_8px_rgba(225,6,0,0.5)]'
+                                  : 'bg-white/[0.08] text-neutral-300 hover:text-white'
                               }`}
                               title={`View screenshot 0${sIdx + 1}`}
                             >
@@ -611,7 +641,7 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                       )}
                     </div>
 
-                    <div className="relative z-10 my-1.5 rounded-lg overflow-hidden border border-white/[0.1] bg-black/60 h-[190px] sm:h-[220px] group">
+                    <div className="relative z-10 my-1.5 rounded-lg overflow-hidden border border-white/[0.12] bg-black/60 h-[190px] sm:h-[220px] group shadow-inner">
                       {currentScreenshot ? (
                         <img
                           src={currentScreenshot.url}
@@ -625,7 +655,7 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                         </div>
                       )}
 
-                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1 rounded bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-tech text-neutral-300">
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1 rounded bg-black/85 backdrop-blur-md border border-white/10 text-[10px] font-tech text-neutral-200">
                         <span className="truncate max-w-[200px] sm:max-w-[300px]">
                           {currentScreenshot?.caption || currentProject.title}
                         </span>
@@ -635,18 +665,25 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
 
                     <div className="relative z-10 pt-1.5 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-tech text-neutral-400">
                       <span>WORKING UI SCREENSHOT</span>
-                      <span className="text-white font-mono">FRAME_03</span>
+                      <span className="text-white font-mono font-bold">VIEWPORT // L03</span>
                     </div>
                   </div>
                 );
               })()}
 
-              {/* ================= LAYER 3: TECH STACK & CONTRIBUTION ================= */}
+              {/* ================= LAYER 3: TECH STACK & CONTRIBUTION (FOREGROUND LAYER) ================= */}
+              {/* Refactored with optical liquid-glass transparency so rear layers show through and around it */}
               {(() => {
                 const layer = layerDefinitions[3];
                 const isFocused = activeLayerIndex === 3;
                 const isAnyFocused = activeLayerIndex !== null;
                 const isSubdued = isAnyFocused && !isFocused;
+
+                const layerTransform = isReducedMotion
+                  ? 'none'
+                  : isFocused
+                  ? 'translateZ(160px) translateY(0px) scale(1.02)'
+                  : `translateZ(calc(${layer.baseZ}px + (${layer.explodedZ - layer.baseZ}px * var(--explode, 0)))) translateY(calc(${layer.baseY}px + (${layer.explodedY - layer.baseY}px * var(--explode, 0))))`;
 
                 return (
                   <div
@@ -654,51 +691,54 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                     onClick={() => setActiveLayerIndex(isFocused ? null : 3)}
                     className={`absolute inset-0 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden p-5 flex flex-col justify-between ${
                       isFocused
-                        ? 'border-[#E10600] bg-neutral-950/95 ring-2 ring-[#E10600]/50 shadow-[0_0_30px_rgba(225,6,0,0.3)] z-40'
+                        ? 'border-[#E10600] bg-neutral-950/95 ring-2 ring-[#E10600]/60 shadow-[0_0_35px_rgba(225,6,0,0.4)] z-40'
                         : isSubdued
-                        ? 'border-white/[0.05] bg-black/85 opacity-30 shadow-none'
-                        : 'border-white/[0.18] bg-black/90 hover:border-white/40 shadow-[0_25px_50px_rgba(0,0,0,0.9)]'
+                        ? 'border-white/[0.06] bg-black/80 opacity-25 shadow-none z-30'
+                        : 'border-white/30 hover:border-[#E10600]/85 border-l-4 border-l-[#E10600] bg-[linear-gradient(135deg,rgba(18,18,24,0.34)_0%,rgba(10,10,14,0.24)_100%)] shadow-[0_22px_48px_rgba(0,0,0,0.65),inset_0_1px_2px_rgba(255,255,255,0.35),inset_0_0_24px_rgba(225,6,0,0.06)] z-30'
                     }`}
                     style={{
-                      transform: isReducedMotion
-                        ? 'none'
-                        : `translateZ(calc(${layer.zDistance}px * var(--explode, 0))) translateY(calc(${layer.yOffset}px * var(--explode, 0)))`,
+                      transform: layerTransform,
                       transformStyle: 'preserve-3d'
                     }}
                   >
-                    <div className="relative z-10 flex items-center justify-between border-b border-white/[0.08] pb-2">
+                    {/* Top edge specular highlight line */}
+                    <div className="absolute top-0 inset-x-5 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+
+                    <div className="relative z-10 flex items-center justify-between border-b border-white/[0.12] pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-[#E10600]/20 text-[#E10600] border border-[#E10600]/40">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-tech font-bold bg-[#E10600] text-white border border-[#E10600] shadow-[0_0_8px_rgba(225,6,0,0.4)]">
                           LAYER {layer.number}
                         </span>
-                        <span className="font-tech text-xs tracking-wider text-neutral-300">
+                        <span className="font-tech text-xs tracking-wider text-white font-bold">
                           {layer.tag}
                         </span>
                       </div>
-                      <span className="font-mono text-[10px] text-neutral-500">
+                      <span className="font-mono text-[10px] text-neutral-300">
                         {isFocused ? '● PINNED' : 'CLICK TO INSPECT'}
                       </span>
                     </div>
 
-                    <div className="relative z-10 my-2 space-y-2.5">
-                      <div>
-                        <div className="text-[10px] font-tech text-[#E10600] font-bold uppercase tracking-widest mb-1">
+                    {/* Selective translucent content pads for 100% text readability while keeping card transparent */}
+                    <div className="relative z-10 my-2 space-y-2">
+                      <div className="p-2.5 rounded-lg bg-black/55 backdrop-blur-[2px] border border-white/[0.08]">
+                        <div className="text-[10px] font-tech text-[#E10600] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] shadow-[0_0_6px_rgba(225,6,0,0.8)]" />
                           WHAT I PERSONALLY WORKED ON
                         </div>
-                        <p className="font-body text-xs text-neutral-300 line-clamp-2">
+                        <p className="font-body text-xs text-white leading-relaxed line-clamp-2">
                           {currentProject.myContribution}
                         </p>
                       </div>
 
-                      <div>
-                        <div className="text-[10px] font-tech text-neutral-400 font-bold uppercase tracking-widest mb-1.5">
+                      <div className="p-2 rounded-lg bg-black/45 backdrop-blur-[2px] border border-white/[0.06]">
+                        <div className="text-[10px] font-tech text-neutral-300 font-bold uppercase tracking-widest mb-1.5">
                           TOOLS & TECHNOLOGIES
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {currentProject.technologies.slice(0, 5).map((tech, tIdx) => (
                             <span
                               key={tIdx}
-                              className="px-2 py-0.5 rounded text-[10px] font-tech tracking-wider bg-white/[0.05] border border-white/[0.1] text-neutral-200"
+                              className="px-2 py-0.5 rounded text-[10px] font-tech tracking-wider bg-white/[0.08] border border-white/20 text-white font-semibold shadow-xs"
                             >
                               {tech}
                             </span>
@@ -708,7 +748,7 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                     </div>
 
                     <div 
-                      className="relative z-10 pt-2 border-t border-white/[0.06] flex items-center justify-between"
+                      className="relative z-10 pt-2 border-t border-white/[0.08] flex items-center justify-between"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center gap-2">
@@ -719,19 +759,19 @@ export const ExplodedProjectCenterpiece: React.FC<ExplodedProjectCenterpieceProp
                               href={link.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-2.5 py-1 rounded text-[10px] font-tech font-bold tracking-wider bg-[#E10600] hover:bg-[#c00500] text-white flex items-center gap-1.5 transition-colors"
+                              className="px-2.5 py-1 rounded text-[10px] font-tech font-bold tracking-wider bg-[#E10600] hover:bg-[#c00500] text-white flex items-center gap-1.5 transition-colors shadow-[0_0_10px_rgba(225,6,0,0.35)]"
                             >
                               {link.type === 'github' ? <Github className="w-3 h-3" /> : <ExternalLink className="w-3 h-3" />}
                               <span>{link.label}</span>
                             </a>
                           ))
                         ) : (
-                          <span className="px-2 py-1 rounded text-[10px] font-tech text-neutral-400 bg-white/[0.04] border border-white/[0.08]">
+                          <span className="px-2 py-1 rounded text-[10px] font-tech text-neutral-300 bg-black/50 border border-white/10">
                             LOCAL EXPERIMENT ONLY
                           </span>
                         )}
                       </div>
-                      <span className="text-[#E10600] font-mono text-[10px]">VERIFY_04</span>
+                      <span className="text-[#E10600] font-mono text-[10px] font-bold">FOREGROUND // L04</span>
                     </div>
                   </div>
                 );
