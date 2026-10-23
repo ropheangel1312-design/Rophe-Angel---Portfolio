@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Navigation } from './components/Navigation';
 import { PortfolioHomepage } from './components/PortfolioHomepage';
 import { LiquidMotionBackground } from './components/LiquidMotionBackground';
@@ -123,6 +124,9 @@ export default function App() {
         onClose={() => setIsResumeOpen(false)}
         isReducedMotion={isReducedMotion}
       />
+
+      {/* Vercel Speed Insights */}
+      <SpeedInsights />
     </div>
   );
 }
