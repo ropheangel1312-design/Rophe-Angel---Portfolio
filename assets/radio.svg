@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 190" width="900" height="190">
+  <rect width="900" height="190" rx="14" fill="#0a0a0a" stroke="#DC0000" stroke-width="3"/>
+  <rect x="0" y="0" width="900" height="38" rx="14" fill="#DC0000"/>
+  <rect x="0" y="24" width="900" height="14" fill="#DC0000"/>
+  <circle cx="26" cy="19" r="7" fill="#fff">
+    <animate attributeName="opacity" values="1;0.15;1" dur="1.1s" repeatCount="indefinite"/>
+  </circle>
+  <text x="44" y="25" font-family="'Courier New', monospace" font-size="16" font-weight="bold" fill="#fff" letter-spacing="3">ROPHE RADIO  //  CH 01  //  LIVE</text>
+  <text x="878" y="25" text-anchor="end" font-family="'Courier New', monospace" font-size="14" fill="#fff" opacity="0.85">ENCRYPTED</text>
+
+  <!-- waveform -->
+  <g fill="#DC0000">
+    <rect x="40"  y="70" width="14" height="60" rx="3"><animate attributeName="height" values="14;70;22;54;14" dur="0.9s" repeatCount="indefinite"/><animate attributeName="y" values="108;73;103;81;108" dur="0.9s" repeatCount="indefinite"/></rect>
+    <rect x="62"  y="70" width="14" height="60" rx="3"><animate attributeName="height" values="40;16;66;28;40" dur="0.7s" repeatCount="indefinite"/><animate attributeName="y" values="95;113;78;101;95" dur="0.7s" repeatCount="indefinite"/></rect>
+    <rect x="84"  y="70" width="14" height="60" rx="3"><animate attributeName="height" values="24;72;30;60;24" dur="1.1s" repeatCount="indefinite"/><animate attributeName="y" values="103;72;100;77;103" dur="1.1s" repeatCount="indefinite"/></rect>
+    <rect x="106" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="56;20;64;18;56" dur="0.8s" repeatCount="indefinite"/><animate attributeName="y" values="81;110;77;111;81" dur="0.8s" repeatCount="indefinite"/></rect>
+    <rect x="128" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="18;62;26;70;18" dur="1.0s" repeatCount="indefinite"/><animate attributeName="y" values="111;79;104;73;111" dur="1.0s" repeatCount="indefinite"/></rect>
+    <rect x="150" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="48;14;58;22;48" dur="0.65s" repeatCount="indefinite"/><animate attributeName="y" values="85;114;80;108;85" dur="0.65s" repeatCount="indefinite"/></rect>
+    <rect x="172" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="30;68;18;52;30" dur="0.95s" repeatCount="indefinite"/><animate attributeName="y" values="100;74;111;82;100" dur="0.95s" repeatCount="indefinite"/></rect>
+    <rect x="194" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="64;24;56;16;64" dur="0.85s" repeatCount="indefinite"/><animate attributeName="y" values="77;103;81;112;77" dur="0.85s" repeatCount="indefinite"/></rect>
+    <rect x="216" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="20;58;34;70;20" dur="1.2s" repeatCount="indefinite"/><animate attributeName="y" values="110;80;98;73;110" dur="1.2s" repeatCount="indefinite"/></rect>
+    <rect x="238" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="52;18;62;26;52" dur="0.75s" repeatCount="indefinite"/><animate attributeName="y" values="83;112;78;105;83" dur="0.75s" repeatCount="indefinite"/></rect>
+    <rect x="260" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="26;66;16;56;26" dur="1.05s" repeatCount="indefinite"/><animate attributeName="y" values="105;76;113;81;105" dur="1.05s" repeatCount="indefinite"/></rect>
+    <rect x="282" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="60;22;68;20;60" dur="0.88s" repeatCount="indefinite"/><animate attributeName="y" values="79;107;75;110;79" dur="0.88s" repeatCount="indefinite"/></rect>
+  </g>
+  <g fill="#fff">
+    <rect x="304" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="16;54;28;64;16" dur="0.92s" repeatCount="indefinite"/><animate attributeName="y" values="112;83;102;78;112" dur="0.92s" repeatCount="indefinite"/></rect>
+    <rect x="326" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="44;14;58;24;44" dur="0.7s" repeatCount="indefinite"/><animate attributeName="y" values="87;114;80;106;87" dur="0.7s" repeatCount="indefinite"/></rect>
+    <rect x="348" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="22;64;18;50;22" dur="1.15s" repeatCount="indefinite"/><animate attributeName="y" values="108;77;111;85;108" dur="1.15s" repeatCount="indefinite"/></rect>
+    <rect x="370" y="70" width="14" height="60" rx="3"><animate attributeName="height" values="58;20;66;26;58" dur="0.8s" repeatCount="indefinite"/><animate attributeName="y" values="80;110;75;105;80" dur="0.8s" repeatCount="indefinite"/></rect>
+  </g>
+
+  <!-- message -->
+  <text x="410" y="95" font-family="'Courier New', monospace" font-size="15" fill="#DC0000" letter-spacing="2">ENGINEER:</text>
+  <text x="410" y="124" font-family="'Arial Black', Impact, sans-serif" font-size="30" fill="#fff">"BOX BOX. IT'S A</text>
+  <text x="410" y="158" font-family="'Arial Black', Impact, sans-serif" font-size="30" fill="#fff">HIRING CALL."</text>
+  <rect x="408" y="165" width="140" height="3" fill="#DC0000">
+    <animate attributeName="width" values="0;140;140;0" dur="3s" repeatCount="indefinite"/>
+  </rect>
+</svg>
