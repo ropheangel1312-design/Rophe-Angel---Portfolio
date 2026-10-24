@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#000"/>
+      <stop offset="0.55" stop-color="#14000a"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+    <linearGradient id="slash" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#DC0000" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#DC0000" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#DC0000" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="340" fill="url(#bg)"/>
+
+  <!-- speed lines -->
+  <g opacity="0.85">
+    <rect x="-400" y="238" width="400" height="3" fill="url(#slash)">
+      <animate attributeName="x" from="-400" to="1300" dur="2.2s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-600" y="262" width="500" height="2" fill="url(#slash)">
+      <animate attributeName="x" from="-600" to="1300" dur="3.1s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-300" y="288" width="300" height="4" fill="url(#slash)">
+      <animate attributeName="x" from="-300" to="1300" dur="1.7s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-500" y="312" width="450" height="2" fill="url(#slash)">
+      <animate attributeName="x" from="-500" to="1300" dur="2.6s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- big diagonal red cut -->
+  <polygon points="860,0 1200,0 1200,340 700,340" fill="#DC0000" opacity="0.92"/>
+  <polygon points="820,0 860,0 740,340 700,340" fill="#fff" opacity="0.9"/>
+
+  <!-- start lights -->
+  <g filter="url(#glow)">
+    <circle cx="930" cy="110" r="24" fill="#2a0000">
+      <animate attributeName="fill" dur="6s" repeatCount="indefinite" keyTimes="0;0.08;0.62;0.64;1" values="#2a0000;#000;#000;#2a0000;#2a0000"/>
+    </circle>
+    <circle cx="930" cy="110" r="24" fill="#2a0000" opacity="0">
+      <animate attributeName="opacity" dur="6s" repeatCount="indefinite" keyTimes="0;0.07;0.08;0.62;0.64;1" values="0;0;1;1;0;0"/>
+    </circle>
+  </g>
+  <g>
+    <!-- five lights, each switches on in sequence, all die together -->
+    <circle cx="880"  cy="170" r="22" fill="#1a0000" stroke="#000" stroke-width="4">
+      <animate attributeName="fill" dur="6s" repeatCount="indefinite" keyTimes="0;0.10;0.11;0.62;0.64;1" values="#1a0000;#1a0000;#ff1a1a;#ff1a1a;#1a0000;#1a0000"/>
+    </circle>
+    <circle cx="940"  cy="170" r="22" fill="#1a0000" stroke="#000" stroke-width="4">
+      <animate attributeName="fill" dur="6s" repeatCount="indefinite" keyTimes="0;0.20;0.21;0.62;0.64;1" values="#1a0000;#1a0000;#ff1a1a;#ff1a1a;#1a0000;#1a0000"/>
+    </circle>
+    <circle cx="1000" cy="170" r="22" fill="#1a0000" stroke="#000" stroke-width="4">
+      <animate attributeName="fill" dur="6s" repeatCount="indefinite" keyTimes="0;0.30;0.31;0.62;0.64;1" values="#1a0000;#1a0000;#ff1a1a;#ff1a1a;#1a0000;#1a0000"/>
+    </circle>
+    <circle cx="1060" cy="170" r="22" fill="#1a0000" stroke="#000" stroke-width="4">
+      <animate attributeName="fill" dur="6s" repeatCount="indefinite" keyTimes="0;0.40;0.41;0.62;0.64;1" values="#1a0000;#1a0000;#ff1a1a;#ff1a1a;#1a0000;#1a0000"/>
+    </circle>
+    <circle cx="1120" cy="170" r="22" fill="#1a0000" stroke="#000" stroke-width="4">
+      <animate attributeName="fill" dur="6s" repeatCount="indefinite" keyTimes="0;0.50;0.51;0.62;0.64;1" values="#1a0000;#1a0000;#ff1a1a;#ff1a1a;#1a0000;#1a0000"/>
+    </circle>
+  </g>
+  <text x="1000" y="250" text-anchor="middle" font-family="'Arial Black', Impact, sans-serif" font-size="30" fill="#000" opacity="0">
+    LIGHTS OUT
+    <animate attributeName="opacity" dur="6s" repeatCount="indefinite" keyTimes="0;0.63;0.65;0.9;1" values="0;0;1;1;0"/>
+  </text>
+
+  <!-- title -->
+  <text x="60" y="58" font-family="'Courier New', monospace" font-size="16" letter-spacing="6" fill="#DC0000">PORTFOLIO // SEASON 2026</text>
+  <text x="56" y="160" font-family="'Arial Black', Impact, sans-serif" font-size="92" font-weight="900" fill="#fff" letter-spacing="-2">ROPHE</text>
+  <text x="56" y="245" font-family="'Arial Black', Impact, sans-serif" font-size="92" font-weight="900" fill="none" stroke="#DC0000" stroke-width="3" letter-spacing="-2">ANGEL</text>
+  <text x="62" y="296" font-family="'Courier New', monospace" font-size="18" fill="#bbb">A little bit of everything. Never just one thing.</text>
+
+  <!-- corner ticks -->
+  <path d="M20 20 H60 M20 20 V60" stroke="#fff" stroke-width="3" fill="none" opacity="0.6"/>
+  <path d="M1180 320 H1140 M1180 320 V280" stroke="#000" stroke-width="3" fill="none" opacity="0.7"/>
+</svg>

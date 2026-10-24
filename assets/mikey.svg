@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" width="260" height="260">
+  <rect width="260" height="260" rx="20" fill="#0a0a0a" stroke="#DC0000" stroke-width="3"/>
+  <text x="130" y="30" text-anchor="middle" font-family="'Courier New', monospace" font-size="13" letter-spacing="4" fill="#DC0000">MASCOT // #01</text>
+
+  <!-- tail -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" values="-8 168 196;14 168 196;-8 168 196" dur="2.2s" repeatCount="indefinite"/>
+    <path d="M168 196 C 220 200, 232 150, 206 128" stroke="#8a8f98" stroke-width="16" stroke-linecap="round" fill="none"/>
+    <path d="M214 140 l-14 4 M219 154 l-16 2 M214 168 l-16 -2" stroke="#4a4e57" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- body -->
+  <ellipse cx="128" cy="190" rx="52" ry="44" fill="#8a8f98"/>
+  <path d="M96 168 q8 10 0 24 M116 164 q8 12 0 28 M138 164 q-8 12 0 28 M158 168 q-8 10 0 24" stroke="#4a4e57" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <ellipse cx="128" cy="208" rx="26" ry="30" fill="#c9ccd2"/>
+  <ellipse cx="104" cy="232" rx="16" ry="9" fill="#c9ccd2"/>
+  <ellipse cx="152" cy="232" rx="16" ry="9" fill="#c9ccd2"/>
+
+  <!-- ears -->
+  <polygon points="78,92 84,46 112,76" fill="#8a8f98"/>
+  <polygon points="178,92 172,46 144,76" fill="#8a8f98"/>
+  <polygon points="86,84 88,60 102,76" fill="#DC0000"/>
+  <polygon points="170,84 168,60 154,76" fill="#DC0000"/>
+
+  <!-- head -->
+  <ellipse cx="128" cy="116" rx="54" ry="48" fill="#8a8f98"/>
+  <path d="M128 70 v16 M110 74 l4 14 M146 74 l-4 14" stroke="#4a4e57" stroke-width="5" stroke-linecap="round"/>
+  <path d="M76 112 h16 M78 126 l14 -4 M180 112 h-16 M178 126 l-14 -4" stroke="#4a4e57" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- eyes (blink) -->
+  <g>
+    <ellipse cx="108" cy="114" rx="9" ry="11" fill="#fff"/>
+    <ellipse cx="148" cy="114" rx="9" ry="11" fill="#fff"/>
+    <ellipse cx="109" cy="116" rx="4" ry="8" fill="#000"/>
+    <ellipse cx="147" cy="116" rx="4" ry="8" fill="#000"/>
+    <circle cx="111" cy="111" r="2" fill="#fff"/>
+    <circle cx="149" cy="111" r="2" fill="#fff"/>
+    <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.08;1 1;1 1" keyTimes="0;0.9;0.94;0.98;1" dur="4s" repeatCount="indefinite" additive="sum"/>
+  </g>
+
+  <!-- nose + mouth -->
+  <polygon points="122,128 134,128 128,136" fill="#DC0000"/>
+  <path d="M128 136 q-6 8 -14 4 M128 136 q6 8 14 4" stroke="#000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M60 124 l-26 -6 M60 132 l-28 2 M196 124 l26 -6 M196 132 l28 2" stroke="#fff" stroke-width="1.5" opacity="0.7"/>
+
+  <!-- tiny racing collar -->
+  <path d="M96 158 q32 18 64 0" stroke="#DC0000" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <circle cx="128" cy="170" r="6" fill="#fff" stroke="#000" stroke-width="1.5"/>
+
+  <text x="130" y="252" text-anchor="middle" font-family="'Arial Black', Impact, sans-serif" font-size="14" letter-spacing="3" fill="#fff">MIKEY</text>
+</svg>
