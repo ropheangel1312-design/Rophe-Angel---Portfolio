@@ -110,13 +110,17 @@ export interface WipItem {
   logoUrl: string;
   fallbackLogoUrl: string;
   status: string;
+  category?: string;
+  startedDate?: string;
   shortTeaser: string;
   role: string;
   visionStatement: string;
   currentFocus: string;
   nextMilestones: string[];
-  atmosphericTheme: 'astral' | 'studio';
+  atmosphericTheme: 'astral' | 'studio' | 'academic';
   statusClarification: string;
+  documentationUrl?: string;
+  plannedFeatures?: string[];
 }
 
 export interface PortfolioData {

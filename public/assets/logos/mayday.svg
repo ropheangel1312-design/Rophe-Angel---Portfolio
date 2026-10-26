@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 130" width="100%" height="100%">
+  <defs>
+    <linearGradient id="maydayPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A5B4FC" />
+      <stop offset="45%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+    <linearGradient id="maydayGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0.9" />
+    </linearGradient>
+    <filter id="neonBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <g transform="translate(18, 15)">
+    <!-- Insignia: Geometric Academic Beacon & Prismatic Compass -->
+    <g transform="translate(0, 0)">
+      <!-- Outer Hexagonal Frame -->
+      <polygon points="50,4 90,27 90,73 50,96 10,73 10,27" fill="url(#shieldGrad)" stroke="#818CF8" stroke-width="1.75" stroke-opacity="0.65" />
+      
+      <!-- Inner Dynamic Focus Prism / Stylized M -->
+      <path d="M26,68 L26,38 L50,56 L74,38 L74,68" fill="none" stroke="url(#maydayPrimary)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+      
+      <!-- Center Focus Node -->
+      <circle cx="50" cy="56" r="3.5" fill="#FFFFFF" />
+      
+      <!-- Top Zenith Milestone Star -->
+      <polygon points="50,16 53,23 60,24 55,29 56,36 50,32 44,36 45,29 40,24 47,23" fill="#C084FC" opacity="0.9" />
+
+      <!-- Orbit Ring -->
+      <ellipse cx="50" cy="50" rx="38" ry="12" fill="none" stroke="#A5B4FC" stroke-width="1" stroke-dasharray="3,3" opacity="0.45" transform="rotate(-15 50 50)" />
+    </g>
+
+    <!-- Typography & Branding -->
+    <!-- Main Logotype "MAYDAY" -->
+    <text x="122" y="58" font-family="'Unbounded', 'Rajdhani', -apple-system, sans-serif" font-weight="900" font-size="46" letter-spacing="0.08em" fill="url(#maydayPrimary)" filter="url(#neonBlur)">
+      MAYDAY
+    </text>
+
+    <!-- Tagline: "YOUR ACADEMIC LIFE, UNDER CONTROL." -->
+    <text x="124" y="80" font-family="'Rajdhani', -apple-system, sans-serif" font-weight="700" font-size="11.5" letter-spacing="0.22em" fill="#E2E8F0" opacity="0.9">
+      YOUR ACADEMIC LIFE, UNDER CONTROL.
+    </text>
+
+    <!-- Project Phase Pill Tag -->
+    <g transform="translate(124, 88)">
+      <rect x="0" y="0" width="138" height="15" rx="3" fill="#6366F1" fill-opacity="0.18" stroke="#818CF8" stroke-width="0.8" stroke-opacity="0.5" />
+      <circle cx="8" cy="7.5" r="2.5" fill="#A5B4FC" />
+      <text x="16" y="11" font-family="'Rajdhani', -apple-system, sans-serif" font-weight="700" font-size="8.5" letter-spacing="0.14em" fill="#C7D2FE">
+        EDTECH · PRODUCTIVITY
+      </text>
+    </g>
+  </g>
+</svg>

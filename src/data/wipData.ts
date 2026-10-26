@@ -40,5 +40,38 @@ export const wipData: WipItem[] = [
     ],
     atmosphericTheme: 'studio',
     statusClarification: 'LOCK IN is currently conceptualized and in active MVP planning. Full audio mixing, persistent cross-session soundtrack storage, and companion extension capabilities are proposed architectural features that have not yet been implemented.'
+  },
+  {
+    id: 'wip-mayday',
+    number: '03',
+    title: 'MAYDAY',
+    tagline: 'Your academic life, under control.',
+    category: 'EdTech · Productivity',
+    startedDate: 'October 2026',
+    logoUrl: '/assets/logos/mayday.svg',
+    fallbackLogoUrl: '/assets/logos/mayday.svg',
+    status: 'CONCEPT STAGE',
+    shortTeaser: 'A college study companion concept designed to bring academic planning, focus sessions, subject management, and AI-assisted learning into one accessible experience.',
+    role: 'Sole creator — concept vision, product requirements planning, and foundation architecture.',
+    visionStatement: 'A college study companion concept engineered to streamline academic workflows by unifying daily priority dashboards, adaptive study planning, instant focus sessions, and AI-assisted learning into a single accessible, offline-first digital environment.',
+    currentFocus: 'Product discovery and requirements planning, navigation structure, and offline-first backend architecture.',
+    nextMilestones: [
+      'Finalise the foundation specification and core data models.',
+      'Design the zero-setup focus timer and adaptive academic dashboard interface.',
+      'Prototype offline-first subject management with Firebase cloud synchronisation.',
+      'Integrate AI study companion workflows for concept explanations and practice.'
+    ],
+    atmosphericTheme: 'academic',
+    statusClarification: 'MAYDAY is currently in product discovery and requirements planning. Features described (adaptive study planning, focus timer, AI companion, and offline sync) are planned architectural capabilities and have not yet been implemented or verified.',
+    documentationUrl: '/assets/aistudio/MAYDAY_Concept_Stage_Documentation_c994187e.pdf',
+    plannedFeatures: [
+      'Academic Dashboard — central home screen for daily priorities, upcoming exams, deadlines and progress',
+      'Adaptive Study Planner — organise subjects, units, topics, exams and assignments with adaptive progress',
+      'Focus Timer — start a focus session immediately without requiring upfront semester setup',
+      'AI Study Companion — get explanations, ask questions and practise concepts with study materials',
+      'Personalisation — dark-first design, solid-colour themes, custom backgrounds and profile avatars',
+      'Offline-First Functionality — local data storage with optional cloud synchronisation planned',
+      'Accessibility Protections — responsive layouts, reduced-motion preferences and adjustable typography'
+    ]
   }
 ];

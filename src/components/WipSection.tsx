@@ -15,7 +15,9 @@ import {
   Flame, 
   Radio, 
   Clock, 
-  Milestone 
+  Milestone,
+  FileText,
+  Layers 
 } from 'lucide-react';
 
 interface WipSectionProps {
@@ -105,14 +107,15 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
           className="font-display text-3xl sm:text-5xl font-bold text-[#FFFFFF] tracking-tight block"
         />
         <p className="font-body text-xs sm:text-sm text-neutral-400 mt-1 max-w-2xl leading-relaxed">
-          Concepts and tools I'm actively thinking through or planning out. Neither is built yet, but the problem definitions and mechanics are in progress.
+          Concepts and tools I'm actively thinking through or planning out. None are built yet, but the problem definitions and mechanics are in progress.
         </p>
       </div>
 
-      {/* WIP Teaser Cards (2-Column Showcase) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+      {/* WIP Teaser Cards (Responsive 3-Column Showcase) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {wipData.map((wip, idx) => {
           const isAstral = wip.atmosphericTheme === 'astral';
+          const isAcademic = wip.atmosphericTheme === 'academic';
           return (
             <Card3D
               key={wip.id}
@@ -137,6 +140,8 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
                 className={`absolute inset-0 pointer-events-none transition-opacity duration-500 opacity-20 group-hover:opacity-40 ${
                   isAstral 
                     ? 'bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-600/30 via-red-950/20 to-transparent' 
+                    : isAcademic
+                    ? 'bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-600/30 via-violet-950/20 to-transparent'
                     : 'bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-600/20 via-neutral-900/40 to-transparent'
                 }`}
               />
@@ -155,11 +160,11 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
                     </span>
                     <span className="text-neutral-700">|</span>
                     <span className="text-xs font-tech uppercase text-neutral-400">
-                      {isAstral ? 'Progression Lore' : 'Study & Acoustic'}
+                      {wip.category || (isAstral ? 'Progression Lore' : 'Study & Acoustic')}
                     </span>
                   </div>
 
-                  <span className="px-2.5 py-1 rounded text-[11px] font-tech font-bold uppercase tracking-wider bg-white/[0.04] text-neutral-300 border border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors">
+                  <span className="px-2.5 py-1 rounded text-[11px] font-tech font-bold uppercase tracking-wider bg-white/[0.04] text-neutral-300 border border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors shrink-0">
                     {wip.status}
                   </span>
                 </div>
@@ -237,6 +242,8 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
               className={`absolute inset-0 pointer-events-none opacity-15 ${
                 selectedWip.atmosphericTheme === 'astral'
                   ? 'bg-[radial-gradient(circle_at_top,_#E10600_0%,_transparent_65%)]'
+                  : selectedWip.atmosphericTheme === 'academic'
+                  ? 'bg-[radial-gradient(circle_at_top,_#6366F1_0%,_transparent_65%)]'
                   : 'bg-[radial-gradient(circle_at_top,_#0080FF_0%,_transparent_65%)]'
               }`}
             />
@@ -244,7 +251,7 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
             {/* Close Button Header */}
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/[0.08] shrink-0 relative z-10 pt-1">
               <div>
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
                   <span className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600]">
                     WIP {selectedWip.number} // CINEMATIC OVERLAY
                   </span>
@@ -252,6 +259,14 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
                   <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
                     {selectedWip.status}
                   </span>
+                  {selectedWip.category && (
+                    <>
+                      <span className="text-neutral-700">|</span>
+                      <span className="text-xs font-tech uppercase text-neutral-400">
+                        {selectedWip.category}
+                      </span>
+                    </>
+                  )}
                 </div>
                 <h2 
                   id={`wip-overlay-title-${selectedWip.id}`}
@@ -315,6 +330,29 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
                 </div>
               </div>
 
+              {/* Planned Features (Concept Stage Only) */}
+              {selectedWip.plannedFeatures && selectedWip.plannedFeatures.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2 flex items-center gap-2">
+                    <Layers className="w-4 h-4" />
+                    <span>PLANNED ARCHITECTURAL CAPABILITIES (CONCEPT ONLY)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 gap-2.5">
+                    {selectedWip.plannedFeatures.map((feat, fIdx) => (
+                      <div 
+                        key={fIdx}
+                        className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-start gap-3 text-xs sm:text-sm text-neutral-200"
+                      >
+                        <span className="font-mono text-xs font-bold text-[#818CF8] px-2 py-0.5 rounded bg-[#6366F1]/10 border border-[#6366F1]/30 shrink-0">
+                          FEATURE 0{fIdx + 1}
+                        </span>
+                        <span className="leading-relaxed">{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Current Focus */}
               <div>
                 <h3 className="text-xs font-tech font-bold uppercase tracking-widest text-[#E10600] mb-2 flex items-center gap-2">
@@ -358,17 +396,30 @@ export const WipSection: React.FC<WipSectionProps> = ({ isReducedMotion }) => {
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between gap-3 shrink-0 relative z-10">
+            <div className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-10">
               <span className="text-[11px] font-mono text-neutral-500 uppercase">
                 ROPHE ANGEL · CONCEPT ARCHIVE
               </span>
 
-              <button
-                onClick={handleClose}
-                className="f1-btn-secondary px-6 py-2.5 rounded-lg text-xs font-tech uppercase tracking-wider cursor-pointer"
-              >
-                RETURN TO WIP ARCHIVE
-              </button>
+              <div className="flex items-center gap-2.5">
+                {selectedWip.documentationUrl && (
+                  <a
+                    href={selectedWip.documentationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="f1-btn-primary px-4 py-2 rounded-lg text-xs font-tech uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>CONCEPT SPEC (PDF)</span>
+                  </a>
+                )}
+                <button
+                  onClick={handleClose}
+                  className="f1-btn-secondary px-6 py-2.5 rounded-lg text-xs font-tech uppercase tracking-wider cursor-pointer"
+                >
+                  RETURN TO WIP ARCHIVE
+                </button>
+              </div>
             </div>
 
           </div>
